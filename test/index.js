@@ -19,7 +19,7 @@ function fund(hdNode, n, done) {
       if (err) return done(err)
       k += 1
 
-//      console.warn('... funding', addr)
+      console.warn('  ... funding', addr)
 
       cycle()
     })
@@ -38,10 +38,11 @@ describe('Discover', function() {
     wallet = new bitcoinjs.Wallet(undefined, bitcoinjs.networks.testnet)
     expected = Math.ceil(Math.random() * 6)
 
+    console.warn('... funding wallet')
     fund(wallet.getExternalAccount(), expected, done)
   })
 
-  it('Discovers a funded Wallet correctly (GAP_LIMIT = 3)', function(done) {
+  it('discovers a funded Wallet correctly (GAP_LIMIT = 3)', function(done) {
     // attempt blind discovery
     discover(wallet.getExternalAccount(), blockchain, 3, function(err, result) {
       assert.ifError(err)
