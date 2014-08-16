@@ -2,7 +2,7 @@ var assert = require('assert')
 var bitcoinjs = require('bitcoinjs-lib')
 var discover = require('../index.js')
 
-var Helloblock = require('../../cb-helloblock')
+var Helloblock = require('cb-helloblock')
 
 function fund(hdNode, n, done) {
   var helloblock = require('helloblock-js')({
