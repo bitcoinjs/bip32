@@ -21,7 +21,7 @@
   "homepage": "https://github.com/dcousens/BIP32-discovery",
   "devDependencies": {
     "bitcoinjs-lib": "^1.0.2",
-	 "cb-helloblock": "https://github.com/dcousens/cb-helloblock.git",
+	 "cb-helloblock": "git+https://github.com/dcousens/cb-helloblock.git",
     "istanbul": "0.1.30",
     "jshint": "2.5.1",
     "mocha": "1.18.2",
