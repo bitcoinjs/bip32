@@ -17,7 +17,7 @@ module.exports = function(hdNode, blockchain, gapLimit, done) {
       if (err) return done(err)
 
       results.forEach(function(result) {
-        if (result.totalReceived) {
+        if (result.totalReceived > 0) {
           gap = 0
 
         } else {
