@@ -1,27 +1,26 @@
 {
-  "name": "BIP32-Discovery",
-  "version": "0.0.0",
-  "description": "BIP32-discovery",
+  "name": "bip32-utils",
+  "version": "0.0.1",
+  "description": "bip32-utils",
   "main": "./index.js",
   "scripts": {
     "coverage": "istanbul cover _mocha -- test/*.js",
     "jshint": "jshint --config jshint.json src/*.js ; true",
-    "test": "npm run-script unit",
-    "unit": "istanbul test mocha -- --reporter list test/*.js"
+    "test": "istanbul test mocha -- --reporter list test/*.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/dcousens/BIP32-discovery.git"
+    "url": "https://github.com/dcousens/bip32-utils.git"
   },
   "author": "Daniel Cousens",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/dcousens/BIP32-discovery/issues"
+    "url": "https://github.com/dcousens/bip32-utils/issues"
   },
-  "homepage": "https://github.com/dcousens/BIP32-discovery",
+  "homepage": "https://github.com/dcousens/bip32-utils",
   "devDependencies": {
     "bitcoinjs-lib": "^1.0.2",
-	 "cb-helloblock": "git+https://github.com/dcousens/cb-helloblock.git",
+    "cb-helloblock": "git+https://github.com/dcousens/cb-helloblock.git",
     "istanbul": "0.1.30",
     "jshint": "2.5.1",
     "mocha": "1.18.2",
