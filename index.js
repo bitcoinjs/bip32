@@ -1,5 +1,5 @@
 // https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki#account-discovery
-module.exports = function(hdNode, blockchain, gapLimit, done) {
+function discovery(hdNode, gapLimit, queryCb, done) {
   var gap = 0
   var k = 0
 
@@ -13,11 +13,11 @@ module.exports = function(hdNode, blockchain, gapLimit, done) {
       k++
     }
 
-    blockchain.addresses.get(addresses, function(err, results) {
+    queryCb(addresses, function(err, results) {
       if (err) return done(err)
 
-      results.forEach(function(result) {
-        if (result.totalReceived > 0) {
+      results.forEach(function(isSpent) {
+        if (isSpent) {
           gap = 0
 
         } else {
@@ -34,4 +34,8 @@ module.exports = function(hdNode, blockchain, gapLimit, done) {
       cycle()
     })
   })()
+}
+
+module.exports = {
+  discovery: discovery
 }
