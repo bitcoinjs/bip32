@@ -34,7 +34,7 @@ function fund(hdNode, n, done) {
 
 describe('BIP32-utils', function() {
   describe('Discovery', function() {
-    this.timeout(40000)
+    this.timeout(0)
 
     var blockchain, expected, wallet
 
