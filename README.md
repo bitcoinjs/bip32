@@ -1,2 +1,2 @@
-bip32-discovery
+bip32-utils
 ===============
