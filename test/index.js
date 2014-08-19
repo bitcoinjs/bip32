@@ -4,53 +4,63 @@ var bitcoinjs = require('bitcoinjs-lib')
 var request = require('request')
 
 var Helloblock = require('cb-helloblock')
+var blockchain = new Helloblock('testnet')
 
 // helper functions for tests
-function fund(hdNode, n, done) {
-  var k = 0
+function fund(iNode, n, done) {
+  var sourceNode = iNode.derive(0)
+  var source = sourceNode.getAddress().toString()
 
-  ;(function cycle() {
-    if (k === n) return done()
+  request.post({
+    url: "https://testnet.helloblock.io/v1/faucet/withdrawal",
+    json: true,
+    form: {
+      toAddress: source,
+      value: 2e3 * n
+    }
+  }, function(err, res, body) {
+    if (err) return done(err)
 
-    var address = hdNode.derive(k).getAddress().toString()
-    k += 1
+    var tx = new bitcoinjs.Transaction()
+    tx.addInput(body.data.txHash, 0)
 
-    console.warn('> Funding', address)
+    for (var k = 1; k < n; ++k) {
+      var kAddress = iNode.derive(k).getAddress()
 
-    request.post({
-      url: "https://testnet.helloblock.io/v1/faucet/withdrawal",
-      json: true,
-      form: {
-        toAddress: address,
-        value: 2e4
+      // skip 30% of addresses
+      if (Math.random() < 0.7) {
+        tx.addOutput(kAddress, 1e3)
       }
-    }, function(err, res, body) {
+    }
+
+    console.warn('Used ' + tx.outs.length + ' addresses (' + source + ')')
+
+    tx.sign(0, sourceNode.privKey)
+    blockchain.transactions.propagate([tx.toHex()], function(err) {
       if (err) return done(err)
 
-      cycle()
+      done()
     })
-  })()
+  })
 }
 
 describe('BIP32-utils', function() {
   describe('Discovery', function() {
     this.timeout(0)
 
-    var blockchain, expected, wallet
+    var expected, wallet
 
     beforeEach(function(done) {
-      blockchain = new Helloblock('testnet')
-
       // Generate random Wallet
+      expected = 50 + Math.ceil(Math.random() * 300)
       wallet = new bitcoinjs.Wallet(undefined, bitcoinjs.networks.testnet)
-      expected = Math.ceil(Math.random() * 7)
 
-      console.warn('Initializing Wallet')
+      console.warn('Initializing Wallet w/ ' + expected + ' used addresses')
       fund(wallet.getExternalAccount(), expected, done)
     })
 
-    it('discovers a funded Wallet correctly (GAP_LIMIT = 3)', function(done) {
-      bip32utils.discovery(wallet.getExternalAccount(), 3, function(addresses, callback) {
+    it('discovers a funded Wallet correctly (GAP_LIMIT = 20)', function(done) {
+      bip32utils.discovery(wallet.getExternalAccount(), 20, function(addresses, callback) {
         blockchain.addresses.get(addresses, function(err, results) {
           if (err) return callback(err)
 
@@ -62,6 +72,8 @@ describe('BIP32-utils', function() {
         })
       }, function(err, k) {
         if (err) return done(err)
+
+        console.warn('Discovered ' + k + ' addresses')
 
         assert.ifError(err)
         assert.equal(k, expected)
