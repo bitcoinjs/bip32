@@ -1,6 +1,6 @@
 {
   "name": "bip32-utils",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "bip32-utils",
   "main": "./index.js",
   "scripts": {
@@ -20,7 +20,7 @@
   "homepage": "https://github.com/dcousens/bip32-utils",
   "devDependencies": {
     "bitcoinjs-lib": "^1.0.2",
-    "cb-helloblock": "git+https://github.com/dcousens/cb-helloblock.git",
+    "cb-helloblock": "0.0.2",
     "istanbul": "0.1.30",
     "jshint": "2.5.1",
     "mocha": "1.18.2",
