@@ -55,7 +55,7 @@ describe('BIP32-utils', function() {
       expected = 50 + Math.ceil(Math.random() * 300)
       wallet = new bitcoinjs.Wallet(undefined, bitcoinjs.networks.testnet)
 
-      console.warn('Initializing Wallet w/ ' + expected + ' used addresses')
+      console.warn('Initializing Wallet w/ ' + expected + ' addresses')
       fund(wallet.getExternalAccount(), expected, done)
     })
 
