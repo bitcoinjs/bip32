@@ -61,7 +61,7 @@ describe('BIP32-utils', function() {
 
     it('discovers a funded Wallet correctly (GAP_LIMIT = 20)', function(done) {
       bip32utils.discovery(wallet.getExternalAccount(), 20, function(addresses, callback) {
-        blockchain.addresses.get(addresses, function(err, results) {
+        blockchain.addresses.summary(addresses, function(err, results) {
           if (err) return callback(err)
 
           var areSpent = results.map(function(result) {
