@@ -71,11 +71,9 @@ describe('BIP32-utils', function() {
           callback(undefined, areSpent)
         })
       }, function(err, k) {
-        if (err) return done(err)
-
-        console.warn('Discovered ' + k + ' addresses')
-
         assert.ifError(err)
+        
+        console.warn('Discovered ' + k + ' addresses')
         assert.equal(k, expected)
 
         done()
