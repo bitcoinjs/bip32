@@ -13,7 +13,9 @@ describe('AddressIterator', function() {
     hdNode = bitcoinjs.HDNode.fromSeedBuffer(seed)
 
     derived = []
-    for (var i = 0; i < 20; ++i) derived.push(hdNode.derive(i).getAddress().toString())
+    for (var i = 0; i < 14; ++i) {
+      derived.push(hdNode.derive(i).getAddress().toString())
+    }
   })
 
   describe('constructor', function() {
@@ -24,11 +26,11 @@ describe('AddressIterator', function() {
       assert.equal(iter.addresses[0], derived[0])
     })
 
-    it('can start other k offsets', function() {
-      var iter = new AddressIterator(hdNode, 5)
+    it('can start at an arbitrary k-offset', function() {
+      var iter = new AddressIterator(hdNode, 2)
 
       assert.equal(iter.addresses.length, 1)
-      assert.equal(iter.addresses[0], derived[5])
+      assert.equal(iter.addresses[0], derived[2])
     })
   })
 
@@ -72,44 +74,32 @@ describe('AddressIterator', function() {
   })
 
   describe('peek', function() {
-    var iter
-    beforeEach(function() {
-      iter = new AddressIterator(hdNode, 3)
-    })
-
     it('shows the next address without mutation', function() {
-      assert.equal(iter.get(), derived[3])
-      var result = iter.peek()
+      var iter = new AddressIterator(hdNode, 7)
 
-      assert.equal(result, derived[4])
-      assert.equal(iter.get(), derived[3])
+      assert.equal(iter.get(), derived[7])
+      assert.equal(iter.peek(), derived[8])
+      assert.equal(iter.get(), derived[7])
     })
   })
 
-  describe('indexes', function() {
-    var iter
-    beforeEach(function() {
-      iter = new AddressIterator(hdNode, 0)
+  describe('indexOf', function() {
+    it('finds the k-index for an Address', function() {
+      var iter = new AddressIterator(hdNode, 0)
+      for (var j = 0; j < 6; ++j) iter.next()
 
-      for (var j = 0; j < 20; ++j) iter.next()
+      var k = iter.indexOf(derived[4])
+
+      assert.equal(k, 4)
     })
 
-    it('finds the k-indexes for an array of addresses', function() {
-      var ks = iter.indexes(derived.slice(16))
-      var expected = derived.map(function(address, k) {
-        return { address: address, k: k }
-      })
+    it('finds the k-index for an Address (w/ offset)', function() {
+      var iter = new AddressIterator(hdNode, 8)
+      for (var j = 0; j < 6; ++j) iter.next()
 
-      assert.deepEqual(ks, expected.slice(16))
-    })
+      var k = iter.indexOf(derived[12])
 
-    it('skips addresses not found', function() {
-      var ks = iter.indexes(['foobar', 'fizzbuzz', '1DZcPM5RbSpoZdPif951fdTMNMgf7GXSUZ'])
-
-      assert.deepEqual(ks, [{
-        address: '1DZcPM5RbSpoZdPif951fdTMNMgf7GXSUZ',
-        k: 4
-      }])
+      assert.equal(k, 12)
     })
   })
 })

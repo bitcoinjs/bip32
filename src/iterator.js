@@ -37,15 +37,8 @@ AddressIterator.prototype.peek = function() {
   return xpub.getAddress().toString()
 }
 
-AddressIterator.prototype.indexes = function(addresses) {
-  return addresses.filter(function(address) {
-    return (address in this.map)
-  }, this).map(function(address) {
-    return {
-      address: address,
-      k: this.map[address]
-    }
-  }, this)
+AddressIterator.prototype.indexOf = function(address) {
+  return this.map[address] || -1
 }
 
 module.exports = AddressIterator
