@@ -84,6 +84,13 @@ describe('AddressIterator', function() {
   })
 
   describe('indexOf', function() {
+    it('works for k-index of 0', function() {
+      var iter = new AddressIterator(hdNode, 0)
+      var k = iter.indexOf(derived[0])
+
+      assert.equal(k, 0)
+    })
+
     it('finds the k-index for an Address', function() {
       var iter = new AddressIterator(hdNode, 0)
       for (var j = 0; j < 6; ++j) iter.next()
