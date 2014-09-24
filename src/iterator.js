@@ -38,7 +38,7 @@ AddressIterator.prototype.peek = function() {
 }
 
 AddressIterator.prototype.indexOf = function(address) {
-  return this.map[address] || -1
+  return (address in this.map) ? this.map[address] : -1
 }
 
 module.exports = AddressIterator
