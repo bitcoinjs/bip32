@@ -1,6 +1,6 @@
 var assert = require('assert')
-var bip32utils = require('../src/index')
 var bitcoinjs = require('bitcoinjs-lib')
+var discovery = require('../src/discovery')
 var request = require('request')
 
 var Helloblock = require('cb-helloblock')
@@ -44,40 +44,40 @@ function fund(iNode, n, done) {
   })
 }
 
-describe('BIP32-utils', function() {
-  describe('Discovery', function() {
-    this.timeout(0)
+describe('Discovery', function() {
+  this.timeout(0)
 
-    var expected, wallet
+  var expected, wallet
 
-    beforeEach(function(done) {
-      // Generate random Wallet
-      expected = 50 + Math.ceil(Math.random() * 300)
-      wallet = new bitcoinjs.Wallet(undefined, bitcoinjs.networks.testnet)
+  beforeEach(function(done) {
+    // Generate random Wallet
+    expected = 50 + Math.ceil(Math.random() * 300)
+    wallet = new bitcoinjs.Wallet(undefined, bitcoinjs.networks.testnet)
 
-      console.warn('Initializing Wallet w/ ' + expected + ' addresses')
-      fund(wallet.getExternalAccount(), expected, done)
-    })
+    console.warn('Initializing Wallet w/ ' + expected + ' addresses')
+    fund(wallet.getExternalAccount(), expected, done)
+  })
 
-    it('discovers a funded Wallet correctly (GAP_LIMIT = 20)', function(done) {
-      bip32utils.discovery(wallet.getExternalAccount(), 20, function(addresses, callback) {
-        blockchain.addresses.summary(addresses, function(err, results) {
-          if (err) return callback(err)
+  it('discovers a funded Wallet correctly (GAP_LIMIT = 20)', function(done) {
+    discovery(wallet.getExternalAccount(), 20, function(addresses, callback) {
+      blockchain.addresses.summary(addresses, function(err, results) {
+        if (err) return callback(err)
 
-          var areSpent = results.map(function(result) {
-            return result.totalReceived > 0
-          })
-
-          callback(undefined, areSpent)
+        var areSpent = results.map(function(result) {
+          return result.totalReceived > 0
         })
-      }, function(err, k) {
-        assert.ifError(err)
-        
-        console.warn('Discovered ' + k + ' addresses')
-        assert.equal(k, expected)
 
-        done()
+        callback(undefined, areSpent)
       })
+    }, function(err, k) {
+      assert.ifError(err)
+
+      console.warn('Discovered ' + k + ' addresses')
+
+      assert.ifError(err)
+      assert.equal(k, expected)
+
+      done()
     })
   })
 })
