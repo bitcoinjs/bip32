@@ -1,5 +1,5 @@
 var assert = require('assert')
-var bip32utils = require('../index.js')
+var bip32utils = require('../src/index')
 var bitcoinjs = require('bitcoinjs-lib')
 var request = require('request')
 

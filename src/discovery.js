@@ -1,5 +1,5 @@
 // https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki#account-discovery
-function discovery(hdNode, gapLimit, queryCb, done) {
+module.exports = function discovery(hdNode, gapLimit, queryCb, done) {
   var gap = 0
   var k = 0
 
@@ -34,8 +34,4 @@ function discovery(hdNode, gapLimit, queryCb, done) {
       cycle()
     })
   })()
-}
-
-module.exports = {
-  discovery: discovery
 }
