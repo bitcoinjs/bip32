@@ -27,6 +27,8 @@ AddressIterator.prototype.next = function() {
 
   // k indexed address array
   this.addresses.push(address)
+
+  return this.get()
 }
 
 AddressIterator.prototype.peek = function() {

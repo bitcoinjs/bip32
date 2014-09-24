@@ -65,6 +65,10 @@ describe('AddressIterator', function() {
 
       assert.equal(iter.addresses.length, 2)
     })
+
+    it('returns the new address', function() {
+      assert.equal(iter.next(), derived[4])
+    })
   })
 
   describe('peek', function() {
