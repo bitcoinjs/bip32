@@ -7,7 +7,7 @@
 
 ## Examples
 
-HDNode discovery
+BIP32 [Used] Address discovery
 
 ``` javascript
 var bip32utils = require('bip32-utils')
@@ -36,6 +36,9 @@ bip32utils.discovery(hdNode, GAP_LIMIT, function(addresses, callback) {
   console.warn('Discovered ' + k + ' addresses to be in use...')
 })
 ```
+
+
+BIP32 Address iteration
 
 ``` javascript
 var bitcoin = require('bitcoinjs-lib')
