@@ -51,8 +51,8 @@ var iter = new bip32utils.AddressIterator(hdNode)
 
 for (var k = 0; k < 10; ++k) iter.next()
 
-var addresses = ['14mcVKY4W935C7M6rQaEUL3Vjc3bGjrh8s', '1HhvM4n8TwNZJfo1EWc3xeqzpoRYPQSbK']
+var address = iter.get()
 
-console.log(iter.indexes(addresses))
-// => [ { address: '14mcVKY4W935C7M6rQaEUL3Vjc3bGjrh8s', k: 0 }, { address: '1HhvM4n8TwNZJfo1EWc3xeqzpoRYPQSbK', k: 1 } ]
+console.log(iter.indexOf(address))
+// => 9
 ```
