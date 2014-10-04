@@ -1,0 +1,34 @@
+{
+  "valid": [
+    {
+      "external": "xprv9uHx9eBuAEKGTxtfJzdw6NkP4wASUubgt1cFNVbC1QQNujbhcjaYW3HhJBuxGoRdzWJeQuaSwBwPU5UXfQ6rvBrdE9BUk8ddgj1KLeebr2Q",
+      "internal": "xprv9uHx9eBuAEKGWCoBujD7C8a5YZa38jLwifek8V2woNsN8hqCuuw2de9rCnRCNEqyqJ74QC1JA6b31xAEKk8yBLLdGvx1WoXqjJjdBXZx2aR",
+      "addresses": [
+        "1QEj2WQD9vxTzsGEvnmLpvzeLVrpzyKkGt",
+        "1DAi282VN7Ack9o5BqWYkiEsS8Vgx1rLn",
+        "1Q52go6NjeBgy4ti8pMhmmpnfKChi8RhqU",
+        "1MGfxA5DcZdbcLRS5QD9syZgZ4VuawPEAV",
+        "1BKQqR9dUVDiWT2pf8oT5uXR7AbbSa5ajb"
+      ],
+      "changeAddresses": [
+        "1GqxvDMaJFczaoYPv6N3CyBtMqNN3CDEAd",
+        "1CXKM323V3kkrHmZQYPUTftGh9VrAWuAYX",
+        "1JCBgU3zmBLiGrQKV7SUE24Hby47UaeUJ5",
+        "1LvLs4upCFZsFX8ocgJzdTFBHrrV2MEerc",
+        "15aJhZxumjLYXy2irxuNaTMyi7zRS9QFpV"
+      ],
+      "privateKeys": [
+        "KwgRMnWqg2QSEkAEuBHWq2ufuZcMCgdJ8gqsP9xVWPMetHxCXJdv",
+        "KxgJ1rVtuTw24y3ecEW7wBPLoMsNkVgL63VZnNEV6CAxWCpJpbfv",
+        "L1qpyTb9TDQx9yKavpaqnPo3VNocqXnYjynwn7fgUy8s3mQLHJqT",
+        "KwqEzJ9Z3uD5Mdx2nvxZmBVYr6AauQBQBDZ9HRWWs6Gezf46RPov",
+        "Kz4DXBuYdmHrkJtdYq9QytRC88USujcy6QCtG1cCgGoLK3vD74Z9",
+        "L2ufN78sERPT5P6z53DmYZdJ9djdZLp4fmNkjG98CejHFJnpmj59",
+        "L5XuSNewJdakPDt4m7xq4HvjQ4z9xNKWsfv4ozjpJMXr9cFsL8Qi",
+        "L1J1zar574SydSxxdedjMQFpwRbHkvoqMmQY3uwmd2jZfwgN4Ziw",
+        "L1xaaLqtztNqRghvkmi5mkVkFyhGtHhhnKf6UeDSALqKKdMX6ihZ",
+        "KwnMbftnizECw2CDKkvCpRpvey1JsBocJETTPgisqKAawwC8ZJ7r"
+      ]
+    }
+  ]
+}
