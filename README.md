@@ -24,11 +24,11 @@ bip32utils.discovery(hdNode, GAP_LIMIT, function(addresses, callback) {
   blockchain.addresses.summary(addresses, function(err, results) {
     if (err) return callback(err)
 
-    var areSpent = results.map(function(result) {
+    var areUsed = results.map(function(result) {
       return result.totalReceived > 0
     })
 
-    callback(undefined, areSpent)
+    callback(undefined, areUsed)
   })
 }, function(err, k) {
   if (err) throw err

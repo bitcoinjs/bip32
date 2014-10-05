@@ -74,11 +74,11 @@ describe('Discovery', function() {
       blockchain.addresses.summary(addresses, function(err, results) {
         if (err) return callback(err)
 
-        var areSpent = results.map(function(result) {
+        var areUsed = results.map(function(result) {
           return result.totalReceived > 0
         })
 
-        callback(undefined, areSpent)
+        callback(undefined, areUsed)
       })
     }, function(err, k) {
       assert.ifError(err)
