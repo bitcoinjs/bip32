@@ -16,8 +16,8 @@ module.exports = function discovery(hdNode, gapLimit, queryCb, done) {
     queryCb(addresses, function(err, results) {
       if (err) return done(err)
 
-      results.forEach(function(isSpent) {
-        if (isSpent) {
+      results.forEach(function(isUsed) {
+        if (isUsed) {
           gap = 0
 
         } else {
@@ -26,7 +26,7 @@ module.exports = function discovery(hdNode, gapLimit, queryCb, done) {
         }
       })
 
-      if (gap > gapLimit) {
+      if (gap >= gapLimit) {
         // return the total number of used addresses
         return done(undefined, k - gap)
       }
