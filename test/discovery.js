@@ -7,7 +7,7 @@ var Helloblock = require('cb-helloblock')
 var blockchain = new Helloblock('testnet')
 
 // helper functions for tests
-function fund(iNode, n, done) {
+function fund(iNode, n, gapLimit, done) {
   var sourceNode = iNode.derive(0)
   var source = sourceNode.getAddress().toString()
 
@@ -21,22 +21,32 @@ function fund(iNode, n, done) {
   }, function(err, res, body) {
     if (err) return done(err)
 
-    var tx = new bitcoinjs.Transaction()
-    tx.addInput(body.data.txHash, 0)
+    var txb = new bitcoinjs.TransactionBuilder()
+    txb.addInput(body.data.txHash, 0)
 
+    var gap = 0
     for (var k = 1; k < n; ++k) {
-      var kAddress = iNode.derive(k).getAddress()
+      gap++
 
-      // skip 30% of addresses
-      if (Math.random() < 0.7) {
-        tx.addOutput(kAddress, 1e3)
+      var kAddress = iNode.derive(k).getAddress().toString()
+
+      // skip 70% of addresses (but not the last)
+      var underLimit = gap < gapLimit
+      var notLast = k !== n - 1
+      if (notLast && underLimit && (Math.random() > 0.3)) {
+        continue
       }
+
+      gap = 0
+      txb.addOutput(kAddress, 1e3)
     }
 
+    txb.sign(0, sourceNode.privKey)
+
+    var tx = txb.build()
     console.warn('Used ' + tx.outs.length + ' addresses (' + source + ')')
 
-    tx.sign(0, sourceNode.privKey)
-    blockchain.transactions.propagate([tx.toHex()], function(err) {
+    blockchain.transactions.propagate(tx.toHex(), function(err) {
       if (err) return done(err)
 
       done()
@@ -45,17 +55,18 @@ function fund(iNode, n, done) {
 }
 
 describe('Discovery', function() {
-  this.timeout(0)
+  this.timeout(9999999)
 
   var expected, wallet
 
   beforeEach(function(done) {
+    expected = 100 + Math.ceil(Math.random() * 300)
+
     // Generate random Wallet
-    expected = 50 + Math.ceil(Math.random() * 300)
     wallet = new bitcoinjs.Wallet(undefined, bitcoinjs.networks.testnet)
 
     console.warn('Initializing Wallet w/ ' + expected + ' addresses')
-    fund(wallet.getExternalAccount(), expected, done)
+    fund(wallet.getExternalAccount(), expected, 20, done)
   })
 
   it('discovers a funded Wallet correctly (GAP_LIMIT = 20)', function(done) {
