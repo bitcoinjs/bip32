@@ -38,6 +38,37 @@ bip32utils.discovery(hdNode, GAP_LIMIT, function(addresses, callback) {
 ```
 
 
+BIP32 Account
+``` javascript
+var bitcoin = require('bitcoinjs-lib')
+var bip32utils = require('bip32-utils')
+
+// ...
+
+var hdNode = bitcoin.HDNode.fromSeedHex(seedHex)
+var external = hdNode.derive(0)
+var internal = hdNode.derive(1)
+var account = new bip32utils.Account(external.neutered(), internal.neutered())
+
+console.log(account.getAddress())
+// => 1QEj2WQD9vxTzsGEvnmLpvzeLVrpzyKkGt
+
+account.nextAddress()
+
+console.log(account.getAddress())
+// => 1DAi282VN7Ack9o5BqWYkiEsS8Vgx1rLn
+
+console.log(account.getChangeAddress())
+// => 1CXKM323V3kkrHmZQYPUTftGh9VrAWuAYX
+
+console.log(account.getNodes(account.addresses).join(' '))
+// => xpub6A5Fz4JZg4kd8pLTTaMBKsvVgzRBrvai6ChoxWNTtYQ3UDVG1VyAWQqi6SNqkpsfsx9F8pRqwtKUbU4j4gqpuN2gpgQs4DiJxsJQvTjdzfA ...
+
+console.log(account.getNodes(account.addresses, internal, external).join(' '))
+// => xprv9vodQPEygdPGUWeKUVNd6M2N533PvEYP21tYxznauyhrYBBCmdKxRJzmnsTsSNqfTJPrDF98GbLCm6xRnjceZ238Qkf5GQGHk79CrFqtG4d ...
+```
+
+
 BIP32 Address iteration
 
 ``` javascript
