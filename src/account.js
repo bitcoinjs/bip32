@@ -42,7 +42,7 @@ Account.prototype.getNodes = function(addresses, external, internal) {
       return internal.derive(k)
     }
 
-    throw new Error('Address not found')
+    throw new Error(address + ' not found')
   }, this)
 }
 

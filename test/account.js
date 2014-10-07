@@ -99,6 +99,12 @@ describe('Account', function() {
 
       assert.deepEqual(actual, f.privateKeys)
     })
+
+    it('throws if address is not known', function() {
+      assert.throws(function() {
+        account.getNodes(['mpFZW4A9QtRuSpuh9SmeW7RSzFE3TgB8Ko'])
+      }, /mpFZW4A9QtRuSpuh9SmeW7RSzFE3TgB8Ko not found/)
+    })
   })
 
   // TODO
