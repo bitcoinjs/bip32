@@ -5,12 +5,6 @@ function Account(external, internal) {
   this.internal = new AddressIterator(internal)
 }
 
-Object.defineProperty(Account.prototype, 'addresses', {
-  get: function() {
-    return this.external.addresses.concat(this.internal.addresses)
-  }
-})
-
 Object.defineProperty(Account.prototype, 'k', {
   get: function() {
     return this.external.k
@@ -22,6 +16,9 @@ Account.prototype.containsAddress = function(address) {
 }
 
 Account.prototype.getAddress = function() { return this.external.get() }
+Account.prototype.getAddresses = function() {
+  return this.external.addresses.concat(this.internal.addresses)
+}
 Account.prototype.getChangeAddress = function() { return this.internal.get() }
 Account.prototype.getNodes = function(addresses, external, internal) {
   external = external || this.external.hdNode

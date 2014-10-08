@@ -27,16 +27,6 @@ describe('Account', function() {
     })
   })
 
-  describe('addresses', function() {
-    beforeEach(function() {
-      for (var i = 1; i < f.addresses.length; ++i) account.nextAddress()
-    })
-
-    it('returns all known addresses from both chains', function() {
-      assert.deepEqual(account.addresses, allAddresses)
-    })
-  })
-
   // TODO
   describe.skip('k', function() {
   })
@@ -64,6 +54,16 @@ describe('Account', function() {
 
         account.nextAddress()
       })
+    })
+  })
+
+  describe('getAddresses', function() {
+    beforeEach(function() {
+      for (var i = 1; i < f.addresses.length; ++i) account.nextAddress()
+    })
+
+    it('returns all known addresses from both chains', function() {
+      assert.deepEqual(account.getAddresses(), allAddresses)
     })
   })
 
