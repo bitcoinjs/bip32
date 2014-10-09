@@ -46,6 +46,8 @@ Account.prototype.getNodes = function(addresses, external, internal) {
 Account.prototype.nextAddress = function() {
   this.external.next()
   this.internal.next()
+
+  return this.external.get()
 }
 
 module.exports = Account

@@ -123,5 +123,12 @@ describe('Account', function() {
         account.nextAddress()
       })
     })
+
+    it('returns the new external address', function() {
+      // skips the initial address
+      f.addresses.slice(1).forEach(function(address) {
+        assert.equal(account.nextAddress(), address)
+      })
+    })
   })
 })
