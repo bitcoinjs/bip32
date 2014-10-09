@@ -107,7 +107,21 @@ describe('Account', function() {
     })
   })
 
-  // TODO
-  describe.skip('nextAddress', function() {
+  describe('nextAddress', function() {
+    it('iterates the external iterator', function() {
+      f.addresses.forEach(function(address) {
+        assert.equal(account.external.get(), address)
+
+        account.nextAddress()
+      })
+    })
+
+    it('iterates the internal iterator', function() {
+      f.changeAddresses.forEach(function(address) {
+        assert.equal(account.internal.get(), address)
+
+        account.nextAddress()
+      })
+    })
   })
 })
