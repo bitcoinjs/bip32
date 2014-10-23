@@ -22,8 +22,8 @@ describe('Account', function() {
 
   describe('constructor', function() {
     it('generates addresses for k=0', function() {
-      assert.equal(account.getAddress(), f.addresses[0])
-      assert.equal(account.getChangeAddress(), f.changeAddresses[0])
+      assert.equal(account.getExternalAddress(), f.addresses[0])
+      assert.equal(account.getInternalAddress(), f.changeAddresses[0])
     })
   })
 
@@ -47,30 +47,30 @@ describe('Account', function() {
     })
   })
 
-  describe('getAddress', function() {
+  describe('getExternalAddress', function() {
     it('returns the latest address', function() {
       f.addresses.forEach(function(address) {
-        assert.equal(account.getAddress(), address)
+        assert.equal(account.getExternalAddress(), address)
 
         account.nextAddress()
       })
     })
   })
 
-  describe('getAddresses', function() {
+  describe('getAllAddresses', function() {
     beforeEach(function() {
       for (var i = 1; i < f.addresses.length; ++i) account.nextAddress()
     })
 
     it('returns all known addresses from both chains', function() {
-      assert.deepEqual(account.getAddresses(), allAddresses)
+      assert.deepEqual(account.getAllAddresses(), allAddresses)
     })
   })
 
-  describe('getChangeAddress', function() {
+  describe('getInternalAddress', function() {
     it('returns the latest change address', function() {
       f.changeAddresses.forEach(function(address) {
-        assert.equal(account.getChangeAddress(), address)
+        assert.equal(account.getInternalAddress(), address)
 
         account.nextAddress()
       })

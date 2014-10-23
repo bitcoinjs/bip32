@@ -11,15 +11,10 @@ Object.defineProperty(Account.prototype, 'k', {
   }
 })
 
-Account.prototype.containsAddress = function(address) {
-  return (address in this.external.map) || (address in this.internal.map)
-}
-
-Account.prototype.getAddress = function() { return this.external.get() }
-Account.prototype.getAddresses = function() {
-  return this.external.addresses.concat(this.internal.addresses)
-}
-Account.prototype.getChangeAddress = function() { return this.internal.get() }
+Account.prototype.containsAddress = function(address) { return this.isExternalAddress(address) || this.isInternalAddress(address) }
+Account.prototype.getAllAddresses = function() { return this.external.addresses.concat(this.internal.addresses) }
+Account.prototype.getExternalAddress = function() { return this.external.get() }
+Account.prototype.getInternalAddress = function() { return this.internal.get() }
 Account.prototype.getNodes = function(addresses, external, internal) {
   external = external || this.external.hdNode
   internal = internal || this.internal.hdNode
@@ -42,6 +37,9 @@ Account.prototype.getNodes = function(addresses, external, internal) {
     throw new Error(address + ' not found')
   }, this)
 }
+
+Account.prototype.isExternalAddress = function(address) { return address in this.external.map }
+Account.prototype.isInternalAddress = function(address) { return address in this.internal.map }
 
 Account.prototype.nextAddress = function() {
   this.external.next()
