@@ -107,6 +107,42 @@ describe('Account', function() {
     })
   })
 
+  describe('isInternalAddress', function() {
+    beforeEach(function() {
+      for (var i = 1; i < f.addresses.length; ++i) account.nextAddress()
+    })
+
+    it('returns true for internal addresses', function() {
+      f.changeAddresses.forEach(function(address) {
+        assert(account.isInternalAddress(address))
+      })
+    })
+
+    it('returns false for external addresses', function() {
+      f.addresses.forEach(function(address) {
+        assert(!account.isInternalAddress(address))
+      })
+    })
+  })
+
+  describe('isExternalAddress', function() {
+    beforeEach(function() {
+      for (var i = 1; i < f.addresses.length; ++i) account.nextAddress()
+    })
+
+    it('returns true for external addresses', function() {
+      f.addresses.forEach(function(address) {
+        assert(account.isExternalAddress(address))
+      })
+    })
+
+    it('returns false for internal addresses', function() {
+      f.changeAddresses.forEach(function(address) {
+        assert(!account.isExternalAddress(address))
+      })
+    })
+  })
+
   describe('nextAddress', function() {
     it('iterates the external iterator', function() {
       f.addresses.forEach(function(address) {
