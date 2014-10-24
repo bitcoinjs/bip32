@@ -23,13 +23,13 @@ Account.prototype.getNodes = function(addresses, external, internal) {
     var k
 
     if (address in this.external.map) {
-      k = this.external.indexOf(address)
+      k = this.external.map[address]
 
       return external.derive(k)
     }
 
     if (address in this.internal.map) {
-      k = this.internal.indexOf(address)
+      k = this.internal.map[address]
 
       return internal.derive(k)
     }
