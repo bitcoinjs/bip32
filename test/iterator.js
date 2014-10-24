@@ -48,6 +48,33 @@ describe('AddressIterator', function() {
     })
   })
 
+  describe('indexOf', function() {
+    it('works for k-index of 0', function() {
+      var iter = new AddressIterator(hdNode, 0)
+      var k = iter.indexOf(derived[0])
+
+      assert.equal(k, 0)
+    })
+
+    it('finds the k-index for an Address', function() {
+      var iter = new AddressIterator(hdNode, 0)
+      for (var j = 0; j < 6; ++j) iter.next()
+
+      var k = iter.indexOf(derived[4])
+
+      assert.equal(k, 4)
+    })
+
+    it('finds the k-index for an Address (w/ offset)', function() {
+      var iter = new AddressIterator(hdNode, 8)
+      for (var j = 0; j < 6; ++j) iter.next()
+
+      var k = iter.indexOf(derived[12])
+
+      assert.equal(k, 12)
+    })
+  })
+
   describe('next', function() {
     var iter
     beforeEach(function() {
@@ -80,33 +107,6 @@ describe('AddressIterator', function() {
       assert.equal(iter.get(), derived[7])
       assert.equal(iter.peek(), derived[8])
       assert.equal(iter.get(), derived[7])
-    })
-  })
-
-  describe('indexOf', function() {
-    it('works for k-index of 0', function() {
-      var iter = new AddressIterator(hdNode, 0)
-      var k = iter.indexOf(derived[0])
-
-      assert.equal(k, 0)
-    })
-
-    it('finds the k-index for an Address', function() {
-      var iter = new AddressIterator(hdNode, 0)
-      for (var j = 0; j < 6; ++j) iter.next()
-
-      var k = iter.indexOf(derived[4])
-
-      assert.equal(k, 4)
-    })
-
-    it('finds the k-index for an Address (w/ offset)', function() {
-      var iter = new AddressIterator(hdNode, 8)
-      for (var j = 0; j < 6; ++j) iter.next()
-
-      var k = iter.indexOf(derived[12])
-
-      assert.equal(k, 12)
     })
   })
 })

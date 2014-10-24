@@ -18,6 +18,10 @@ AddressIterator.prototype.get = function() {
   return this.addresses[this.addresses.length - 1]
 }
 
+AddressIterator.prototype.indexOf = function(address) {
+  return (address in this.map) ? this.map[address] : -1
+}
+
 AddressIterator.prototype.next = function() {
   var address = this.peek()
   this.k += 1
@@ -37,8 +41,5 @@ AddressIterator.prototype.peek = function() {
   return xpub.getAddress().toString()
 }
 
-AddressIterator.prototype.indexOf = function(address) {
-  return (address in this.map) ? this.map[address] : -1
-}
 
 module.exports = AddressIterator
