@@ -1,4 +1,4 @@
-function AddressIterator(hdNode, k) {
+function AddressIterator(node, k) {
   k = k || 0
 
   // k-indexed address array
@@ -7,7 +7,7 @@ function AddressIterator(hdNode, k) {
   // address-indexed k map
   this.map = {}
 
-  this.hdNode = hdNode
+  this.node = node
   this.k = k - 1
 
   // iterate to k:0
@@ -32,7 +32,7 @@ AddressIterator.prototype.next = function() {
 }
 
 AddressIterator.prototype.peek = function() {
-  var xpub = this.hdNode.derive(this.k + 1)
+  var xpub = this.node.derive(this.k + 1)
 
   return xpub.getAddress().toString()
 }

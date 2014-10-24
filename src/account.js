@@ -16,8 +16,8 @@ Account.prototype.getAllAddresses = function() { return this.external.addresses.
 Account.prototype.getExternalAddress = function() { return this.external.get() }
 Account.prototype.getInternalAddress = function() { return this.internal.get() }
 Account.prototype.getNodes = function(addresses, external, internal) {
-  external = external || this.external.hdNode
-  internal = internal || this.internal.hdNode
+  external = external || this.external.node
+  internal = internal || this.internal.node
 
   return addresses.map(function(address) {
     var k
