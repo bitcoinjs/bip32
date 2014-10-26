@@ -13,12 +13,10 @@ function AddressIterator(node, k) {
 }
 
 AddressIterator.fromJSON = function(json) {
-  var j = JSON.parse(json)
-  var node = bitcoin.HDNode.fromBase58(j.node)
-
-  var iter = new AddressIterator(node, j.k)
-  iter.addresses = j.addresses
-  iter.map = j.map
+  var node = bitcoin.HDNode.fromBase58(json.node)
+  var iter = new AddressIterator(node, json.k)
+  iter.addresses = json.addresses
+  iter.map = json.map
 
   return iter
 }

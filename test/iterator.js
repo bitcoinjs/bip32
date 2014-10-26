@@ -5,6 +5,8 @@ var AddressIterator = require('../src/iterator')
 
 var fixtures = require('./fixtures/iterator')
 
+function copy(a) { return JSON.parse(JSON.stringify(a)) }
+
 describe('AddressIterator', function() {
   fixtures.valid.forEach(function(f) {
     describe('constructor', function() {
@@ -32,7 +34,7 @@ describe('AddressIterator', function() {
       var iter
 
       beforeEach(function() {
-        iter = AddressIterator.fromJSON(JSON.stringify(f))
+        iter = AddressIterator.fromJSON(copy(f))
       })
 
       it('imports from JSON as expected', function() {
@@ -47,7 +49,7 @@ describe('AddressIterator', function() {
       var iter
 
       beforeEach(function() {
-        iter = AddressIterator.fromJSON(JSON.stringify(f))
+        iter = AddressIterator.fromJSON(copy(f))
       })
 
       it('returns the last address', function() {
@@ -79,7 +81,7 @@ describe('AddressIterator', function() {
       var iter
 
       beforeEach(function() {
-        iter = AddressIterator.fromJSON(JSON.stringify(f))
+        iter = AddressIterator.fromJSON(copy(f))
       })
 
       it('shows the next address', function() {
@@ -100,7 +102,7 @@ describe('AddressIterator', function() {
       var iter
 
       beforeEach(function() {
-        iter = AddressIterator.fromJSON(JSON.stringify(f))
+        iter = AddressIterator.fromJSON(copy(f))
       })
 
       it('outputs the correct JSON object', function() {
