@@ -18,8 +18,10 @@
     "url": "https://github.com/dcousens/bip32-utils/issues"
   },
   "homepage": "https://github.com/dcousens/bip32-utils",
+  "dependencies": {
+    "bitcoinjs-lib": "^1.2.0"
+  },
   "devDependencies": {
-    "bitcoinjs-lib": "^1.2.0",
     "cb-helloblock": "0.0.6",
     "coveralls": "^2.11.2",
     "istanbul": "^0.3.2",

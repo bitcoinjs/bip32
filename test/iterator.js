@@ -1,112 +1,111 @@
 var assert = require('assert')
-var bitcoinjs = require('bitcoinjs-lib')
+var bitcoin = require('bitcoinjs-lib')
 
 var AddressIterator = require('../src/iterator')
 
+var fixtures = require('./fixtures/iterator')
+
 describe('AddressIterator', function() {
-  var derived, hdNode
+  fixtures.valid.forEach(function(f) {
+    describe('constructor', function() {
+      var node
 
-  beforeEach(function() {
-    var seed = new Buffer(16)
-    seed.fill(1)
+      beforeEach(function() {
+        node = bitcoin.HDNode.fromBase58(f.node)
+      })
 
-    hdNode = bitcoinjs.HDNode.fromSeedBuffer(seed)
+      it('defaults to k=0', function() {
+        var iter = new AddressIterator(node)
 
-    derived = []
-    for (var i = 0; i < 14; ++i) {
-      derived.push(hdNode.derive(i).getAddress().toString())
-    }
-  })
+        assert.equal(iter.k, 0)
+      })
 
-  describe('constructor', function() {
-    it('defaults to k=0', function() {
-      var iter = new AddressIterator(hdNode)
+      it('can start at k-offset of ' + f.k, function() {
+        var iter = new AddressIterator(node, f.k)
 
-      assert.equal(iter.addresses.length, 1)
-      assert.equal(iter.addresses[0], derived[0])
+        assert.equal(iter.k, f.k)
+        assert.deepEqual(iter.addresses, f.addresses.slice(-1))
+      })
     })
 
-    it('can start at an arbitrary k-offset', function() {
-      var iter = new AddressIterator(hdNode, 2)
+    describe('fromJSON', function() {
+      var iter
 
-      assert.equal(iter.addresses.length, 1)
-      assert.equal(iter.addresses[0], derived[2])
-    })
-  })
+      beforeEach(function() {
+        iter = AddressIterator.fromJSON(JSON.stringify(f))
+      })
 
-  describe('get', function() {
-    var iter
-    beforeEach(function() {
-      iter = new AddressIterator(hdNode, 3)
-    })
-
-    it('returns the last address', function() {
-      iter.next()
-
-      assert.equal(iter.addresses.length, 2)
-      assert.equal(iter.get(), iter.addresses[1])
-    })
-  })
-
-  describe('indexOf', function() {
-    it('works for k-index of 0', function() {
-      var iter = new AddressIterator(hdNode, 0)
-      var k = iter.indexOf(derived[0])
-
-      assert.equal(k, 0)
+      it('imports from JSON as expected', function() {
+        assert.deepEqual(iter.addresses, f.addresses)
+        assert.deepEqual(iter.k, f.k)
+        assert.deepEqual(iter.map, f.map)
+        assert.deepEqual(iter.node.toBase58(), f.node)
+      })
     })
 
-    it('finds the k-index for an Address', function() {
-      var iter = new AddressIterator(hdNode, 0)
-      for (var j = 0; j < 6; ++j) iter.next()
+    describe('get', function() {
+      var iter
 
-      var k = iter.indexOf(derived[4])
+      beforeEach(function() {
+        iter = AddressIterator.fromJSON(JSON.stringify(f))
+      })
 
-      assert.equal(k, 4)
+      it('returns the last address', function() {
+        assert.equal(iter.get(), f.addresses[f.addresses.length - 1])
+      })
     })
 
-    it('finds the k-index for an Address (w/ offset)', function() {
-      var iter = new AddressIterator(hdNode, 8)
-      for (var j = 0; j < 6; ++j) iter.next()
+    describe('next', function() {
+      var iter, node
 
-      var k = iter.indexOf(derived[12])
+      beforeEach(function() {
+        node = bitcoin.HDNode.fromBase58(f.node)
+        iter = new AddressIterator(node, f.k - (f.addresses.length - 1))
+      })
 
-      assert.equal(k, 12)
-    })
-  })
+      it('iterates to the next address', function() {
+        assert.equal(iter.get(), f.addresses[0])
+        iter.next()
 
-  describe('next', function() {
-    var iter
-    beforeEach(function() {
-      iter = new AddressIterator(hdNode, 3)
-    })
+        assert.equal(iter.get(), f.addresses[1])
+      })
 
-    it('iterates to the next address', function() {
-      assert.equal(iter.get(), derived[3])
-      iter.next()
-
-      assert.equal(iter.get(), derived[4])
+      it('returns the new address', function() {
+        assert.equal(iter.next(), f.addresses[1])
+      })
     })
 
-    it('adds the address to .addresses', function() {
-      assert.equal(iter.addresses.length, 1)
-      iter.next()
+    describe('peek', function() {
+      var iter
 
-      assert.equal(iter.addresses.length, 2)
+      beforeEach(function() {
+        iter = AddressIterator.fromJSON(JSON.stringify(f))
+      })
+
+      it('shows the next address', function() {
+        iter.k -= 1 // reverse the state a little
+        iter.addresses.pop()
+
+        assert.equal(iter.peek(), f.addresses[f.addresses.length - 1])
+      })
+
+      it('does not mutate', function() {
+        iter.peek()
+
+        assert.deepEqual(iter.toJSON(), f)
+      })
     })
 
-    it('returns the new address', function() {
-      assert.equal(iter.next(), derived[4])
-    })
-  })
+    describe('toJSON', function() {
+      var iter
 
-  describe('peek', function() {
-    it('shows the next address without mutation', function() {
-      var iter = new AddressIterator(hdNode, 7)
+      beforeEach(function() {
+        iter = AddressIterator.fromJSON(JSON.stringify(f))
+      })
 
-      assert.equal(iter.get(), derived[7])
-      assert.equal(iter.peek(), derived[8])
-      assert.equal(iter.get(), derived[7])
+      it('outputs the correct JSON object', function() {
+        assert.deepEqual(iter.toJSON(), f)
+      })
     })
   })
 })

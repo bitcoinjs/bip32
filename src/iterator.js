@@ -1,17 +1,26 @@
+var bitcoin = require('bitcoinjs-lib')
+
 function AddressIterator(node, k) {
   k = k || 0
 
-  // k-indexed address array
   this.addresses = []
-
-  // address-indexed k map
-  this.map = {}
-
-  this.node = node
   this.k = k - 1
+  this.map = {}
+  this.node = node
 
   // iterate to k:0
   this.next()
+}
+
+AddressIterator.fromJSON = function(json) {
+  var j = JSON.parse(json)
+  var node = bitcoin.HDNode.fromBase58(j.node)
+
+  var iter = new AddressIterator(node, j.k)
+  iter.addresses = j.addresses
+  iter.map = j.map
+
+  return iter
 }
 
 AddressIterator.prototype.get = function() {
@@ -41,5 +50,13 @@ AddressIterator.prototype.peek = function() {
   return xpub.getAddress().toString()
 }
 
+AddressIterator.prototype.toJSON = function() {
+  return {
+    addresses: this.addresses,
+    k: this.k,
+    map: this.map,
+    node: this.node.toBase58()
+  }
+}
 
 module.exports = AddressIterator
