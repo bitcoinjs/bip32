@@ -5,17 +5,15 @@ var AddressIterator = require('../src/iterator')
 
 var fixtures = require('./fixtures/iterator')
 
-function copy(a) { return JSON.parse(JSON.stringify(a)) }
-
 describe('AddressIterator', function() {
   fixtures.valid.forEach(function(f) {
+    var node
+
+    beforeEach(function() {
+      node = bitcoin.HDNode.fromBase58(f.node)
+    })
+
     describe('constructor', function() {
-      var node
-
-      beforeEach(function() {
-        node = bitcoin.HDNode.fromBase58(f.node)
-      })
-
       it('defaults to k=0', function() {
         var iter = new AddressIterator(node)
 
@@ -30,26 +28,12 @@ describe('AddressIterator', function() {
       })
     })
 
-    describe('fromJSON', function() {
-      var iter
-
-      beforeEach(function() {
-        iter = AddressIterator.fromJSON(copy(f))
-      })
-
-      it('imports from JSON as expected', function() {
-        assert.deepEqual(iter.addresses, f.addresses)
-        assert.deepEqual(iter.k, f.k)
-        assert.deepEqual(iter.map, f.map)
-        assert.deepEqual(iter.node.toBase58(), f.node)
-      })
-    })
-
     describe('get', function() {
       var iter
 
       beforeEach(function() {
-        iter = AddressIterator.fromJSON(copy(f))
+        iter = new AddressIterator(node, f.k)
+        iter.addresses = f.addresses
       })
 
       it('returns the last address', function() {
@@ -58,22 +42,22 @@ describe('AddressIterator', function() {
     })
 
     describe('next', function() {
-      var iter, node
+      var iter, last2
 
       beforeEach(function() {
-        node = bitcoin.HDNode.fromBase58(f.node)
-        iter = new AddressIterator(node, f.k - (f.addresses.length - 1))
+        iter = new AddressIterator(node, f.k - 1)
+        last2 = f.addresses.slice(-2)
       })
 
       it('iterates to the next address', function() {
-        assert.equal(iter.get(), f.addresses[0])
+        assert.equal(iter.get(), last2[0])
         iter.next()
 
-        assert.equal(iter.get(), f.addresses[1])
+        assert.equal(iter.get(), last2[1])
       })
 
       it('returns the new address', function() {
-        assert.equal(iter.next(), f.addresses[1])
+        assert.equal(iter.next(), last2[1])
       })
     })
 
@@ -81,32 +65,21 @@ describe('AddressIterator', function() {
       var iter
 
       beforeEach(function() {
-        iter = AddressIterator.fromJSON(copy(f))
+        iter = new AddressIterator(node, f.k)
       })
 
       it('shows the next address', function() {
+        var last = iter.get()
         iter.k -= 1 // reverse the state a little
-        iter.addresses.pop()
 
-        assert.equal(iter.peek(), f.addresses[f.addresses.length - 1])
+        assert.equal(iter.peek(), last)
       })
 
       it('does not mutate', function() {
         iter.peek()
 
-        assert.deepEqual(iter.toJSON(), f)
-      })
-    })
-
-    describe('toJSON', function() {
-      var iter
-
-      beforeEach(function() {
-        iter = AddressIterator.fromJSON(copy(f))
-      })
-
-      it('outputs the correct JSON object', function() {
-        assert.deepEqual(iter.toJSON(), f)
+        assert.deepEqual(iter.addresses, f.addresses.slice(-1))
+        assert.equal(iter.k, f.k)
       })
     })
   })
