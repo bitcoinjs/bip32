@@ -1,6 +1,6 @@
 {
   "name": "bip32-utils",
-  "version": "0.0.15",
+  "version": "0.1.0",
   "description": "bip32-utils",
   "main": "./src/index.js",
   "scripts": {
