@@ -80,13 +80,38 @@ describe('Discovery', function() {
 
         callback(undefined, areUsed)
       })
-    }, function(err, k) {
+    }, function(err, n) {
       assert.ifError(err)
 
-      console.warn('Discovered ' + k + ' addresses')
+      console.warn('Discovered ' + n + ' addresses')
 
       assert.ifError(err)
-      assert.equal(k, expected)
+      assert.equal(n, expected)
+
+      done()
+    })
+  })
+
+  it('allows discovery from an arbitrary k-offset', function(done) {
+    var k = 50
+
+    discovery(wallet.getExternalAccount(), 20, k, function(addresses, callback) {
+      blockchain.addresses.summary(addresses, function(err, results) {
+        if (err) return callback(err)
+
+        var areUsed = results.map(function(result) {
+          return result.totalReceived > 0
+        })
+
+        callback(undefined, areUsed)
+      })
+    }, function(err, n) {
+      assert.ifError(err)
+
+      console.warn('Discovered ' + n + ' addresses')
+
+      assert.ifError(err)
+      assert.equal(n, expected - k)
 
       done()
     })

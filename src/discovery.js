@@ -1,16 +1,22 @@
 // https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki#account-discovery
-module.exports = function discovery(hdNode, gapLimit, queryCb, done) {
+module.exports = function discovery(hdNode, gapLimit, k, queryCb, done) {
+  if ("function" === typeof k) {
+    done = queryCb
+    queryCb = k
+    k = 0
+  }
+
   var gap = 0
-  var k = 0
+  var n = 0
 
   ;(function cycle() {
     var addresses = []
 
     for (var j = 0; j < gapLimit; ++j) {
-      var address = hdNode.derive(k).getAddress().toString()
+      var address = hdNode.derive(k + n).getAddress().toString()
 
       addresses.push(address)
-      k++
+      n++
     }
 
     queryCb(addresses, function(err, results) {
@@ -28,7 +34,7 @@ module.exports = function discovery(hdNode, gapLimit, queryCb, done) {
 
       if (gap >= gapLimit) {
         // return the total number of used addresses
-        return done(undefined, k - gap)
+        return done(undefined, n - gap)
       }
 
       cycle()

@@ -30,10 +30,10 @@ bip32utils.discovery(hdNode, GAP_LIMIT, function(addresses, callback) {
 
     callback(undefined, areUsed)
   })
-}, function(err, k) {
+}, function(err, n) {
   if (err) throw err
 
-  console.warn('Discovered ' + k + ' addresses to be in use...')
+  console.warn('Discovered ' + n + ' addresses in use...')
 })
 ```
 
