@@ -1,8 +1,8 @@
 var AddressIterator = require('./iterator')
 
-function Account(external, internal) {
-  this.external = new AddressIterator(external)
-  this.internal = new AddressIterator(internal)
+function Account(external, internal, k) {
+  this.external = new AddressIterator(external, k)
+  this.internal = new AddressIterator(internal, k)
 }
 
 Object.defineProperty(Account.prototype, 'k', {

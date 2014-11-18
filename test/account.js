@@ -25,6 +25,14 @@ describe('Account', function() {
       assert.equal(account.getExternalAddress(), f.addresses[0])
       assert.equal(account.getInternalAddress(), f.changeAddresses[0])
     })
+
+    it('can start at k-offset of 3', function() {
+      account = new Account(external.neutered(), internal.neutered(), 3)
+
+      assert.equal(account.k, 3)
+      assert.equal(account.getExternalAddress(), f.addresses[3])
+      assert.equal(account.getInternalAddress(), f.changeAddresses[3])
+    })
   })
 
   // TODO
