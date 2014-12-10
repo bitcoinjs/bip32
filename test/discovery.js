@@ -1,55 +1,46 @@
 var assert = require('assert')
 var bitcoinjs = require('bitcoinjs-lib')
 var discovery = require('../src/discovery')
-var request = require('request')
 
-var Helloblock = require('cb-helloblock')
-var blockchain = new Helloblock('testnet')
+var blockchain = new (require('cb-helloblock'))('testnet')
 
 // helper functions for tests
 function fund(iNode, n, gapLimit, done) {
   var sourceNode = iNode.derive(0)
   var source = sourceNode.getAddress().toString()
 
-  request.post({
-    url: "https://testnet.helloblock.io/v1/faucet/withdrawal",
-    json: true,
-    form: {
-      toAddress: source,
-      value: 2e3 * n
-    }
-  }, function(err, res, body) {
+  blockchain.addresses.__faucetWithdraw(source, 2e3 * n, function(err) {
     if (err) return done(err)
 
-    var txb = new bitcoinjs.TransactionBuilder()
-    txb.addInput(body.data.txHash, 0)
+    blockchain.addresses.unspents(source, function(err, unspents) {
+      var unspent = unspents.pop()
 
-    var gap = 0
-    for (var k = 1; k < n; ++k) {
-      gap++
+      var txb = new bitcoinjs.TransactionBuilder()
+      txb.addInput(unspent.txId, unspent.vout)
 
-      var kAddress = iNode.derive(k).getAddress().toString()
+      var gap = 0
+      for (var k = 1; k < n; ++k) {
+        gap++
 
-      // skip 70% of addresses (but not the last)
-      var underLimit = gap < gapLimit
-      var notLast = k !== n - 1
-      if (notLast && underLimit && (Math.random() > 0.3)) {
-        continue
+        var kAddress = iNode.derive(k).getAddress().toString()
+
+        // skip 70% of addresses (but not the last)
+        var underLimit = gap < gapLimit
+        var notLast = k !== n - 1
+        if (notLast && underLimit && (Math.random() > 0.3)) {
+          continue
+        }
+
+        gap = 0
+        txb.addOutput(kAddress, 1e3)
       }
 
-      gap = 0
-      txb.addOutput(kAddress, 1e3)
-    }
+      txb.sign(0, sourceNode.privKey)
 
-    txb.sign(0, sourceNode.privKey)
+      var tx = txb.build()
+      console.warn('Used ' + tx.outs.length + ' addresses (' + source + ')')
 
-    var tx = txb.build()
-    console.warn('Used ' + tx.outs.length + ' addresses (' + source + ')')
-
-    blockchain.transactions.propagate(tx.toHex(), function(err) {
-      if (err) return done(err)
-
-      done()
+      blockchain.transactions.propagate(tx.toHex(), done)
     })
   })
 }
