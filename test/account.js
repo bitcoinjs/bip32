@@ -87,7 +87,7 @@ describe('Account', function() {
 
   describe('getNetwork', function() {
     it('uses the external nodes network', function() {
-      assert.equal(account.getNetwork(), account.external.network)
+      assert.equal(account.getNetwork(), external.network)
     })
   })
 
