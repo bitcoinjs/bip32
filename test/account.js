@@ -85,6 +85,12 @@ describe('Account', function() {
     })
   })
 
+  describe('getNetwork', function() {
+    it('uses the external nodes network', function() {
+      assert.equal(account.getNetwork(), account.external.network)
+    })
+  })
+
   describe('getNodes', function() {
     beforeEach(function() {
       for (var i = 1; i < f.addresses.length; ++i) account.nextAddress()
