@@ -37,4 +37,13 @@ AddressIterator.prototype.peek = function() {
   return xpub.getAddress().toString()
 }
 
+AddressIterator.prototype.pop = function() {
+  var address = this.addresses.pop()
+
+  delete this.map[address]
+  this.k -= 1
+
+  return address
+}
+
 module.exports = AddressIterator

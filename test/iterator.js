@@ -82,5 +82,27 @@ describe('AddressIterator', function() {
         assert.equal(iter.k, f.k)
       })
     })
+
+    describe('pop', function() {
+      var iter, last2
+
+      beforeEach(function() {
+        iter = new AddressIterator(node, f.k - 1)
+        iter.next()
+
+        last2 = f.addresses.slice(-2)
+      })
+
+      it('pops the last address', function() {
+        assert.equal(iter.get(), last2[1])
+        iter.pop()
+
+        assert.equal(iter.get(), last2[0])
+      })
+
+      it('returns the popped address', function() {
+        assert.equal(iter.pop(), last2[1])
+      })
+    })
   })
 })

@@ -86,4 +86,7 @@ var address = iter.get()
 
 console.log(iter.indexOf(address))
 // => 9
+
+console.log(iter.pop())
+// => address
 ```
