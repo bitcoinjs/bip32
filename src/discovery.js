@@ -1,13 +1,13 @@
 // https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki#account-discovery
 module.exports = function discovery(iterator, gapLimit, queryCb, done) {
   var gap = 0
-  var n = 0
+  var checked = 0
 
   ;(function cycle() {
     for (var j = 0; j < gapLimit; ++j) {
       iterator.next()
 
-      n++
+      checked++
     }
 
     var addresses = iterator.addresses.slice(-gapLimit)
@@ -26,9 +26,9 @@ module.exports = function discovery(iterator, gapLimit, queryCb, done) {
       })
 
       if (gap >= gapLimit) {
-        var used = n - gap
+        var used = checked - gap
 
-        return done(undefined, used, n)
+        return done(undefined, used, checked)
       }
 
       cycle()
