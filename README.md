@@ -31,19 +31,19 @@ bip32utils.discovery(iterator, GAP_LIMIT, function(addresses, callback) {
 
     callback(undefined, areUsed)
   })
-}, function(err, k, n) {
+}, function(err, n, k) {
   if (err) throw err
 
-  console.log('Discovered ' + k + ' [new] addresses in use...')
-  console.log('Checked ' + n + ' addresses')
-  console.log('Checked ' + (n - k) + ' unused addresses')
+  console.log('Discovered ' + n + ' [new] addresses in use...')
+  console.log('Checked ' + k + ' addresses')
+  console.log('Checked ' + (k - n) + ' more than necessary')
 
   // throw away unused addresses
-  for (var i = 0; i < n - k; ++i) {
+  for (var i = 0; i < (k - n); ++i) {
 	iterator.pop()
   }
 
-  // n !== total, iterator may start at k > 0
+  // k !== total, iterator may start at a k > 0
   console.log('Total number of used addresses: ', iterator.addresses.length)
 })
 ```
