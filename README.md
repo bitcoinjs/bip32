@@ -18,9 +18,10 @@ var Helloblock = require('cb-helloblock')
 
 var blockchain = new Helloblock('testnet')
 var hdNode = bitcoin.HDNode.fromSeedHex(seedHex)
+var iterator = bip32utils.AddressIterator(hdNode)
 var GAP_LIMIT = 20
 
-bip32utils.discovery(hdNode, GAP_LIMIT, function(addresses, callback) {
+bip32utils.discovery(iterator, GAP_LIMIT, function(addresses, callback) {
   blockchain.addresses.summary(addresses, function(err, results) {
     if (err) return callback(err)
 
@@ -30,10 +31,20 @@ bip32utils.discovery(hdNode, GAP_LIMIT, function(addresses, callback) {
 
     callback(undefined, areUsed)
   })
-}, function(err, n) {
+}, function(err, k, n) {
   if (err) throw err
 
-  console.warn('Discovered ' + n + ' addresses in use...')
+  console.log('Discovered ' + k + ' [new] addresses in use...')
+  console.log('Checked ' + n + ' addresses')
+  console.log('Checked ' + (n - k) + ' unused addresses')
+
+  // throw away unused addresses
+  for (var i = 0; i < n - k; ++i) {
+	iterator.pop()
+  }
+
+  // n !== total, iterator may start at k > 0
+  console.log('Total number of used addresses: ', iterator.addresses.length)
 })
 ```
 

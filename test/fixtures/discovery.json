@@ -1,0 +1,24 @@
+{
+  "valid": [
+    {
+      "external": "tprv8eYGcG6F8ZnGawmt9Yju9qykffyzhpwxDHRMSGPk3NJcTj8BK319fkcEiTXX8cwaodcUhFzspoxHkzfu9Ya7YecbrpHXDxMY17fB9YZedjX",
+      "internal": "tprv8eYGcG6F8ZnGeTjCT9pR1PFuavBpz7qCT4uvcMahYg8CHNqPhAL8aG6rdRfoc7BvwWAkLAr8bU4WxTFzon6hjCBCjscNLWvGLvhxand9nHu",
+      "k": 0,
+      "expected": {
+        "n": 127,
+        "k": 160
+      },
+      "gapLimit": 20
+    },
+    {
+      "external": "tprv8eYGcG6F8ZnGawmt9Yju9qykffyzhpwxDHRMSGPk3NJcTj8BK319fkcEiTXX8cwaodcUhFzspoxHkzfu9Ya7YecbrpHXDxMY17fB9YZedjX",
+      "internal": "tprv8eYGcG6F8ZnGeTjCT9pR1PFuavBpz7qCT4uvcMahYg8CHNqPhAL8aG6rdRfoc7BvwWAkLAr8bU4WxTFzon6hjCBCjscNLWvGLvhxand9nHu",
+      "k": 50,
+      "expected": {
+        "n": 77,
+        "k": 90
+      },
+      "gapLimit": 10
+    }
+  ]
+}

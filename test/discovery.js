@@ -1,110 +1,52 @@
 var assert = require('assert')
 var bitcoinjs = require('bitcoinjs-lib')
+
+var Account = require('../src/account')
+var AddressIterator = require('../src/iterator')
+var Blockchain = require('cb-helloblock')
 var discovery = require('../src/discovery')
 
-var blockchain = new (require('cb-helloblock'))('testnet')
-
-// helper functions for tests
-function fund(iNode, n, gapLimit, done) {
-  var sourceNode = iNode.derive(0)
-  var source = sourceNode.getAddress().toString()
-
-  blockchain.addresses.__faucetWithdraw(source, 2e3 * n, function(err) {
-    if (err) return done(err)
-
-    blockchain.addresses.unspents(source, function(err, unspents) {
-      var unspent = unspents.pop()
-
-      var txb = new bitcoinjs.TransactionBuilder()
-      txb.addInput(unspent.txId, unspent.vout)
-
-      var gap = 0
-      for (var k = 1; k < n; ++k) {
-        gap++
-
-        var kAddress = iNode.derive(k).getAddress().toString()
-
-        // skip 70% of addresses (but not the last)
-        var underLimit = gap < gapLimit
-        var notLast = k !== n - 1
-        if (notLast && underLimit && (Math.random() > 0.3)) {
-          continue
-        }
-
-        gap = 0
-        txb.addOutput(kAddress, 1e3)
-      }
-
-      txb.sign(0, sourceNode.privKey)
-
-      var tx = txb.build()
-      console.warn('Used ' + tx.outs.length + ' addresses (' + source + ')')
-
-      blockchain.transactions.propagate(tx.toHex(), done)
-    })
-  })
-}
+var fixtures = require('./fixtures/discovery')
 
 describe('Discovery', function() {
   this.timeout(9999999)
 
-  var expected, wallet
+  var blockchain
 
-  beforeEach(function(done) {
-    expected = 100 + Math.ceil(Math.random() * 300)
-
-    // Generate random Wallet
-    wallet = new bitcoinjs.Wallet(undefined, bitcoinjs.networks.testnet)
-
-    console.warn('Initializing Wallet w/ ' + expected + ' addresses')
-    fund(wallet.getExternalAccount(), expected, 20, done)
+  beforeEach(function() {
+    blockchain = new Blockchain('testnet')
   })
 
-  it('discovers a funded Wallet correctly (GAP_LIMIT = 20)', function(done) {
-    discovery(wallet.getExternalAccount(), 20, function(addresses, callback) {
-      blockchain.addresses.summary(addresses, function(err, results) {
-        if (err) return callback(err)
+  fixtures.valid.forEach(function(f) {
+    var account, iterator
 
-        var areUsed = results.map(function(result) {
-          return result.totalReceived > 0
-        })
+    beforeEach(function() {
+      var external = bitcoinjs.HDNode.fromBase58(f.external)
+      var internal = bitcoinjs.HDNode.fromBase58(f.internal)
 
-        callback(undefined, areUsed)
-      })
-    }, function(err, n) {
-      assert.ifError(err)
-
-      console.warn('Discovered ' + n + ' addresses')
-
-      assert.ifError(err)
-      assert.equal(n, expected)
-
-      done()
+      account = new Account(external, internal)
+      iterator = new AddressIterator(external, f.k)
     })
-  })
 
-  it('allows discovery from an arbitrary k-offset', function(done) {
-    var k = 50
+    it('discovers a funded Account correctly (GAP_LIMIT = ' + f.gapLimit + ')', function(done) {
+      discovery(iterator, f.gapLimit, function(addresses, callback) {
+        blockchain.addresses.summary(addresses, function(err, results) {
+          if (err) return callback(err)
 
-    discovery(wallet.getExternalAccount(), 20, k, function(addresses, callback) {
-      blockchain.addresses.summary(addresses, function(err, results) {
-        if (err) return callback(err)
+          var areUsed = results.map(function(result) {
+            return result.totalReceived > 0
+          })
 
-        var areUsed = results.map(function(result) {
-          return result.totalReceived > 0
+          return callback(undefined, areUsed)
         })
+      }, function(err, n, k) {
+        if (err) return done(err)
 
-        callback(undefined, areUsed)
+        assert.equal(n, f.expected.n)
+        assert.equal(k, f.expected.k)
+
+        return done()
       })
-    }, function(err, n) {
-      assert.ifError(err)
-
-      console.warn('Discovered ' + n + ' addresses')
-
-      assert.ifError(err)
-      assert.equal(n, expected - k)
-
-      done()
     })
   })
 })
