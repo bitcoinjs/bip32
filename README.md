@@ -34,7 +34,7 @@ bip32utils.discovery(iterator, GAP_LIMIT, function(addresses, callback) {
 }, function(err, used, checked) {
   if (err) throw err
 
-  console.log('Discovered at most ' + used + ' addresses')
+  console.log('Discovered at most ' + used + ' used addresses')
   console.log('Checked ' + checked + ' addresses')
   console.log('With at least ' + (checked - used) + ' unused addresses')
 
