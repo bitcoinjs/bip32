@@ -3,19 +3,12 @@ var bitcoinjs = require('bitcoinjs-lib')
 
 var Account = require('../src/account')
 var AddressIterator = require('../src/iterator')
-var Blockchain = require('cb-helloblock')
 var discovery = require('../src/discovery')
 
 var fixtures = require('./fixtures/discovery')
 
 describe('Discovery', function() {
-  this.timeout(9999999)
-
-  var blockchain
-
-  beforeEach(function() {
-    blockchain = new Blockchain('testnet')
-  })
+  this.timeout(10000)
 
   fixtures.valid.forEach(function(f) {
     var account, iterator
@@ -28,22 +21,23 @@ describe('Discovery', function() {
       iterator = new AddressIterator(external, f.k)
     })
 
-    it('discovers a funded Account correctly (GAP_LIMIT = ' + f.gapLimit + ')', function(done) {
+    it('discovers until ' + f.expected.lastChecked + ' for ' + f.description + ' (GAP_LIMIT = ' + f.gapLimit + ')', function(done) {
       discovery(iterator, f.gapLimit, function(addresses, callback) {
-        blockchain.addresses.summary(addresses, function(err, results) {
-          if (err) return callback(err)
-
-          var areUsed = results.map(function(result) {
-            return result.totalReceived > 0
-          })
-
-          return callback(undefined, areUsed)
-        })
-      }, function(err, n, k) {
+        return callback(undefined, addresses.map(function(address) {
+          return !!f.used[address]
+        }))
+      }, function(err, used, checked) {
         if (err) return done(err)
 
-        assert.equal(n, f.expected.n)
-        assert.equal(k, f.expected.k)
+        assert.equal(used, f.expected.used)
+        assert.equal(iterator.get(), f.expected.lastChecked)
+        assert.equal(checked, f.expected.checked)
+
+        for (var i = 0; i < (checked - used); ++i) {
+          iterator.pop()
+        }
+
+        assert.equal(iterator.get(), f.expected.nextToUse)
 
         return done()
       })
