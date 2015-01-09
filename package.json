@@ -21,9 +21,9 @@
   "dependencies": {},
   "devDependencies": {
     "bitcoinjs-lib": "^1.4.2",
-    "cb-helloblock": "^0.4.7",
+    "cb-helloblock": "^0.4.10",
     "coveralls": "^2.11.2",
-    "istanbul": "^0.3.2",
-    "mocha": "^1.21.5"
+    "istanbul": "^0.3.5",
+    "mocha": "^2.1.0"
   }
 }
