@@ -1,19 +1,18 @@
 {
   "valid": [
     {
-      "description": "Very low number of used addresses, no gaps",
+      "description": "No used addresses, doesn't mutate iterator",
       "external": "tprv8eYGcG6F8ZnGawmt9Yju9qykffyzhpwxDHRMSGPk3NJcTj8BK319fkcEiTXX8cwaodcUhFzspoxHkzfu9Ya7YecbrpHXDxMY17fB9YZedjX",
       "internal": "tprv8eYGcG6F8ZnGeTjCT9pR1PFuavBpz7qCT4uvcMahYg8CHNqPhAL8aG6rdRfoc7BvwWAkLAr8bU4WxTFzon6hjCBCjscNLWvGLvhxand9nHu",
       "expected": {
-        "checked": 2,
-        "nextToUse": "n16ujVhrFu49B9z4Mc2c5z1PhvU6vDFQNt",
-        "used": 1
+        "checked": 1,
+        "nextToUse": "mzbhB2aRMMMPygXG45Bt7eSnW7rNiTqM8E",
+        "used": 0
       },
       "gapLimit": 1,
       "k": 1,
       "used": {
-        "mzbhB2aRMMMPygXG45Bt7eSnW7rNiTqM8E": "true",
-        "n16ujVhrFu49B9z4Mc2c5z1PhvU6vDFQNt": false
+        "mzbhB2aRMMMPygXG45Bt7eSnW7rNiTqM8E": false
       }
     },
     {
