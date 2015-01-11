@@ -4,11 +4,12 @@ module.exports = function discovery(iterator, gapLimit, queryCb, done) {
   var checked = 0
 
   ;(function cycle() {
-    var addresses = []
+    var addresses = [iterator.get()]
+    checked++
 
-    for (var j = 0; j < gapLimit; ++j) {
-      addresses.push(iterator.get())
+    for (var j = 1; j < gapLimit; ++j) {
       iterator.next()
+      addresses.push(iterator.get())
 
       checked++
     }
@@ -30,6 +31,9 @@ module.exports = function discovery(iterator, gapLimit, queryCb, done) {
         var used = checked - gap
 
         return done(undefined, used, checked)
+
+      } else {
+        iterator.next()
       }
 
       cycle()

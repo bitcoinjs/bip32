@@ -30,12 +30,10 @@ describe('Discovery', function() {
         if (err) return done(err)
 
         assert.equal(used, f.expected.used)
-        assert.equal(iterator.get(), f.expected.lastChecked)
         assert.equal(checked, f.expected.checked)
 
-        for (var i = 0; i < (checked - used); ++i) {
-          iterator.pop()
-        }
+        var unused = checked - used
+        for (var i = 1; i < unused; ++i) iterator.pop()
 
         assert.equal(iterator.get(), f.expected.nextToUse)
 

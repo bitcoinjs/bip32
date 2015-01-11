@@ -6,7 +6,6 @@
       "internal": "tprv8eYGcG6F8ZnGeTjCT9pR1PFuavBpz7qCT4uvcMahYg8CHNqPhAL8aG6rdRfoc7BvwWAkLAr8bU4WxTFzon6hjCBCjscNLWvGLvhxand9nHu",
       "expected": {
         "checked": 2,
-        "lastChecked": "mzHZZkBzaVv6PoJL8EKfrkeUU5JgWTa1jz",
         "nextToUse": "n16ujVhrFu49B9z4Mc2c5z1PhvU6vDFQNt",
         "used": 1
       },
@@ -23,7 +22,6 @@
       "internal": "tprv8eYGcG6F8ZnGeTjCT9pR1PFuavBpz7qCT4uvcMahYg8CHNqPhAL8aG6rdRfoc7BvwWAkLAr8bU4WxTFzon6hjCBCjscNLWvGLvhxand9nHu",
       "expected": {
         "checked": 3,
-        "lastChecked": "mzHZZkBzaVv6PoJL8EKfrkeUU5JgWTa1jz",
         "nextToUse": "n16ujVhrFu49B9z4Mc2c5z1PhvU6vDFQNt",
         "used": 2
       },
@@ -41,7 +39,6 @@
       "internal": "tprv8eYGcG6F8ZnGeTjCT9pR1PFuavBpz7qCT4uvcMahYg8CHNqPhAL8aG6rdRfoc7BvwWAkLAr8bU4WxTFzon6hjCBCjscNLWvGLvhxand9nHu",
       "expected": {
         "checked": 25,
-        "lastChecked": "mhKmhH8U88HsbD6UUgAe4SohsjpM8cbQ4x",
         "nextToUse": "n2nPMpZGsPpm5ShCamsQPSTTdDD6e5jJea",
         "used": 16
       },
@@ -81,7 +78,6 @@
       "internal": "tprv8eYGcG6F8ZnGeTjCT9pR1PFuavBpz7qCT4uvcMahYg8CHNqPhAL8aG6rdRfoc7BvwWAkLAr8bU4WxTFzon6hjCBCjscNLWvGLvhxand9nHu",
       "expected": {
         "checked": 40,
-        "lastChecked": "mks4WrrofK22zms7eLGt65SP87buWyrk6N",
         "nextToUse": "mfjGQi4E8wz2kaiE2wpPA8PU9cKKfXN3ko",
         "used": 28
       },
@@ -136,7 +132,6 @@
       "internal": "tprv8eYGcG6F8ZnGeTjCT9pR1PFuavBpz7qCT4uvcMahYg8CHNqPhAL8aG6rdRfoc7BvwWAkLAr8bU4WxTFzon6hjCBCjscNLWvGLvhxand9nHu",
       "expected": {
         "checked": 100,
-        "lastChecked": "mpzribCKdvztcihg1fXh2BUhbw3damYApy",
         "nextToUse": "mokcLcGJ9C8YHByTV3otET42Dx4iK17N92",
         "used": 78
       },
@@ -251,7 +246,6 @@
       "internal": "tprv8eYGcG6F8ZnGeTjCT9pR1PFuavBpz7qCT4uvcMahYg8CHNqPhAL8aG6rdRfoc7BvwWAkLAr8bU4WxTFzon6hjCBCjscNLWvGLvhxand9nHu",
       "expected": {
         "checked": 120,
-        "lastChecked": "mjj9ujZU6EnzA4nEGs4qA12ydJExhHGYFb",
         "nextToUse": "n4PYirfLx4gxqm7FRE3t3TTr51FnXiVw5E",
         "used": 77
       },

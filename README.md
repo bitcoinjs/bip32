@@ -38,10 +38,9 @@ bip32utils.discovery(iterator, GAP_LIMIT, function(addresses, callback) {
   console.log('Checked ' + checked + ' addresses')
   console.log('With at least ' + (checked - used) + ' unused addresses')
 
-  // throw away ALL extraneous (that is, all but 1) unused address AFTER the last used address
-  for (var i = 0; i < (checked - used); ++i) {
-	iterator.pop()
-  }
+  // throw away ALL unused addresses AFTER the last unused address
+  var unused = checked - used
+  for (var i = 1; i < unused; ++i) iterator.pop()
 
   // remember used !== total, iterator may have started at a k-index > 0
   console.log('Total number of addresses discovered: ', iterator.addresses.length)
