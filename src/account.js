@@ -5,12 +5,6 @@ function Account(external, internal, k) {
   this.internal = new AddressIterator(internal, k)
 }
 
-Object.defineProperty(Account.prototype, 'k', {
-  get: function() {
-    return this.external.k
-  }
-})
-
 Account.prototype.containsAddress = function(address) { return this.isExternalAddress(address) || this.isInternalAddress(address) }
 Account.prototype.getAllAddresses = function() { return this.external.addresses.concat(this.internal.addresses) }
 Account.prototype.getExternalAddress = function() { return this.external.get() }
@@ -45,11 +39,7 @@ Account.prototype.getNodes = function(addresses, external, internal) {
 Account.prototype.isExternalAddress = function(address) { return address in this.external.map }
 Account.prototype.isInternalAddress = function(address) { return address in this.internal.map }
 
-Account.prototype.nextAddress = function() {
-  this.external.next()
-  this.internal.next()
-
-  return this.external.get()
-}
+Account.prototype.nextExternalAddress = function() { return this.external.next() }
+Account.prototype.nextInternalAddress = function() { return this.internal.next() }
 
 module.exports = Account

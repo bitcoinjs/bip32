@@ -29,19 +29,17 @@ describe('Account', function() {
     it('can start at k-offset of 3', function() {
       account = new Account(external.neutered(), internal.neutered(), 3)
 
-      assert.equal(account.k, 3)
       assert.equal(account.getExternalAddress(), f.addresses[3])
       assert.equal(account.getInternalAddress(), f.changeAddresses[3])
     })
   })
 
-  // TODO
-  describe.skip('k', function() {
-  })
-
   describe('containsAddress', function() {
     beforeEach(function() {
-      for (var i = 1; i < f.addresses.length; ++i) account.nextAddress()
+      for (var i = 1; i < f.addresses.length; ++i) {
+        account.nextExternalAddress()
+        account.nextInternalAddress()
+      }
     })
 
     it('returns true for known addresses', function() {
@@ -55,23 +53,26 @@ describe('Account', function() {
     })
   })
 
+  describe('getAllAddresses', function() {
+    beforeEach(function() {
+      for (var i = 1; i < f.addresses.length; ++i) {
+        account.nextExternalAddress()
+        account.nextInternalAddress()
+      }
+    })
+
+    it('returns all known addresses from both chains', function() {
+      assert.deepEqual(account.getAllAddresses(), allAddresses)
+    })
+  })
+
   describe('getExternalAddress', function() {
     it('returns the latest address', function() {
       f.addresses.forEach(function(address) {
         assert.equal(account.getExternalAddress(), address)
 
-        account.nextAddress()
+        account.nextExternalAddress()
       })
-    })
-  })
-
-  describe('getAllAddresses', function() {
-    beforeEach(function() {
-      for (var i = 1; i < f.addresses.length; ++i) account.nextAddress()
-    })
-
-    it('returns all known addresses from both chains', function() {
-      assert.deepEqual(account.getAllAddresses(), allAddresses)
     })
   })
 
@@ -80,7 +81,7 @@ describe('Account', function() {
       f.changeAddresses.forEach(function(address) {
         assert.equal(account.getInternalAddress(), address)
 
-        account.nextAddress()
+        account.nextInternalAddress()
       })
     })
   })
@@ -93,7 +94,10 @@ describe('Account', function() {
 
   describe('getNodes', function() {
     beforeEach(function() {
-      for (var i = 1; i < f.addresses.length; ++i) account.nextAddress()
+      for (var i = 1; i < f.addresses.length; ++i) {
+        account.nextExternalAddress()
+        account.nextInternalAddress()
+      }
     })
 
     it('returns the corresponding children nodes', function() {
@@ -123,7 +127,10 @@ describe('Account', function() {
 
   describe('isInternalAddress', function() {
     beforeEach(function() {
-      for (var i = 1; i < f.addresses.length; ++i) account.nextAddress()
+      for (var i = 1; i < f.addresses.length; ++i) {
+        account.nextExternalAddress()
+        account.nextInternalAddress()
+      }
     })
 
     it('returns true for internal addresses', function() {
@@ -141,7 +148,10 @@ describe('Account', function() {
 
   describe('isExternalAddress', function() {
     beforeEach(function() {
-      for (var i = 1; i < f.addresses.length; ++i) account.nextAddress()
+      for (var i = 1; i < f.addresses.length; ++i) {
+        account.nextExternalAddress()
+        account.nextInternalAddress()
+      }
     })
 
     it('returns true for external addresses', function() {
@@ -157,27 +167,36 @@ describe('Account', function() {
     })
   })
 
-  describe('nextAddress', function() {
+  describe('nextExternalAddress', function() {
     it('iterates the external iterator', function() {
       f.addresses.forEach(function(address) {
         assert.equal(account.external.get(), address)
 
-        account.nextAddress()
-      })
-    })
-
-    it('iterates the internal iterator', function() {
-      f.changeAddresses.forEach(function(address) {
-        assert.equal(account.internal.get(), address)
-
-        account.nextAddress()
+        account.nextExternalAddress()
       })
     })
 
     it('returns the new external address', function() {
       // skips the initial address
       f.addresses.slice(1).forEach(function(address) {
-        assert.equal(account.nextAddress(), address)
+        assert.equal(account.nextExternalAddress(), address)
+      })
+    })
+  })
+
+  describe('nextInternalAddress', function() {
+    it('iterates the internal iterator', function() {
+      f.changeAddresses.forEach(function(address) {
+        assert.equal(account.internal.get(), address)
+
+        account.nextInternalAddress()
+      })
+    })
+
+    it('returns the new internal address', function() {
+      // skips the initial address
+      f.changeAddresses.slice(1).forEach(function(address) {
+        assert.equal(account.nextInternalAddress(), address)
       })
     })
   })
