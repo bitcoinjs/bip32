@@ -21,7 +21,7 @@ describe('Discovery', function() {
       iterator = new AddressIterator(external, f.k)
     })
 
-    it('discovers until ' + f.expected.lastChecked + ' for ' + f.description + ' (GAP_LIMIT = ' + f.gapLimit + ')', function(done) {
+    it('discovers until ' + f.expected.used + ' for ' + f.description + ' (GAP_LIMIT = ' + f.gapLimit + ')', function(done) {
       discovery(iterator, f.gapLimit, function(addresses, callback) {
         return callback(undefined, addresses.map(function(address) {
           return !!f.used[address]
