@@ -17,23 +17,26 @@ Account.prototype.getNodes = function(addresses, external, internal) {
   external = external || this.external.node
   internal = internal || this.internal.node
 
+  var externalIter = this.external
+  var internalIter = this.internal
+
   return addresses.map(function(address) {
     var k
 
-    if (address in this.external.map) {
-      k = this.external.map[address]
+    if (address in externalIter.map) {
+      k = externalIter.map[address]
 
       return external.derive(k)
     }
 
-    if (address in this.internal.map) {
-      k = this.internal.map[address]
+    if (address in internalIter.map) {
+      k = internalIter.map[address]
 
       return internal.derive(k)
     }
 
     throw new Error(address + ' not found')
-  }, this)
+  })
 }
 
 Account.prototype.isExternalAddress = function(address) { return address in this.external.map }
