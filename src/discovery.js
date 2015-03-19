@@ -4,17 +4,17 @@ module.exports = function discovery(iterator, gapLimit, queryCb, done) {
   var checked = 0
 
   ;(function cycle() {
-    var addresses = [iterator.get()]
+    var batch = [iterator.get()]
     checked++
 
-    for (var j = 1; j < gapLimit; ++j) {
+    while (batch.length < gapLimit) {
       iterator.next()
-      addresses.push(iterator.get())
+      batch.push(iterator.get())
 
       checked++
     }
 
-    queryCb(addresses, function(err, results) {
+    queryCb(batch, function(err, results) {
       if (err) return done(err)
 
       results.forEach(function(isUsed) {
