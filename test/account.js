@@ -111,11 +111,9 @@ describe('Account', function() {
 
     it('returns private nodes if non-neutered external/internal nodes are supplied', function() {
       var nodes = account.getNodes(allAddresses, external, internal)
-      var actual = nodes.map(function(node) {
-        return node.privKey.toWIF().toString()
-      })
+      var actual = nodes.map(function(node) { return node.toBase58() })
 
-      assert.deepEqual(actual, f.privateKeys)
+      assert.deepEqual(actual, f.children)
     })
 
     it('throws if address is not known', function() {
