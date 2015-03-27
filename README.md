@@ -43,7 +43,7 @@ bip32utils.discovery(iterator, GAP_LIMIT, function(addresses, callback) {
   for (var i = 1; i < unused; ++i) iterator.pop()
 
   // remember used !== total, iterator may have started at a k-index > 0
-  console.log('Total number of addresses discovered: ', iterator.addresses.length)
+  console.log('Total number of addresses (after prune): ', iterator.addresses.length)
 })
 ```
 
