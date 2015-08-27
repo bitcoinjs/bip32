@@ -1,4 +1,4 @@
-function AddressIterator (node, k) {
+function Chain (node, k) {
   k = k || 0
 
   this.addresses = []
@@ -10,15 +10,15 @@ function AddressIterator (node, k) {
   this.next()
 }
 
-AddressIterator.prototype.get = function () {
+Chain.prototype.get = function () {
   return this.addresses[this.addresses.length - 1]
 }
 
-AddressIterator.prototype.indexOf = function (address) {
+Chain.prototype.indexOf = function (address) {
   return (address in this.map) ? this.map[address] : -1
 }
 
-AddressIterator.prototype.next = function () {
+Chain.prototype.next = function () {
   var address = this.peek()
   this.k += 1
 
@@ -31,13 +31,13 @@ AddressIterator.prototype.next = function () {
   return this.get()
 }
 
-AddressIterator.prototype.peek = function () {
+Chain.prototype.peek = function () {
   var xpub = this.node.derive(this.k + 1)
 
   return xpub.getAddress().toString()
 }
 
-AddressIterator.prototype.pop = function () {
+Chain.prototype.pop = function () {
   var address = this.addresses.pop()
 
   delete this.map[address]
@@ -46,4 +46,4 @@ AddressIterator.prototype.pop = function () {
   return address
 }
 
-module.exports = AddressIterator
+module.exports = Chain
