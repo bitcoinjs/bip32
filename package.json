@@ -1,6 +1,6 @@
 {
   "name": "bip32-utils",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "A set of utilities for working with BIP32.",
   "author": "Daniel Cousens",
   "license": "MIT",
