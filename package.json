@@ -1,9 +1,9 @@
 {
   "name": "bip32-utils",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "A set of utilities for working with BIP32.",
   "author": "Daniel Cousens",
-  "main": "src/index.js",
+  "main": "index.js",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -16,7 +16,6 @@
   "keywords": [
     "bip32-utils"
   ],
-  "main": "index.js",
   "scripts": {
     "coverage": "mocha --require blanket -R travis-cov",
     "coverage-local": "mocha --require blanket -R html-cov",
