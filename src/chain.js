@@ -7,18 +7,18 @@ function Chain (parent, k) {
   this.map = {}
 }
 
+Chain.prototype.__initialize = function () {
+  var address = this.__parent.derive(this.k).getAddress().toString()
+  this.map[address] = this.k
+  this.addresses.push(address)
+}
+
 Chain.prototype.find = function (address) {
   return this.map[address]
 }
 
 Chain.prototype.get = function () {
-  if (this.addresses.length === 0) {
-    var address = this.__parent.derive(this.k).getAddress().toString()
-    this.map[address] = this.k
-    this.addresses.push(address)
-
-    return address
-  }
+  if (this.addresses.length === 0) this.__initialize()
 
   return this.addresses[this.addresses.length - 1]
 }
@@ -28,7 +28,7 @@ Chain.prototype.getParent = function () {
 }
 
 Chain.prototype.next = function () {
-  if (this.addresses.length === 0) return this.get()
+  if (this.addresses.length === 0) this.__initialize()
   var address = this.__parent.derive(this.k + 1).getAddress().toString()
 
   this.k += 1
