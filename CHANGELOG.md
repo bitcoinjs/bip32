@@ -1,3 +1,6 @@
+# 6.1.0
+* adds `Chain.getChains`
+
 # 6.0.0
 * adds `Chain.getParent`, `new Chain(...).node` is now private
 * changes `Chain` constructor to be lazy
