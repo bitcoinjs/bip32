@@ -25,7 +25,7 @@ describe('Account', function () {
 
   describe('containsAddress', function () {
     beforeEach(function () {
-      for (var i = 0; i < f.addresses.length; ++i) {
+      for (var i = 1; i < f.addresses.length; ++i) {
         account.nextChainAddress(0)
         account.nextChainAddress(1)
       }
@@ -44,7 +44,7 @@ describe('Account', function () {
 
   describe('getAllAddresses', function () {
     beforeEach(function () {
-      for (var i = 0; i < f.addresses.length; ++i) {
+      for (var i = 1; i < f.addresses.length; ++i) {
         account.nextChainAddress(0)
         account.nextChainAddress(1)
       }
@@ -81,7 +81,7 @@ describe('Account', function () {
 
   describe('getChildren', function () {
     beforeEach(function () {
-      for (var i = 0; i < f.addresses.length; ++i) {
+      for (var i = 1; i < f.addresses.length; ++i) {
         account.nextChainAddress(0)
         account.nextChainAddress(1)
       }
@@ -114,7 +114,7 @@ describe('Account', function () {
 
   describe('isChainAddress', function () {
     beforeEach(function () {
-      for (var i = 0; i < f.addresses.length; ++i) {
+      for (var i = 1; i < f.addresses.length; ++i) {
         account.nextChainAddress(0)
         account.nextChainAddress(1)
       }
@@ -143,7 +143,8 @@ describe('Account', function () {
     })
 
     it('returns the new internal address', function () {
-      f.changeAddresses.slice(0).forEach(function (address) {
+      // next skips the initial address
+      f.changeAddresses.slice(1).forEach(function (address) {
         assert.equal(account.nextChainAddress(1), address)
       })
     })
