@@ -94,7 +94,7 @@ describe('Account', function () {
     })
   })
 
-  describe('getNodes', function () {
+  describe('getChildren', function () {
     beforeEach(function () {
       for (var i = 1; i < f.addresses.length; ++i) {
         account.nextExternalAddress()
@@ -103,7 +103,7 @@ describe('Account', function () {
     })
 
     it('returns the corresponding children nodes', function () {
-      var nodes = account.getNodes(allAddresses)
+      var nodes = account.getChildren(allAddresses)
       var actual = nodes.map(function (node) {
         return node.getAddress().toString()
       })
@@ -112,7 +112,7 @@ describe('Account', function () {
     })
 
     it('returns private nodes if non-neutered external/internal nodes are supplied', function () {
-      var nodes = account.getNodes(allAddresses, external, internal)
+      var nodes = account.getChildren(allAddresses, external, internal)
       var actual = nodes.map(function (node) { return node.toBase58() })
 
       assert.deepEqual(actual, f.children)
@@ -120,7 +120,7 @@ describe('Account', function () {
 
     it('throws if address is not known', function () {
       assert.throws(function () {
-        account.getNodes(['mpFZW4A9QtRuSpuh9SmeW7RSzFE3TgB8Ko'])
+        account.getChildren(['mpFZW4A9QtRuSpuh9SmeW7RSzFE3TgB8Ko'])
       }, /mpFZW4A9QtRuSpuh9SmeW7RSzFE3TgB8Ko not found/)
     })
   })
@@ -168,7 +168,7 @@ describe('Account', function () {
   })
 
   describe('nextExternalAddress', function () {
-    it('iterates the external iterator', function () {
+    it('progresses the external chain', function () {
       f.addresses.forEach(function (address) {
         assert.equal(account.external.get(), address)
 
@@ -185,7 +185,7 @@ describe('Account', function () {
   })
 
   describe('nextInternalAddress', function () {
-    it('iterates the internal iterator', function () {
+    it('progresses the internal chain', function () {
       f.changeAddresses.forEach(function (address) {
         assert.equal(account.internal.get(), address)
 
