@@ -3,6 +3,10 @@
 * changes `Chain` constructor to be lazy
 * changes `Chain.indexOf` to `Chain.find`, returns undefined if not found
 
+* adds `Account.getChain`
+* removes `Account *(Internal|External)*` APIs, replaced with `*Chain*` API with chain index parameter
+* changes `Account` constructor to only accept an array of `Chain`s
+
 # 5.0.0
 * removes `Account.getNode`
 * changes `Account.getNodes` to `Account.getChildren`
