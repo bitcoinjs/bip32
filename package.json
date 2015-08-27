@@ -1,6 +1,6 @@
 {
   "name": "bip32-utils",
-  "version": "0.4.4",
+  "version": "0.5.0",
   "description": "A set of utilities for working with BIP32.",
   "author": "Daniel Cousens",
   "main": "index.js",
