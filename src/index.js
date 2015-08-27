@@ -1,5 +1,5 @@
 module.exports = {
   Account: require('./account'),
-  AddressIterator: require('./iterator'),
+  Chain: require('./chain'),
   discovery: require('./discovery')
 }
