@@ -3,7 +3,7 @@
   "version": "0.5.0",
   "description": "A set of utilities for working with BIP32.",
   "author": "Daniel Cousens",
-  "main": "index.js",
+  "main": "src/index.js",
   "license": "MIT",
   "repository": {
     "type": "git",
