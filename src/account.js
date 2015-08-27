@@ -1,48 +1,43 @@
-var Chain = require('./chain')
-
-function Account (external, internal, k) {
-  this.external = new Chain(external, k)
-  this.internal = new Chain(internal, k)
+function Account (chains) {
+  this.chains = chains
 }
 
 Account.prototype.containsAddress = function (address) {
-  return this.isExternalAddress(address) || this.isInternalAddress(address)
+  return this.chains.some(function (chain) {
+    return chain.find(address) !== undefined
+  })
 }
 
-Account.prototype.getAllAddresses = function () { return this.external.addresses.concat(this.internal.addresses) }
-Account.prototype.getExternalAddress = function () { return this.external.get() }
-Account.prototype.getInternalAddress = function () { return this.internal.get() }
-Account.prototype.getNetwork = function () { return this.external.node.network }
+Account.prototype.getAllAddresses = function () {
+  return [].concat.apply([], this.chains.map(function (chain) {
+    return chain.addresses
+  }))
+}
 
-Account.prototype.getChildren = function (addresses, external, internal) {
-  external = external || this.external.node
-  internal = internal || this.internal.node
-
-  var externalIter = this.external
-  var internalIter = this.internal
+Account.prototype.getChain = function (i) { return this.chains[i] }
+Account.prototype.getChainAddress = function (i) { return this.chains[i].get() }
+Account.prototype.getNetwork = function () { return this.chains[0].getParent().network }
+Account.prototype.getChildren = function (addresses, parents) {
+  var chains = this.chains
 
   return addresses.map(function (address) {
-    var k
+    for (var i = 0; i < chains.length; ++i) {
+      var chain = chains[i]
+      var node = (parents && parents[i]) || chains[i].getParent()
+      var k = chain.find(address)
 
-    if (address in externalIter.map) {
-      k = externalIter.map[address]
-
-      return external.derive(k)
-    }
-
-    if (address in internalIter.map) {
-      k = internalIter.map[address]
-
-      return internal.derive(k)
+      if (k !== undefined) return node.derive(k)
     }
 
     throw new Error(address + ' not found')
   })
 }
 
-Account.prototype.isExternalAddress = function (address) { return address in this.external.map }
-Account.prototype.isInternalAddress = function (address) { return address in this.internal.map }
-Account.prototype.nextExternalAddress = function () { return this.external.next() }
-Account.prototype.nextInternalAddress = function () { return this.internal.next() }
+Account.prototype.isChainAddress = function (i, address) {
+  return this.chains[i].find(address) !== undefined
+}
+Account.prototype.nextChainAddress = function (i) {
+  return this.chains[i].next()
+}
 
 module.exports = Account

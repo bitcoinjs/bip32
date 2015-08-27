@@ -4,43 +4,30 @@ var assert = require('assert')
 var bitcoinjs = require('bitcoinjs-lib')
 
 var Account = require('../src/account')
-
+var Chain = require('../src/chain')
 var fixtures = require('./fixtures/account')
 
 describe('Account', function () {
-  var external, internal
-  var account, f
-  var allAddresses
+  var account, chains, parents, f
 
   beforeEach(function () {
     f = fixtures.valid[0]
-
-    external = bitcoinjs.HDNode.fromBase58(f.external)
-    internal = bitcoinjs.HDNode.fromBase58(f.internal)
-    account = new Account(external.neutered(), internal.neutered())
-
-    allAddresses = f.addresses.concat(f.changeAddresses)
-  })
-
-  describe('constructor', function () {
-    it('generates addresses for k=0', function () {
-      assert.equal(account.getExternalAddress(), f.addresses[0])
-      assert.equal(account.getInternalAddress(), f.changeAddresses[0])
+    parents = [
+      bitcoinjs.HDNode.fromBase58(f.external),
+      bitcoinjs.HDNode.fromBase58(f.internal)
+    ]
+    var chains = parents.map(function (node) {
+      return new Chain(node.neutered())
     })
 
-    it('can start at k-offset of 3', function () {
-      account = new Account(external.neutered(), internal.neutered(), 3)
-
-      assert.equal(account.getExternalAddress(), f.addresses[3])
-      assert.equal(account.getInternalAddress(), f.changeAddresses[3])
-    })
+    account = new Account(chains)
   })
 
   describe('containsAddress', function () {
     beforeEach(function () {
-      for (var i = 1; i < f.addresses.length; ++i) {
-        account.nextExternalAddress()
-        account.nextInternalAddress()
+      for (var i = 0; i < f.addresses.length; ++i) {
+        account.nextChainAddress(0)
+        account.nextChainAddress(1)
       }
     })
 
@@ -57,52 +44,51 @@ describe('Account', function () {
 
   describe('getAllAddresses', function () {
     beforeEach(function () {
-      for (var i = 1; i < f.addresses.length; ++i) {
-        account.nextExternalAddress()
-        account.nextInternalAddress()
+      for (var i = 0; i < f.addresses.length; ++i) {
+        account.nextChainAddress(0)
+        account.nextChainAddress(1)
       }
     })
 
     it('returns all known addresses from both chains', function () {
+      var allAddresses = f.addresses.concat(f.changeAddresses)
+
       assert.deepEqual(account.getAllAddresses(), allAddresses)
     })
   })
 
-  describe('getExternalAddress', function () {
-    it('returns the latest address', function () {
+  describe('getChainAddress', function () {
+    it('returns the latest address on chain i', function () {
       f.addresses.forEach(function (address) {
-        assert.equal(account.getExternalAddress(), address)
+        assert.equal(account.getChainAddress(0), address)
 
-        account.nextExternalAddress()
+        account.nextChainAddress(0)
       })
-    })
-  })
 
-  describe('getInternalAddress', function () {
-    it('returns the latest change address', function () {
       f.changeAddresses.forEach(function (address) {
-        assert.equal(account.getInternalAddress(), address)
+        assert.equal(account.getChainAddress(1), address)
 
-        account.nextInternalAddress()
+        account.nextChainAddress(1)
       })
     })
   })
 
   describe('getNetwork', function () {
-    it('uses the external nodes network', function () {
-      assert.equal(account.getNetwork(), external.network)
+    it('returns the chain:0\'s network', function () {
+      assert.equal(account.getNetwork(), parents[0].network)
     })
   })
 
   describe('getChildren', function () {
     beforeEach(function () {
-      for (var i = 1; i < f.addresses.length; ++i) {
-        account.nextExternalAddress()
-        account.nextInternalAddress()
+      for (var i = 0; i < f.addresses.length; ++i) {
+        account.nextChainAddress(0)
+        account.nextChainAddress(1)
       }
     })
 
     it('returns the corresponding children nodes', function () {
+      var allAddresses = f.addresses.concat(f.changeAddresses)
       var nodes = account.getChildren(allAddresses)
       var actual = nodes.map(function (node) {
         return node.getAddress().toString()
@@ -111,8 +97,9 @@ describe('Account', function () {
       assert.deepEqual(actual, allAddresses)
     })
 
-    it('returns private nodes if non-neutered external/internal nodes are supplied', function () {
-      var nodes = account.getChildren(allAddresses, external, internal)
+    it('returns derivation of parent nodes (for private key escalation) if given', function () {
+      var allAddresses = f.addresses.concat(f.changeAddresses)
+      var nodes = account.getChildren(allAddresses, parents)
       var actual = nodes.map(function (node) { return node.toBase58() })
 
       assert.deepEqual(actual, f.children)
@@ -125,78 +112,39 @@ describe('Account', function () {
     })
   })
 
-  describe('isInternalAddress', function () {
+  describe('isChainAddress', function () {
     beforeEach(function () {
-      for (var i = 1; i < f.addresses.length; ++i) {
-        account.nextExternalAddress()
-        account.nextInternalAddress()
+      for (var i = 0; i < f.addresses.length; ++i) {
+        account.nextChainAddress(0)
+        account.nextChainAddress(1)
       }
     })
 
-    it('returns true for internal addresses', function () {
-      f.changeAddresses.forEach(function (address) {
-        assert(account.isInternalAddress(address))
+    it('returns true for same-chain addresses', function () {
+      f.addresses.forEach(function (address) {
+        assert(account.isChainAddress(0, address))
       })
     })
 
-    it('returns false for external addresses', function () {
-      f.addresses.forEach(function (address) {
-        assert(!account.isInternalAddress(address))
+    it('returns false for different-chain addresses', function () {
+      f.changeAddresses.forEach(function (address) {
+        assert(!account.isChainAddress(0, address))
       })
     })
   })
 
-  describe('isExternalAddress', function () {
-    beforeEach(function () {
-      for (var i = 1; i < f.addresses.length; ++i) {
-        account.nextExternalAddress()
-        account.nextInternalAddress()
-      }
-    })
-
-    it('returns true for external addresses', function () {
-      f.addresses.forEach(function (address) {
-        assert(account.isExternalAddress(address))
-      })
-    })
-
-    it('returns false for internal addresses', function () {
+  describe('nextChainAddress', function () {
+    it('progresses the i\'th chain', function () {
       f.changeAddresses.forEach(function (address) {
-        assert(!account.isExternalAddress(address))
-      })
-    })
-  })
+        assert.equal(account.chains[1].get(), address)
 
-  describe('nextExternalAddress', function () {
-    it('progresses the external chain', function () {
-      f.addresses.forEach(function (address) {
-        assert.equal(account.external.get(), address)
-
-        account.nextExternalAddress()
-      })
-    })
-
-    it('returns the new external address', function () {
-      // skips the initial address
-      f.addresses.slice(1).forEach(function (address) {
-        assert.equal(account.nextExternalAddress(), address)
-      })
-    })
-  })
-
-  describe('nextInternalAddress', function () {
-    it('progresses the internal chain', function () {
-      f.changeAddresses.forEach(function (address) {
-        assert.equal(account.internal.get(), address)
-
-        account.nextInternalAddress()
+        account.nextChainAddress(1)
       })
     })
 
     it('returns the new internal address', function () {
-      // skips the initial address
-      f.changeAddresses.slice(1).forEach(function (address) {
-        assert.equal(account.nextInternalAddress(), address)
+      f.changeAddresses.slice(0).forEach(function (address) {
+        assert.equal(account.nextChainAddress(1), address)
       })
     })
   })
