@@ -22,11 +22,16 @@ describe('Chain', function () {
         assert.equal(chain.k, 0)
       })
 
-      it('can start at k-offset of ' + f.k, function () {
+      it('can start at k=' + f.k, function () {
         var chain = new Chain(node, f.k)
 
         assert.equal(chain.k, f.k)
-        assert.deepEqual(chain.addresses, f.addresses.slice(-1))
+      })
+
+      it('is lazy', function () {
+        var chain = new Chain(node, f.k)
+
+        assert.equal(chain.addresses.length, 0)
       })
     })
 
@@ -63,25 +68,30 @@ describe('Chain', function () {
       })
     })
 
-    describe('peek', function () {
+    describe('clone', function () {
       var chain
 
       beforeEach(function () {
-        chain = new Chain(node, f.k)
+        chain = new Chain(node.neutered())
       })
 
-      it('shows the next address', function () {
-        var last = chain.get()
-        chain.k -= 1 // reverse the state a little
+      it('returns a deep-copied clone of the chain', function () {
+        var clone = chain.clone()
 
-        assert.equal(chain.peek(), last)
+        assert.deepEqual(chain, clone)
+        assert.notEqual(chain.map, clone.map)
+        assert.notEqual(chain.addresses, clone.addresses)
+        assert.equal(chain.node, clone.node)
       })
 
-      it('does not mutate', function () {
-        chain.peek()
+      it('supports passing in a new node for escalation', function () {
+        var clone = chain.clone(node)
 
-        assert.deepEqual(chain.addresses, f.addresses.slice(-1))
-        assert.equal(chain.k, f.k)
+        assert.notDeepEqual(chain, clone)
+        assert.notEqual(chain.map, clone.map)
+        assert.notEqual(chain.addresses, clone.addresses)
+        assert.notEqual(chain.node, clone.node)
+        assert.equal(node, clone.node)
       })
     })
 

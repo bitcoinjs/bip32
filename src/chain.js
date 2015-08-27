@@ -9,6 +9,23 @@ function Chain (node, k) {
   this.node = node
 }
 
+Chain.prototype.clone = function (node) {
+  var chain = new Chain(node || this.node)
+  chain.addresses = chain.addresses.concat()
+  chain.k = this.k
+  chain.map = xtend({}, this.map)
+
+  return chain
+}
+
+Chain.prototype.derive = function (k) {
+  return this.node.derive(k)
+}
+
+Chain.prototype.find = function (address) {
+  return this.map[address]
+}
+
 Chain.prototype.get = function () {
   if (this.addresses.length === 0) {
     var address = this.derive(this.k).getAddress().toString()
@@ -19,34 +36,6 @@ Chain.prototype.get = function () {
   }
 
   return this.addresses[this.addresses.length - 1]
-}
-
-Chain.prototype.find = function (address) {
-  return this.map[address]
-}
-
-Chain.prototype.derive = function (k) {
-  return this.node.derive(k)
-}
-
-Chain.prototype.escalated = function (node) {
-  var chain = new Chain(node)
-
-  chain.addresses = chain.addresses.concat()
-  chain.k = this.k
-  chain.map = xtend({}, this.map)
-
-  return chain
-}
-
-Chain.prototype.neutered = function () {
-  var chain = new Chain(this.node.neutered())
-
-  chain.addresses = chain.addresses.concat()
-  chain.k = this.k
-  chain.map = xtend({}, this.map)
-
-  return chain
 }
 
 Chain.prototype.next = function () {
