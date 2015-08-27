@@ -14,10 +14,6 @@ Account.prototype.getExternalAddress = function () { return this.external.get() 
 Account.prototype.getInternalAddress = function () { return this.internal.get() }
 Account.prototype.getNetwork = function () { return this.external.node.network }
 
-Account.prototype.getChild = function (address, external, internal) {
-  return this.getChildren([address], external, internal)[0]
-}
-
 Account.prototype.getChildren = function (addresses, external, internal) {
   external = external || this.external.node
   internal = internal || this.internal.node
