@@ -1,25 +1,10 @@
-var xtend = require('xtend')
-
-function Chain (node, k) {
+function Chain (parent, k) {
   k = k || 0
+  this.__parent = parent
 
   this.addresses = []
   this.k = k
   this.map = {}
-  this.node = node
-}
-
-Chain.prototype.clone = function (node) {
-  var chain = new Chain(node || this.node)
-  chain.addresses = chain.addresses.concat()
-  chain.k = this.k
-  chain.map = xtend({}, this.map)
-
-  return chain
-}
-
-Chain.prototype.derive = function (k) {
-  return this.node.derive(k)
 }
 
 Chain.prototype.find = function (address) {
@@ -28,7 +13,7 @@ Chain.prototype.find = function (address) {
 
 Chain.prototype.get = function () {
   if (this.addresses.length === 0) {
-    var address = this.derive(this.k).getAddress().toString()
+    var address = this.__parent.derive(this.k).getAddress().toString()
     this.map[address] = this.k
     this.addresses.push(address)
 
@@ -38,8 +23,13 @@ Chain.prototype.get = function () {
   return this.addresses[this.addresses.length - 1]
 }
 
+Chain.prototype.getParent = function () {
+  return this.__parent
+}
+
 Chain.prototype.next = function () {
-  var address = this.derive(this.k + 1).getAddress().toString()
+  if (this.addresses.length === 0) return this.get()
+  var address = this.__parent.derive(this.k + 1).getAddress().toString()
 
   this.k += 1
   this.map[address] = this.k

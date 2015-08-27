@@ -68,33 +68,6 @@ describe('Chain', function () {
       })
     })
 
-    describe('clone', function () {
-      var chain
-
-      beforeEach(function () {
-        chain = new Chain(node.neutered())
-      })
-
-      it('returns a deep-copied clone of the chain', function () {
-        var clone = chain.clone()
-
-        assert.deepEqual(chain, clone)
-        assert.notEqual(chain.map, clone.map)
-        assert.notEqual(chain.addresses, clone.addresses)
-        assert.equal(chain.node, clone.node)
-      })
-
-      it('supports passing in a new node for escalation', function () {
-        var clone = chain.clone(node)
-
-        assert.notDeepEqual(chain, clone)
-        assert.notEqual(chain.map, clone.map)
-        assert.notEqual(chain.addresses, clone.addresses)
-        assert.notEqual(chain.node, clone.node)
-        assert.equal(node, clone.node)
-      })
-    })
-
     describe('pop', function () {
       var chain, last2
 
