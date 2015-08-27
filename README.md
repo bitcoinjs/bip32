@@ -1,13 +1,14 @@
 # bip32-utils
 
-[![build status](https://secure.travis-ci.org/dcousens/bip32-utils.png)](http://travis-ci.org/dcousens/bip32-utils)
-[![Coverage Status](https://coveralls.io/repos/dcousens/bip32-utils/badge.png)](https://coveralls.io/r/dcousens/bip32-utils)
-[![Version](http://img.shields.io/npm/v/bip32-utils.svg)](https://www.npmjs.org/package/bip32-utils)
+[![TRAVIS](https://secure.travis-ci.org/bitcoinjs/bip32-utils.png)](http://travis-ci.org/bitcoinjs/bip32-utils)
+[![NPM](http://img.shields.io/npm/v/bip32-utils.svg)](https://www.npmjs.org/package/bip32-utils)
+
+[![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
+
+A set of utilities for working with BIP32.
 
 
-## Examples
-
-BIP32 [Used] Address discovery
+## Example
 
 ``` javascript
 var bip32utils = require('bip32-utils')
@@ -100,3 +101,5 @@ console.log(iter.indexOf(address))
 console.log(iter.pop())
 // => address
 ```
+
+## LICENSE [MIT](LICENSE)

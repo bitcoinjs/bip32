@@ -1,28 +1,48 @@
 {
   "name": "bip32-utils",
   "version": "0.4.2",
-  "description": "bip32-utils",
-  "main": "./src/index.js",
-  "scripts": {
-    "coverage": "istanbul cover _mocha -- test/*.js",
-    "coveralls": "npm run coverage && coveralls < coverage/lcov.info",
-    "test": "istanbul test mocha -- --reporter list test/*.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/dcousens/bip32-utils.git"
-  },
+  "description": "A set of utilities for working with BIP32.",
   "author": "Daniel Cousens",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/dcousens/bip32-utils/issues"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bitcoinjs/bip32-utils.git"
   },
-  "homepage": "https://github.com/dcousens/bip32-utils",
+  "bugs": {
+    "url": "https://github.com/bitcoinjs/bip32-utils/issues"
+  },
+  "homepage": "https://github.com/bitcoinjs/bip32-utils",
+  "keywords": [
+    "bip32-utils"
+  ],
+  "main": "index.js",
+  "scripts": {
+    "coverage": "mocha --require blanket -R travis-cov",
+    "coverage-local": "mocha --require blanket -R html-cov",
+    "standard": "standard",
+    "test": "npm run standard && npm run unit",
+    "unit": "mocha"
+  },
+  "config": {
+    "blanket": {
+      "pattern": [
+        ""
+      ],
+      "data-cover-never": [
+        "node_modules",
+        "test"
+      ]
+    },
+    "travis-cov": {
+      "threshold": 100
+    }
+  },
   "dependencies": {},
   "devDependencies": {
-    "bitcoinjs-lib": "^1.5.0",
-    "coveralls": "^2.11.2",
-    "istanbul": "^0.3.5",
-    "mocha": "^2.1.0"
+    "bitcoinjs-lib": "^1.5.8",
+    "blanket": "*",
+    "mocha": "*",
+    "standard": "*",
+    "travis-cov": "*"
   }
 }
