@@ -38,9 +38,7 @@
       "threshold": 100
     }
   },
-  "dependencies": {
-    "xtend": "^4.0.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "bitcoinjs-lib": "^1.5.8",
     "blanket": "*",
