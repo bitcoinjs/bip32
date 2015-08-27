@@ -8,7 +8,7 @@ var Chain = require('../src/chain')
 var fixtures = require('./fixtures/account')
 
 describe('Account', function () {
-  var account, chains, parents, f
+  var account, parents, f
 
   beforeEach(function () {
     f = fixtures.valid[0]
