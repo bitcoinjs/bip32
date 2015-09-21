@@ -75,7 +75,7 @@ describe('Account', function () {
 
   describe('getNetwork', function () {
     it('returns the chain:0\'s network', function () {
-      assert.equal(account.getNetwork(), parents[0].network)
+      assert.equal(account.getNetwork(), parents[0].keyPair.network)
     })
   })
 

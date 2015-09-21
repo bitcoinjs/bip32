@@ -6,6 +6,7 @@
 [![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
 
 A set of utilities for working with BIP32.
+Compatible with bitcoinjs-lib `2.0.0`.
 
 
 ## Example

@@ -17,7 +17,7 @@ Account.prototype.getAllAddresses = function () {
 Account.prototype.getChain = function (i) { return this.chains[i] }
 Account.prototype.getChains = function () { return this.chains }
 Account.prototype.getChainAddress = function (i) { return this.chains[i].get() }
-Account.prototype.getNetwork = function () { return this.chains[0].getParent().network }
+Account.prototype.getNetwork = function () { return this.chains[0].getParent().keyPair.network }
 Account.prototype.getChildren = function (addresses, parents) {
   var chains = this.chains
 
