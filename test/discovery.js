@@ -15,7 +15,8 @@ describe('Discovery', function () {
     var chain
 
     beforeEach(function () {
-      var external = bitcoinjs.HDNode.fromBase58(f.external)
+      var network = bitcoinjs.networks[f.network]
+      var external = bitcoinjs.HDNode.fromBase58(f.external, network)
 
       chain = new Chain(external, f.k)
     })

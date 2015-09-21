@@ -2,6 +2,7 @@
   "valid": [
     {
       "description": "No used addresses, doesn't mutate iterator",
+      "network": "testnet",
       "external": "tprv8eYGcG6F8ZnGawmt9Yju9qykffyzhpwxDHRMSGPk3NJcTj8BK319fkcEiTXX8cwaodcUhFzspoxHkzfu9Ya7YecbrpHXDxMY17fB9YZedjX",
       "internal": "tprv8eYGcG6F8ZnGeTjCT9pR1PFuavBpz7qCT4uvcMahYg8CHNqPhAL8aG6rdRfoc7BvwWAkLAr8bU4WxTFzon6hjCBCjscNLWvGLvhxand9nHu",
       "expected": {
@@ -17,6 +18,7 @@
     },
     {
       "description": "Low number of used addresses, no gaps",
+      "network": "testnet",
       "external": "tprv8eYGcG6F8ZnGawmt9Yju9qykffyzhpwxDHRMSGPk3NJcTj8BK319fkcEiTXX8cwaodcUhFzspoxHkzfu9Ya7YecbrpHXDxMY17fB9YZedjX",
       "internal": "tprv8eYGcG6F8ZnGeTjCT9pR1PFuavBpz7qCT4uvcMahYg8CHNqPhAL8aG6rdRfoc7BvwWAkLAr8bU4WxTFzon6hjCBCjscNLWvGLvhxand9nHu",
       "expected": {
@@ -34,6 +36,7 @@
     },
     {
       "description": "Medium number of used addresses, minimal gaps",
+      "network": "testnet",
       "external": "tprv8eYGcG6F8ZnGawmt9Yju9qykffyzhpwxDHRMSGPk3NJcTj8BK319fkcEiTXX8cwaodcUhFzspoxHkzfu9Ya7YecbrpHXDxMY17fB9YZedjX",
       "internal": "tprv8eYGcG6F8ZnGeTjCT9pR1PFuavBpz7qCT4uvcMahYg8CHNqPhAL8aG6rdRfoc7BvwWAkLAr8bU4WxTFzon6hjCBCjscNLWvGLvhxand9nHu",
       "expected": {
@@ -73,6 +76,7 @@
     },
     {
       "description": "Medium number of used addresses, many gaps",
+      "network": "testnet",
       "external": "tprv8eYGcG6F8ZnGawmt9Yju9qykffyzhpwxDHRMSGPk3NJcTj8BK319fkcEiTXX8cwaodcUhFzspoxHkzfu9Ya7YecbrpHXDxMY17fB9YZedjX",
       "internal": "tprv8eYGcG6F8ZnGeTjCT9pR1PFuavBpz7qCT4uvcMahYg8CHNqPhAL8aG6rdRfoc7BvwWAkLAr8bU4WxTFzon6hjCBCjscNLWvGLvhxand9nHu",
       "expected": {
@@ -127,6 +131,7 @@
     },
     {
       "description": "Large number of used addresses, irregular gaps",
+      "network": "testnet",
       "external": "tprv8eYGcG6F8ZnGawmt9Yju9qykffyzhpwxDHRMSGPk3NJcTj8BK319fkcEiTXX8cwaodcUhFzspoxHkzfu9Ya7YecbrpHXDxMY17fB9YZedjX",
       "internal": "tprv8eYGcG6F8ZnGeTjCT9pR1PFuavBpz7qCT4uvcMahYg8CHNqPhAL8aG6rdRfoc7BvwWAkLAr8bU4WxTFzon6hjCBCjscNLWvGLvhxand9nHu",
       "expected": {
@@ -241,6 +246,7 @@
     },
     {
       "description": "Large number of used addresses w/ k-offset, many gaps",
+      "network": "testnet",
       "external": "tprv8eYGcG6F8ZnGawmt9Yju9qykffyzhpwxDHRMSGPk3NJcTj8BK319fkcEiTXX8cwaodcUhFzspoxHkzfu9Ya7YecbrpHXDxMY17fB9YZedjX",
       "internal": "tprv8eYGcG6F8ZnGeTjCT9pR1PFuavBpz7qCT4uvcMahYg8CHNqPhAL8aG6rdRfoc7BvwWAkLAr8bU4WxTFzon6hjCBCjscNLWvGLvhxand9nHu",
       "expected": {

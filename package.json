@@ -40,7 +40,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "bitcoinjs-lib": "^1.5.8",
+    "bitcoinjs-lib": "^2.0.0",
     "blanket": "*",
     "mocha": "*",
     "standard": "*",
