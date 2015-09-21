@@ -20,10 +20,8 @@ module.exports = function discovery (chain, gapLimit, queryCb, done) {
       results.forEach(function (isUsed) {
         if (isUsed) {
           gap = 0
-
         } else {
           gap += 1
-
         }
       })
 
@@ -31,7 +29,6 @@ module.exports = function discovery (chain, gapLimit, queryCb, done) {
         var used = checked - gap
 
         return done(undefined, used, checked)
-
       } else {
         chain.next()
       }
