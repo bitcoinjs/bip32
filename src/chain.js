@@ -8,7 +8,7 @@ function Chain (parent, k) {
 }
 
 Chain.prototype.__initialize = function () {
-  var address = this.__parent.derive(this.k).getAddress().toString()
+  var address = this.__parent.derive(this.k).getAddress()
   this.map[address] = this.k
   this.addresses.push(address)
 }
@@ -29,7 +29,7 @@ Chain.prototype.getParent = function () {
 
 Chain.prototype.next = function () {
   if (this.addresses.length === 0) this.__initialize()
-  var address = this.__parent.derive(this.k + 1).getAddress().toString()
+  var address = this.__parent.derive(this.k + 1).getAddress()
 
   this.k += 1
   this.map[address] = this.k

@@ -91,7 +91,7 @@ describe('Account', function () {
       var allAddresses = f.addresses.concat(f.changeAddresses)
       var nodes = account.getChildren(allAddresses)
       var actual = nodes.map(function (node) {
-        return node.getAddress().toString()
+        return node.getAddress()
       })
 
       assert.deepEqual(actual, allAddresses)
