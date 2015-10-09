@@ -23,6 +23,12 @@ Chain.prototype.get = function () {
   return this.addresses[this.addresses.length - 1]
 }
 
+Chain.prototype.getAll = function () {
+  if (this.addresses.length === 0) this.__initialize()
+
+  return this.addresses
+}
+
 Chain.prototype.getParent = function () {
   return this.__parent
 }

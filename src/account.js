@@ -10,7 +10,7 @@ Account.prototype.containsAddress = function (address) {
 
 Account.prototype.getAllAddresses = function () {
   return [].concat.apply([], this.chains.map(function (chain) {
-    return chain.addresses
+    return chain.getAll()
   }))
 }
 
