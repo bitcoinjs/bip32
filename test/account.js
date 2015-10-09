@@ -43,17 +43,19 @@ describe('Account', function () {
   })
 
   describe('getAllAddresses', function () {
-    beforeEach(function () {
+    it('returns all known addresses from both chains', function () {
       for (var i = 1; i < f.addresses.length; ++i) {
         account.nextChainAddress(0)
         account.nextChainAddress(1)
       }
-    })
 
-    it('returns all known addresses from both chains', function () {
       var allAddresses = f.addresses.concat(f.changeAddresses)
 
       assert.deepEqual(account.getAllAddresses(), allAddresses)
+    })
+
+    it('returns 2 addresses after construction', function () {
+      assert.equal(account.getAllAddresses().length, 2)
     })
   })
 
