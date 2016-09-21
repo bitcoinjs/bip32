@@ -1,3 +1,6 @@
+# 0.6.2
+* adds `Chain.clone`
+
 # 0.6.1
 * adds `Chain.getChains`
 
