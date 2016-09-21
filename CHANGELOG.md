@@ -1,5 +1,8 @@
-# 0.6.2
+# 0.7.3
 * adds `Chain.clone`
+
+# 0.7.0
+* updated peerDependency `bitcoinjs-lib` to `^2.0.0`
 
 # 0.6.1
 * adds `Chain.getChains`
