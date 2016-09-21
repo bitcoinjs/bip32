@@ -13,6 +13,15 @@ Chain.prototype.__initialize = function () {
   this.addresses.push(address)
 }
 
+Chain.prototype.clone = function () {
+  var chain = new Chain(this.__parent, this.k)
+
+  for (var k in this.addresses) chain.addresses[k] = this.addresses[k]
+  for (k in this.map) chain.map[k] = this.map[k]
+
+  return chain
+}
+
 Chain.prototype.find = function (address) {
   return this.map[address]
 }

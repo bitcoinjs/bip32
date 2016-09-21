@@ -35,6 +35,24 @@ describe('Chain', function () {
       })
     })
 
+    describe('clone', function () {
+      it('performs a deep copy (except for __parent)', function () {
+        var chain = new Chain(node)
+        var clone = chain.clone()
+
+        // by reference
+        assert.strictEqual(chain.__parent, clone.__parent)
+
+        // by value
+        assert.strictEqual(chain.k, clone.k)
+        assert.notStrictEqual(chain.addresses, clone.addresses)
+        assert.notStrictEqual(chain.map, clone.map)
+
+        chain.addresses[100] = true
+        assert.strictEqual(clone.addresses[100], undefined)
+      })
+    })
+
     describe('get', function () {
       var chain
 
