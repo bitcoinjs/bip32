@@ -6,6 +6,9 @@ var bitcoinjs = require('bitcoinjs-lib')
 var Account = require('../src/account')
 var Chain = require('../src/chain')
 var fixtures = require('./fixtures/account')
+var fixtures2 = require('./fixtures/schemas')
+
+var NETWORKS = bitcoinjs.networks
 
 describe('Account', function () {
   var account, parents, f
@@ -149,6 +152,28 @@ describe('Account', function () {
       f.changeAddresses.slice(1).forEach(function (address) {
         assert.equal(account.nextChainAddress(1), address)
       })
+    })
+  })
+
+  function assertChainEqual (json, chain) {
+    Object.keys(json.map).forEach(function (address) {
+      assert(chain.addresses.indexOf(address) !== -1, address)
+    })
+    assert.equal(chain.map, json.map)
+  }
+
+  fixtures2.forEach(function (f) {
+    var network = NETWORKS[f.network]
+    var account = Account.fromJSON(f.json, network)
+
+    it('fromJSON imports ' + f.seed.slice(0, 20) + '...', function () {
+      f.json.forEach(function (jc, i) {
+        assertChainEqual(jc, account.chains[i])
+      })
+    })
+
+    it('toJSON exports ' + f.seed.slice(0, 20) + '...', function () {
+      assert.deepEqual(account.toJSON(), f.json)
     })
   })
 })

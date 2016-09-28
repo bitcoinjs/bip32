@@ -1,3 +1,6 @@
+# 0.8.0
+* adds `Account.*JSON` functions
+
 # 0.7.3
 * adds `Chain.clone`
 
