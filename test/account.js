@@ -1,10 +1,10 @@
-var Account = require('../src/account')
-var Chain = require('../src/chain')
+var Account = require('../account')
+var Chain = require('../chain')
 var bitcoinjs = require('bitcoinjs-lib')
 var test = require('tape')
 
 var fixtures = require('./fixtures/account')
-var fixtures2 = require('./fixtures/schemas')
+var fixtures2 = require('./fixtures/accounts')
 
 function blankAccount () {
   var account = Account.fromJSON(fixtures.json)

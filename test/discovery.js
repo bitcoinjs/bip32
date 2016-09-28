@@ -1,6 +1,6 @@
 var bitcoinjs = require('bitcoinjs-lib')
-var Chain = require('../src/chain')
-var discovery = require('../src/discovery')
+var Chain = require('../chain')
+var discovery = require('../discovery')
 var test = require('tape')
 
 var fixtures = require('./fixtures/discovery')
