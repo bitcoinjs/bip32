@@ -100,39 +100,6 @@ test('nextChainAddress', function (t) {
   t.end()
 })
 
-//   describe('getChildrenMap', function () {
-//     beforeEach(function () {
-//       for (var i = 1; i < f.addresses.length; ++i) {
-//         account.nextChainAddress(0)
-//         account.nextChainAddress(1)
-//       }
-//     })
-//
-//     it('returns the corresponding children nodes', function () {
-//       var allAddresses = f.addresses.concat(f.changeAddresses)
-//       var nodes = account.getChildren(allAddresses)
-//       var actual = nodes.map(function (node) {
-//         return node.getAddress()
-//       })
-//
-//       assert.deepEqual(actual, allAddresses)
-//     })
-//
-//     it('returns derivation of parent nodes (for private key escalation) if given', function () {
-//       var allAddresses = f.addresses.concat(f.changeAddresses)
-//       var nodes = account.getChildren(allAddresses, parents)
-//       var actual = nodes.map(function (node) { return node.toBase58() })
-//
-//       assert.deepEqual(actual, f.children)
-//     })
-//
-//     it('throws if address is not known', function () {
-//       assert.throws(function () {
-//         account.getChildren(['mpFZW4A9QtRuSpuh9SmeW7RSzFE3TgB8Ko'])
-//       }, /mpFZW4A9QtRuSpuh9SmeW7RSzFE3TgB8Ko not found/)
-//     })
-//   })
-
 // verify *JSON functions
 fixtures2.forEach(function (f) {
   var network = bitcoinjs.networks[f.network]
