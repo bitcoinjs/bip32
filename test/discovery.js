@@ -16,6 +16,7 @@ fixtures.valid.forEach(function (f) {
         return !!f.used[address]
       }))
     }, function (err, used, checked) {
+      t.plan(4)
       t.ifErr(err, 'no error')
       t.equal(used, f.expected.used, 'used as expected')
       t.equal(checked, f.expected.checked, 'checked count as expected')
@@ -24,7 +25,17 @@ fixtures.valid.forEach(function (f) {
       for (var i = 1; i < unused; ++i) chain.pop()
 
       t.equal(chain.get(), f.expected.nextToUse, 'next address to use matches')
-      t.end()
+    })
+  })
+
+  test('discover calls done on error', function (t) {
+    var _err = new Error('e')
+
+    discovery(chain, f.gapLimit, function (addresses, callback) {
+      return callback(_err)
+    }, function (err) {
+      t.plan(1)
+      t.equal(_err, err, 'error was returned as expected')
     })
   })
 })
