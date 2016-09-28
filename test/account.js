@@ -100,6 +100,29 @@ test('nextChainAddress', function (t) {
   t.end()
 })
 
+// TODO
+test('discoverChain', function (t) {
+  // .getChainAddress() should remain the same after a uneventful discovery
+  // .getChainAddress() should change after an eventful discovery
+  t.end()
+})
+
+test('getChildrenMap', function (t) {
+  var account = Account.fromJSON(fixtures.json)
+  var childrenMap = account.getChildrenMap(fixtures.addresses)
+
+  // convert to JSON
+  for (var address in childrenMap) {
+    childrenMap[address] = childrenMap[address].toBase58()
+  }
+
+  t.plan(2)
+  t.same(fixtures.children, childrenMap, 'returns known children')
+
+  var emptyMap = account.getChildrenMap(['mpFZW4A9QtRuSpuh9SmeW7RSzFE3TgB8Ko'])
+  t.same(emptyMap, {}, 'ignores unknown children')
+})
+
 // verify *JSON functions
 fixtures2.forEach(function (f) {
   var network = bitcoinjs.networks[f.network]

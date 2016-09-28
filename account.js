@@ -1,4 +1,5 @@
 var bitcoinjs = require('bitcoinjs-lib')
+var discovery = require('./discovery')
 
 var Chain = require('./chain')
 
@@ -30,6 +31,20 @@ Account.prototype.containsAddress = function (address) {
   })
 }
 
+Account.prototype.discoverChain = function (i, gapLimit, queryCallback, callback) {
+  var chain = this.getChain(i)
+
+  discovery(chain, gapLimit, queryCallback, function (err, used, checked) {
+    if (err) return callback(err)
+
+    // throw away EACH unused address AFTER the last unused address
+    var unused = checked - used
+    for (var i = 1; i < unused; ++i) chain.pop()
+
+    callback()
+  })
+}
+
 Account.prototype.getAllAddresses = function () {
   return [].concat.apply([], this.chains.map(function (chain) {
     return chain.getAll()
@@ -40,6 +55,34 @@ Account.prototype.getChain = function (i) { return this.chains[i] }
 Account.prototype.getChains = function () { return this.chains }
 Account.prototype.getChainAddress = function (i) { return this.chains[i].get() }
 Account.prototype.getNetwork = function () { return this.chains[0].getParent().keyPair.network }
+
+// optional parents argument for private key escalation
+Account.prototype.getChildrenMap = function (addresses, parents) {
+  var chains = this.chains
+  var children = {}
+
+  addresses.forEach(function (address) {
+    // skip duplicates
+    if (children[address]) return
+
+    chains.some(function (chain, i) {
+      var k = chain.find(address)
+      if (k === undefined) return
+
+      var parent
+      if (parents !== undefined) {
+        parent = parents[i]
+      } else {
+        parent = chains[i].getParent()
+      }
+
+      children[address] = parent.derive(k)
+      return true
+    })
+  })
+
+  return children
+}
 
 Account.prototype.isChainAddress = function (i, address) {
   return this.chains[i].find(address) !== undefined
