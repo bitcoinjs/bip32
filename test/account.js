@@ -100,6 +100,7 @@ test('nextChainAddress', function (t) {
   t.end()
 })
 
+// TODO: getChains
 // TODO
 test('discoverChain', function (t) {
   // .getChainAddress() should remain the same after a uneventful discovery
@@ -115,6 +116,8 @@ test('getChildrenMap', function (t) {
   for (var address in childrenMap) {
     childrenMap[address] = childrenMap[address].toBase58()
   }
+
+  // TODO: exhibit private key escalation
 
   t.plan(2)
   t.same(fixtures.children, childrenMap, 'returns known children')
