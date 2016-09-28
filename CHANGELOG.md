@@ -1,5 +1,6 @@
 # 0.8.0
 * adds `Account.*JSON` functions
+* changes `Account.getChildren` to `Account.getChildrenMap`, returns an address-indexed map and does not throw if not fuond
 
 # 0.7.3
 * adds `Chain.clone`
