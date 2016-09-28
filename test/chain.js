@@ -1,111 +1,76 @@
-/* global beforeEach describe it */
-
-var assert = require('assert')
 var bitcoin = require('bitcoinjs-lib')
-
 var Chain = require('../src/chain')
-
+var test = require('tape')
 var fixtures = require('./fixtures/chain')
 
-describe('Chain', function () {
-  fixtures.valid.forEach(function (f) {
-    var node
+fixtures.forEach(function (f) {
+  var node = bitcoin.HDNode.fromBase58(f.node)
 
-    beforeEach(function () {
-      node = bitcoin.HDNode.fromBase58(f.node)
-    })
+  test('constructor', function (t) {
+    var chain = new Chain(node)
 
-    describe('constructor', function () {
-      it('defaults to k=0', function () {
-        var chain = new Chain(node)
+    t.plan(3)
+    t.equal(chain.k, 0, 'defaults to k=0')
 
-        assert.equal(chain.k, 0)
-      })
+    chain = new Chain(node, f.k)
+    t.equal(chain.k, f.k, 'can start at a custom k value')
 
-      it('can start at k=' + f.k, function () {
-        var chain = new Chain(node, f.k)
+    chain = new Chain(node, f.k)
+    t.equal(chain.addresses.length, 0, 'is lazy')
+  })
 
-        assert.equal(chain.k, f.k)
-      })
+  test('clone', function (t) {
+    var chain = new Chain(node)
+    var clone = chain.clone()
 
-      it('is lazy', function () {
-        var chain = new Chain(node, f.k)
+    t.plan(5)
 
-        assert.equal(chain.addresses.length, 0)
-      })
-    })
+    // by reference
+    t.equal(chain.__parent, clone.__parent, 'same parent')
 
-    describe('clone', function () {
-      it('performs a deep copy (except for __parent)', function () {
-        var chain = new Chain(node)
-        var clone = chain.clone()
+    // by value
+    t.equal(chain.k, clone.k, 'k copied (equal)')
+    t.notEqual(chain.addresses, clone.addresses, 'array copied (different objects)')
+    t.notEqual(chain.map, clone.map, 'object copied (different objects)')
 
-        // by reference
-        assert.strictEqual(chain.__parent, clone.__parent)
+    chain.addresses[100] = true
+    t.equal(clone.addresses[100], undefined, 'was deep copied')
+  })
 
-        // by value
-        assert.strictEqual(chain.k, clone.k)
-        assert.notStrictEqual(chain.addresses, clone.addresses)
-        assert.notStrictEqual(chain.map, clone.map)
+  test('get', function (t) {
+    var chain = new Chain(node, f.k)
+    chain.addresses = f.addresses
 
-        chain.addresses[100] = true
-        assert.strictEqual(clone.addresses[100], undefined)
-      })
-    })
+    t.plan(1)
+    t.equal(chain.get(), f.addresses[f.addresses.length - 1], 'returns the last address')
+  })
 
-    describe('get', function () {
-      var chain
+  test('next', function (t) {
+    var chain = new Chain(node, f.k - f.addresses.length + 1)
+    var first3 = f.addresses.slice(0, 3)
 
-      beforeEach(function () {
-        chain = new Chain(node, f.k)
-        chain.addresses = f.addresses
-      })
+    t.plan(3)
+    t.equal(chain.get(), first3[0], 'before next, get the first address')
+    chain.next()
+    t.equal(chain.get(), first3[1], 'after next, get returns next address')
+    t.equal(chain.next(), first3[2], 'returns the next address')
+  })
 
-      it('returns the last address', function () {
-        assert.equal(chain.get(), f.addresses[f.addresses.length - 1])
-      })
-    })
+  test('pop', function (t) {
+    var chain = new Chain(node)
+    chain.next()
+    chain.next()
+    var addresses = chain.getAll().concat()
 
-    describe('next', function () {
-      var chain, last2
-
-      beforeEach(function () {
-        chain = new Chain(node, f.k - 1)
-        last2 = f.addresses.slice(-2)
-      })
-
-      it('generates the next address', function () {
-        assert.equal(chain.get(), last2[0])
-        chain.next()
-
-        assert.equal(chain.get(), last2[1])
-      })
-
-      it('returns the new address', function () {
-        assert.equal(chain.next(), last2[1])
-      })
-    })
-
-    describe('pop', function () {
-      var chain, last2
-
-      beforeEach(function () {
-        chain = new Chain(node, f.k - 1)
-        chain.next()
-
-        last2 = f.addresses.slice(-2)
-      })
-
-      it('pops the last address', function () {
-        assert.equal(chain.get(), last2[1])
-        chain.pop()
-
-        assert.equal(chain.get(), last2[0])
-      })
-
-      it('returns the popped address', function () {
-        assert.equal(chain.pop(), last2[1])
-      })
-    })
+    t.plan(8)
+    t.equal(chain.getAll().length, 3, 'has 3 addresses')
+    t.equal(chain.get(), addresses[2], 'matches the last address')
+    chain.pop()
+    t.equal(chain.getAll().length, 2, 'is now 1 less')
+    t.equal(chain.get(), addresses[1], 'after pop, matches the second last')
+    t.equal(chain.pop(), addresses[1], 'returns the popped address')
+    t.equal(chain.getAll().length, 1, 'is now 1 less')
+    t.equal(chain.pop(), addresses[0], 'returns the popped address')
+    t.equal(chain.pop(), undefined, 'returns undefined when empty')
   })
 })

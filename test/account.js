@@ -1,179 +1,158 @@
-/* global beforeEach describe it */
-
-var assert = require('assert')
-var bitcoinjs = require('bitcoinjs-lib')
-
 var Account = require('../src/account')
 var Chain = require('../src/chain')
+var bitcoinjs = require('bitcoinjs-lib')
+var test = require('tape')
+
 var fixtures = require('./fixtures/account')
 var fixtures2 = require('./fixtures/schemas')
 
-var NETWORKS = bitcoinjs.networks
-
-describe('Account', function () {
-  var account, parents, f
-
-  beforeEach(function () {
-    f = fixtures.valid[0]
-    parents = [
-      bitcoinjs.HDNode.fromBase58(f.external),
-      bitcoinjs.HDNode.fromBase58(f.internal)
-    ]
-    var chains = parents.map(function (node) {
-      return new Chain(node.neutered())
-    })
-
-    account = new Account(chains)
+function blankAccount () {
+  var account = Account.fromJSON(fixtures.json)
+  var chains = account.chains.map(function (chain) {
+    return new Chain(chain.__parent, 0)
   })
 
-  describe('containsAddress', function () {
-    beforeEach(function () {
-      for (var i = 1; i < f.addresses.length; ++i) {
-        account.nextChainAddress(0)
-        account.nextChainAddress(1)
-      }
-    })
+  return new Account(chains)
+}
 
-    it('returns true for known addresses', function () {
-      f.addresses.forEach(function (address) {
-        assert(account.containsAddress(address))
-      })
-    })
+test('containsAddress', function (t) {
+  var account = Account.fromJSON(fixtures.json)
 
-    it('returns false for unknown addresses', function () {
-      assert(!account.containsAddress('mpFZW4A9QtRuSpuh9SmeW7RSzFE3TgB8Ko'))
-    })
+  fixtures.addresses.forEach(function (address) {
+    t.equal(account.containsAddress(address), true, 'returns true for known address')
   })
 
-  describe('getAllAddresses', function () {
-    it('returns all known addresses from both chains', function () {
-      for (var i = 1; i < f.addresses.length; ++i) {
-        account.nextChainAddress(0)
-        account.nextChainAddress(1)
-      }
+  t.equal(account.containsAddress('mpFZW4A9QtRuSpuh9SmeW7RSzFE3TgB8Ko'), false, 'returns false for unknown address')
+  t.end()
+})
 
-      var allAddresses = f.addresses.concat(f.changeAddresses)
+test('getAllAddresses', function (t) {
+  var account = blankAccount()
 
-      assert.deepEqual(account.getAllAddresses(), allAddresses)
-    })
+  t.plan(2)
+  t.equal(account.getAllAddresses().length, 2, 'returns only 2 addresses post-construction')
 
-    it('returns 2 addresses after construction', function () {
-      assert.equal(account.getAllAddresses().length, 2)
-    })
-  })
-
-  describe('getChainAddress', function () {
-    it('returns the latest address on chain i', function () {
-      f.addresses.forEach(function (address) {
-        assert.equal(account.getChainAddress(0), address)
-
-        account.nextChainAddress(0)
-      })
-
-      f.changeAddresses.forEach(function (address) {
-        assert.equal(account.getChainAddress(1), address)
-
-        account.nextChainAddress(1)
-      })
-    })
-  })
-
-  describe('getNetwork', function () {
-    it('returns the chain:0\'s network', function () {
-      assert.equal(account.getNetwork(), parents[0].keyPair.network)
-    })
-  })
-
-  describe('getChildren', function () {
-    beforeEach(function () {
-      for (var i = 1; i < f.addresses.length; ++i) {
-        account.nextChainAddress(0)
-        account.nextChainAddress(1)
-      }
-    })
-
-    it('returns the corresponding children nodes', function () {
-      var allAddresses = f.addresses.concat(f.changeAddresses)
-      var nodes = account.getChildren(allAddresses)
-      var actual = nodes.map(function (node) {
-        return node.getAddress()
-      })
-
-      assert.deepEqual(actual, allAddresses)
-    })
-
-    it('returns derivation of parent nodes (for private key escalation) if given', function () {
-      var allAddresses = f.addresses.concat(f.changeAddresses)
-      var nodes = account.getChildren(allAddresses, parents)
-      var actual = nodes.map(function (node) { return node.toBase58() })
-
-      assert.deepEqual(actual, f.children)
-    })
-
-    it('throws if address is not known', function () {
-      assert.throws(function () {
-        account.getChildren(['mpFZW4A9QtRuSpuh9SmeW7RSzFE3TgB8Ko'])
-      }, /mpFZW4A9QtRuSpuh9SmeW7RSzFE3TgB8Ko not found/)
-    })
-  })
-
-  describe('isChainAddress', function () {
-    beforeEach(function () {
-      for (var i = 1; i < f.addresses.length; ++i) {
-        account.nextChainAddress(0)
-        account.nextChainAddress(1)
-      }
-    })
-
-    it('returns true for same-chain addresses', function () {
-      f.addresses.forEach(function (address) {
-        assert(account.isChainAddress(0, address))
-      })
-    })
-
-    it('returns false for different-chain addresses', function () {
-      f.changeAddresses.forEach(function (address) {
-        assert(!account.isChainAddress(0, address))
-      })
-    })
-  })
-
-  describe('nextChainAddress', function () {
-    it('progresses the i\'th chain', function () {
-      f.changeAddresses.forEach(function (address) {
-        assert.equal(account.chains[1].get(), address)
-
-        account.nextChainAddress(1)
-      })
-    })
-
-    it('returns the new internal address', function () {
-      // next skips the initial address
-      f.changeAddresses.slice(1).forEach(function (address) {
-        assert.equal(account.nextChainAddress(1), address)
-      })
-    })
-  })
-
-  function assertChainEqual (json, chain) {
-    Object.keys(json.map).forEach(function (address) {
-      assert(chain.addresses.indexOf(address) !== -1, address)
-    })
-    assert.equal(chain.map, json.map)
+  // iterate to n addresses
+  for (var i = 1; i < fixtures.addresses.length / 2; ++i) {
+    account.nextChainAddress(0)
+    account.nextChainAddress(1)
   }
 
-  fixtures2.forEach(function (f) {
-    var network = NETWORKS[f.network]
-    var account = Account.fromJSON(f.json, network)
+  t.same(account.getAllAddresses(), fixtures.addresses, 'returns all derived addresses')
+})
 
-    it('fromJSON imports ' + f.seed.slice(0, 20) + '...', function () {
-      f.json.forEach(function (jc, i) {
-        assertChainEqual(jc, account.chains[i])
-      })
-    })
+test('getChainAddress', function (t) {
+  var account = blankAccount()
 
-    it('toJSON exports ' + f.seed.slice(0, 20) + '...', function () {
-      assert.deepEqual(account.toJSON(), f.json)
+  fixtures.json.forEach(function (chain, i) {
+    for (var address in chain.map) {
+      t.equal(account.getChainAddress(i), address, 'matches the latest chain address')
+      account.nextChainAddress(i)
+    }
+  })
+
+  t.end()
+})
+
+test('getNetwork', function (t) {
+  var account = Account.fromJSON(fixtures.json)
+
+  t.plan(1)
+  t.equal(account.getNetwork(), account.chains[0].__parent.keyPair.network, 'matches keyPair network')
+})
+
+test('isChainAddress', function (t) {
+  var account = Account.fromJSON(fixtures.json)
+
+  fixtures.json.forEach(function (chain, i) {
+    for (var address in chain.map) {
+      t.equal(account.isChainAddress(i, address), true, 'for same chain')
+      t.equal(account.isChainAddress(i === 1 ? 0 : 1, address), false, 'for different chains')
+    }
+  })
+
+  t.end()
+})
+
+test('nextChainAddress', function (t) {
+  var account = blankAccount()
+
+  // matches the internal chain
+  fixtures.json.forEach(function (chain, i) {
+    for (var address in chain.map) {
+      t.equal(account.chains[i].get(), address, 'matches the internal chain: ' + address)
+      account.nextChainAddress(i)
+    }
+  })
+
+  account = blankAccount()
+
+  // returns the new address
+  fixtures.json.forEach(function (chain, i) {
+    var addresses = Object.keys(chain.map)
+
+    // skip the first address
+    addresses.slice(1).forEach(function (address) {
+      t.equal(account.nextChainAddress(i), address, 'returns the next address: ' + address)
     })
   })
+
+  t.end()
 })
+
+//   describe('getChildrenMap', function () {
+//     beforeEach(function () {
+//       for (var i = 1; i < f.addresses.length; ++i) {
+//         account.nextChainAddress(0)
+//         account.nextChainAddress(1)
+//       }
+//     })
+//
+//     it('returns the corresponding children nodes', function () {
+//       var allAddresses = f.addresses.concat(f.changeAddresses)
+//       var nodes = account.getChildren(allAddresses)
+//       var actual = nodes.map(function (node) {
+//         return node.getAddress()
+//       })
+//
+//       assert.deepEqual(actual, allAddresses)
+//     })
+//
+//     it('returns derivation of parent nodes (for private key escalation) if given', function () {
+//       var allAddresses = f.addresses.concat(f.changeAddresses)
+//       var nodes = account.getChildren(allAddresses, parents)
+//       var actual = nodes.map(function (node) { return node.toBase58() })
+//
+//       assert.deepEqual(actual, f.children)
+//     })
+//
+//     it('throws if address is not known', function () {
+//       assert.throws(function () {
+//         account.getChildren(['mpFZW4A9QtRuSpuh9SmeW7RSzFE3TgB8Ko'])
+//       }, /mpFZW4A9QtRuSpuh9SmeW7RSzFE3TgB8Ko not found/)
+//     })
+//   })
+
+// verify *JSON functions
+fixtures2.forEach(function (f) {
+  var network = bitcoinjs.networks[f.network]
+  var account = Account.fromJSON(f.json, network)
+
+  test('fromJSON imports ' + f.seed.slice(0, 20) + '...', function (t) {
+    f.json.forEach(function (jc, i) {
+      var chain = account.getChain(i)
+
+      t.same(chain.map, jc.map, 'k map matches')
+      t.equal(Object.keys(jc.map).every(function (address) {
+        return chain.addresses.indexOf(address) !== -1
+      }), true, 'imported every address')
+    })
+    t.end()
+  })
+
+  test('toJSON exports ' + f.seed.slice(0, 20) + '...', function (t) {
+    t.plan(1)
+    t.same(account.toJSON(), f.json)
+  })
+})
+

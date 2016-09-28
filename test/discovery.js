@@ -1,44 +1,30 @@
-/* global beforeEach describe it */
-
-var assert = require('assert')
 var bitcoinjs = require('bitcoinjs-lib')
-
 var Chain = require('../src/chain')
 var discovery = require('../src/discovery')
+var test = require('tape')
 
 var fixtures = require('./fixtures/discovery')
 
-describe('Discovery', function () {
-  this.timeout(10000)
+fixtures.valid.forEach(function (f) {
+  var network = bitcoinjs.networks[f.network]
+  var external = bitcoinjs.HDNode.fromBase58(f.external, network)
+  var chain = new Chain(external, f.k)
 
-  fixtures.valid.forEach(function (f) {
-    var chain
+  test('discovers until ' + f.expected.used + ' for ' + f.description + ' (GAP_LIMIT = ' + f.gapLimit + ')', function (t) {
+    discovery(chain, f.gapLimit, function (addresses, callback) {
+      return callback(undefined, addresses.map(function (address) {
+        return !!f.used[address]
+      }))
+    }, function (err, used, checked) {
+      t.ifErr(err, 'no error')
+      t.equal(used, f.expected.used, 'used as expected')
+      t.equal(checked, f.expected.checked, 'checked count as expected')
 
-    beforeEach(function () {
-      var network = bitcoinjs.networks[f.network]
-      var external = bitcoinjs.HDNode.fromBase58(f.external, network)
+      var unused = checked - used
+      for (var i = 1; i < unused; ++i) chain.pop()
 
-      chain = new Chain(external, f.k)
-    })
-
-    it('discovers until ' + f.expected.used + ' for ' + f.description + ' (GAP_LIMIT = ' + f.gapLimit + ')', function (done) {
-      discovery(chain, f.gapLimit, function (addresses, callback) {
-        return callback(undefined, addresses.map(function (address) {
-          return !!f.used[address]
-        }))
-      }, function (err, used, checked) {
-        if (err) return done(err)
-
-        assert.equal(used, f.expected.used)
-        assert.equal(checked, f.expected.checked)
-
-        var unused = checked - used
-        for (var i = 1; i < unused; ++i) chain.pop()
-
-        assert.equal(chain.get(), f.expected.nextToUse)
-
-        return done()
-      })
+      t.equal(chain.get(), f.expected.nextToUse, 'next address to use matches')
+      t.end()
     })
   })
 })

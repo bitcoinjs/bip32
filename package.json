@@ -25,35 +25,18 @@
     "bitcoin"
   ],
   "scripts": {
-    "coverage": "mocha --require blanket -R travis-cov",
-    "coverage-local": "mocha --require blanket -R html-cov",
-    "prepublish": "npm run test",
+    "coverage-report": "nyc report --reporter=lcov",
+    "coverage": "nyc --check-coverage --branches 90 --functions 90 mocha",
     "standard": "standard",
     "test": "npm run standard && npm run unit",
-    "unit": "mocha"
+    "unit": "tape test/*.js"
   },
-  "config": {
-    "blanket": {
-      "pattern": [
-        ""
-      ],
-      "data-cover-never": [
-        "node_modules",
-        "test"
-      ]
-    },
-    "travis-cov": {
-      "threshold": 100
-    }
-  },
-  "dependencies": {},
   "devDependencies": {
-    "blanket": "*",
-    "mocha": "*",
+    "nyc": "*",
     "standard": "*",
-    "travis-cov": "*"
+    "tape": "*"
   },
   "peerDependencies": {
-    "bitcoinjs-lib": "^2.0.0"
+    "bitcoinjs-lib": "^2.3.0"
   }
 }
