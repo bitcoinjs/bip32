@@ -57,27 +57,38 @@ var bip32utils = require('bip32-utils')
 
 // ...
 
-var hdNode = bitcoin.HDNode.fromSeedHex(seedHex)
-var external = hdNode.derive(0)
-var internal = hdNode.derive(1)
-var account = new bip32utils.Account(external.neutered(), internal.neutered())
+var m = bitcoin.HDNode.fromSeedHex(seedHex)
+var i = hdNode.deriveHardened(0)
+var external = i.derive(0)
+var internal = i.derive(1)
+var account = new bip32utils.Account([
+	new bip32utils.Chain(external.neutered())
+	new bip32utils.Chain(internal.neutered())
+])
 
-console.log(account.getExternalAddress())
+console.log(account.getChainAddress(0))
 // => 1QEj2WQD9vxTzsGEvnmLpvzeLVrpzyKkGt
 
-account.nextExternalAddress()
+account.nextChainAddress(0)
 
-console.log(account.getExternalAddress())
+console.log(account.getChainAddress(1))
 // => 1DAi282VN7Ack9o5BqWYkiEsS8Vgx1rLn
 
-console.log(account.getInternalAddress())
+console.log(account.getChainAddress(1))
 // => 1CXKM323V3kkrHmZQYPUTftGh9VrAWuAYX
 
-console.log(account.getChildren(account.addresses).join(' '))
-// => xpub6A5Fz4JZg4kd8pLTTaMBKsvVgzRBrvai6ChoxWNTtYQ3UDVG1VyAWQqi6SNqkpsfsx9F8pRqwtKUbU4j4gqpuN2gpgQs4DiJxsJQvTjdzfA ...
+console.log(account.getChildrenMap(account.getAllAddresses()))
+// => {
+	1QEj2WQD9vxTzsGEvnmLpvzeLVrpzyKkGt: xpub6A5Fz4JZg4kd8pLTTaMBKsvVgzRBrvai6ChoxWNTtYQ3UDVG1VyAWQqi6SNqkpsfsx9F8pRqwtKUbU4j4gqpuN2gpgQs4DiJxsJQvTjdzfA,
+	...
+}
 
-console.log(account.getChildren(account.addresses, internal, external).join(' '))
-// => xprv9vodQPEygdPGUWeKUVNd6M2N533PvEYP21tYxznauyhrYBBCmdKxRJzmnsTsSNqfTJPrDF98GbLCm6xRnjceZ238Qkf5GQGHk79CrFqtG4d ...
+console.log(account.getChildrenMap(account.getAllAddresses(), [external, internal]))
+// => {
+	1QEj2WQD9vxTzsGEvnmLpvzeLVrpzyKkGt: xprv9vodQPEygdPGUWeKUVNd6M2N533PvEYP21tYxznauyhrYBBCmdKxRJzmnsTsSNqfTJPrDF98GbLCm6xRnjceZ238Qkf5GQGHk79CrFqtG4d,
+	...
+}
+// NOTE: passing in the parent nodes allows for private key escalation (see xprv vs xpub)
 ```
 
 
@@ -96,7 +107,7 @@ for (var k = 0; k < 10; ++k) chain.next()
 
 var address = chain.get()
 
-console.log(chain.indexOf(address))
+console.log(chain.find(address))
 // => 9
 
 console.log(chain.pop())
