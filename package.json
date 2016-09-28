@@ -14,7 +14,15 @@
   },
   "homepage": "https://github.com/bitcoinjs/bip32-utils",
   "keywords": [
-    "bip32-utils"
+    "bip32-utils",
+    "bip32",
+    "bip44",
+    "account",
+    "chain",
+    "discovery",
+    "gap",
+    "bitcoinjs",
+    "bitcoin"
   ],
   "scripts": {
     "coverage": "mocha --require blanket -R travis-cov",
