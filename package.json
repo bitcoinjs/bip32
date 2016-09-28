@@ -26,7 +26,7 @@
   ],
   "scripts": {
     "coverage-report": "nyc report --reporter=lcov",
-    "coverage": "nyc --check-coverage --branches 90 --functions 90 mocha",
+    "coverage": "nyc --check-coverage --branches 90 --functions 90 npm run unit",
     "standard": "standard",
     "test": "npm run standard && npm run unit",
     "unit": "tape test/*.js"
