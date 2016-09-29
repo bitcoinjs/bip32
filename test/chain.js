@@ -21,21 +21,35 @@ fixtures.forEach(function (f) {
 
   test('clone', function (t) {
     var chain = new Chain(node)
-    for (var i = 0; i < 29; ++i) chain.next()
     var clone = chain.clone()
 
-    t.plan(5)
+    t.plan(15)
 
     // by reference
     t.equal(chain.__parent, clone.__parent, 'same parent')
 
     // by value
-    t.equal(chain.k, clone.k, 'k copied (equal)')
-    t.notEqual(chain.addresses, clone.addresses, 'array copied (different objects)')
-    t.notEqual(chain.map, clone.map, 'object copied (different objects)')
+    t.equal(chain.k, clone.k, 'k copied')
+    t.notEqual(chain.addresses, clone.addresses, 'address arrays are different objects')
+    t.same(chain.addresses, clone.addresses, 'address arrays are deep copied')
+    t.notEqual(chain.map, clone.map, 'k maps are different objects')
+    t.same(chain.map, clone.map, 'k map is deep copied')
 
-    chain.addresses[100] = true
-    t.equal(clone.addresses[100], undefined, 'was deep copied')
+    for (var i = 0; i < 7; ++i) chain.next()
+    t.equal(clone.k, 0, 'k unchanged by mutation')
+    t.notEqual(chain.k, clone.k, 'k unchanged by mutation (2)')
+    t.notSame(chain.addresses, clone.addresses, 'address array unchanged by mutation')
+    t.notSame(chain.map, clone.map, 'k map unchanged by mutation')
+
+    // re-clone
+    clone = chain.clone()
+
+    // re-verify
+    t.equal(chain.k, clone.k, 'k copied')
+    t.notEqual(chain.addresses, clone.addresses, 'address arrays are different objects')
+    t.same(chain.addresses, clone.addresses, 'address arrays are deep copied')
+    t.notEqual(chain.map, clone.map, 'k maps are different objects')
+    t.same(chain.map, clone.map, 'k map is deep copied')
   })
 
   test('get', function (t) {
