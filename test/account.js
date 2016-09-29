@@ -88,7 +88,14 @@ test('nextChainAddress', function (t) {
   t.end()
 })
 
-// TODO: getChains
+test('getChains', function (t) {
+  var account = blankAccount(f.neutered.json)
+
+  t.plan(2)
+  t.equal(account.getChains().length, 2, 'returns the expected number of chains')
+  t.equal(account.getChains(), account.chains, 'matches internal .chains')
+})
+
 // TODO
 test('discoverChain', function (t) {
   // .getChainAddress() should remain the same after a uneventful discovery
