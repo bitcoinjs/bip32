@@ -21,6 +21,7 @@ fixtures.forEach(function (f) {
 
   test('clone', function (t) {
     var chain = new Chain(node)
+    for (var i = 0; i < 29; ++i) chain.next()
     var clone = chain.clone()
 
     t.plan(5)
