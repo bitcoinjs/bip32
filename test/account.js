@@ -171,3 +171,12 @@ test('getChildrenMap', function (t) {
 
   t.end()
 })
+
+test('toJSON', function (t) {
+  var neutered = Account.fromJSON(f.neutered.json)
+  var priv = Account.fromJSON(f.private.json)
+
+  t.plan(2)
+  t.same(neutered.toJSON(), f.neutered.json, 'neutered json matches fixtures')
+  t.same(priv.toJSON(), f.private.json, 'priv json matches fixtures')
+})
