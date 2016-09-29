@@ -99,14 +99,15 @@ test('discoverChain', function (t) {
 test('getChildrenMap', function (t) {
   function jsonify (map) {
     for (var x in map) map[x] = map[x].toBase58()
+    return map
   }
 
-  t.test('neutered node', function (t) {
-    var neutered = Account.fromJSON(f.neutered.json)
+  var neutered = Account.fromJSON(f.neutered.json)
 
+  t.test('neutered node', function (t) {
     f.addresses.forEach(function (addresses, i) {
-      var actual = jsonify(neutered.getChildrenMap(addresses))
-      t.same(f.children, actual, 'returns neutered children')
+      var actual = neutered.getChildrenMap(addresses)
+      t.same(f.neutered.children[i], jsonify(actual), 'returns neutered children')
     })
 
     var emptyMap = neutered.getChildrenMap(['mpFZW4A9QtRuSpuh9SmeW7RSzFE3TgB8Ko'])
@@ -115,12 +116,33 @@ test('getChildrenMap', function (t) {
     t.end()
   })
 
-  t.test('private node', function (t) {
-    var priv = Account.fromJSON(f.private.json)
+  var priv = Account.fromJSON(f.private.json)
+
+  t.test('neutered node w/ escalation', function (t) {
+    var privParents = priv.chains.map(function (x) {
+      return x.__parent
+    })
 
     f.addresses.forEach(function (addresses, i) {
-      var actual = jsonify(priv.getChildrenMap(addresses))
-      t.same(f.children, actual, 'returns private children')
+      var actual = neutered.getChildrenMap(addresses, privParents)
+      t.same(f.private.children[i], jsonify(actual), 'returns private children')
+    })
+
+    f.addresses.forEach(function (addresses, i) {
+      var actual = neutered.getChildrenMap(addresses)
+      t.same(f.neutered.children[i], jsonify(actual), 'still returns neutered children if no parameter provided')
+    })
+
+    var emptyMap = neutered.getChildrenMap(['mpFZW4A9QtRuSpuh9SmeW7RSzFE3TgB8Ko'], privParents)
+    t.same(emptyMap, {}, 'ignores unknown children')
+
+    t.end()
+  })
+
+  t.test('private node', function (t) {
+    f.addresses.forEach(function (addresses, i) {
+      var actual = priv.getChildrenMap(addresses)
+      t.same(f.private.children[i], jsonify(actual), 'returns private children')
     })
 
     var emptyMap = priv.getChildrenMap(['mpFZW4A9QtRuSpuh9SmeW7RSzFE3TgB8Ko'])
