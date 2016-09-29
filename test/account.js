@@ -88,11 +88,22 @@ test('nextChainAddress', function (t) {
   t.end()
 })
 
+test('getChain', function (t) {
+  var account = blankAccount(f.neutered.json)
+
+  f.neutered.json.forEach(function (_, i) {
+    t.equal(typeof account.getChain(i), 'object')
+    t.equal(account.getChain(i), account.chains[i], 'matches internal .chain')
+  })
+
+  t.end()
+})
+
 test('getChains', function (t) {
   var account = blankAccount(f.neutered.json)
 
   t.plan(2)
-  t.equal(account.getChains().length, 2, 'returns the expected number of chains')
+  t.equal(account.getChains().length, f.neutered.json.length, 'returns the expected number of chains')
   t.equal(account.getChains(), account.chains, 'matches internal .chains')
 })
 
