@@ -32,14 +32,18 @@ Account.prototype.containsAddress = function (address) {
 }
 
 Account.prototype.discoverChain = function (i, gapLimit, queryCallback, callback) {
-  var chain = this.getChain(i)
+  var chains = this.chains
+  var chain = chains[i].clone()
 
   discovery(chain, gapLimit, queryCallback, function (err, used, checked) {
     if (err) return callback(err)
 
     // throw away EACH unused address AFTER the last unused address
     var unused = checked - used
-    for (var i = 1; i < unused; ++i) chain.pop()
+    for (var j = 1; j < unused; ++j) chain.pop()
+
+    // override the internal chain
+    chains[i] = chain
 
     callback()
   })
