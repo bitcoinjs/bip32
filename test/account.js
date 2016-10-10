@@ -25,6 +25,39 @@ test('containsAddress', function (t) {
   t.end()
 })
 
+test('discoverChain', function (t) {
+  var account = Account.fromJSON(f.neutered.json)
+  var before = account.getChainAddress(0)
+  var after = account.getChain(0).clone().next()
+
+  t.test('does not mutate the chain during discovery', function (t) {
+    t.plan(2)
+
+    account.discoverChain(0, 20, function (addresses, callback) {
+      return callback(undefined, addresses.map(function (address) {
+        // account.containsAddress would return true if internally the chain was iterating
+        return address !== before && account.containsAddress(address)
+      }))
+    }, function (err) {
+      t.ifErr(err, 'no error')
+      t.equal(account.getChainAddress(0), before, 'internal chain was unchanged')
+    })
+  })
+
+  t.test('does mutate the chain post-discovery', function (t) {
+    t.plan(2)
+
+    account.discoverChain(0, 20, function (addresses, callback) {
+      return callback(undefined, addresses.map(function (address) {
+        return account.containsAddress(address)
+      }))
+    }, function (err) {
+      t.ifErr(err, 'no error')
+      t.equal(account.getChainAddress(0), after, 'internal chain iterated forward one address')
+    })
+  })
+})
+
 test('getAllAddresses', function (t) {
   var account = blankAccount(f.neutered.json)
 
