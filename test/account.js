@@ -1,6 +1,5 @@
 var Account = require('../account')
 var Chain = require('../chain')
-// var bitcoinjs = require('bitcoinjs-lib')
 var test = require('tape')
 
 var f = require('./fixtures/account')

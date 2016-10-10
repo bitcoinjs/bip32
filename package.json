@@ -32,6 +32,7 @@
     "unit": "tape test/*.js"
   },
   "devDependencies": {
+    "bitcoinjs-lib": "^2.3.0",
     "nyc": "*",
     "standard": "*",
     "tape": "*"
