@@ -1,4 +1,4 @@
-# 0.8.1
+# 0.8.2
 * adds `Chain.prototype.derive` with escalation parameter
 
 # 0.8.0
