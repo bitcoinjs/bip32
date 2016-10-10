@@ -1,3 +1,6 @@
+# 0.8.3
+* fixes `Account.prototype.discoverChain` mutating the internal **during** discovery (instead of mutating after)
+
 # 0.8.2
 * adds `Chain.prototype.derive` with escalation parameter
 
