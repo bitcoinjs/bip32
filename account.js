@@ -62,21 +62,13 @@ Account.prototype.getChildrenMap = function (addresses, parents) {
   var children = {}
 
   addresses.forEach(function (address) {
-    // skip duplicates
     if (children[address]) return
 
     chains.some(function (chain, i) {
-      var k = chain.find(address)
-      if (k === undefined) return
+      var derived = chain.derive(address, parents && parents[i])
+      if (!derived) return false
 
-      var parent
-      if (parents !== undefined) {
-        parent = parents[i]
-      } else {
-        parent = chains[i].getParent()
-      }
-
-      children[address] = parent.derive(k)
+      children[address] = derived
       return true
     })
   })

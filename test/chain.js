@@ -60,6 +60,21 @@ fixtures.forEach(function (f) {
     t.equal(chain.get(), f.addresses[f.addresses.length - 1], 'returns the last address')
   })
 
+  test('find/derive', function (t) {
+    var neutered = node.neutered()
+    var chain = new Chain(neutered, f.k)
+
+    t.plan(30)
+    for (var i = 0; i < 10; ++i) {
+      var address = chain.get()
+
+      t.equal(chain.find(address), f.k + i)
+      t.same(chain.derive(address), neutered.derive(f.k + i))
+      t.same(chain.derive(address, node), node.derive(f.k + i))
+      chain.next()
+    }
+  })
+
   test('next', function (t) {
     var chain = new Chain(node, f.k - f.addresses.length + 1)
     var first3 = f.addresses.slice(0, 3)

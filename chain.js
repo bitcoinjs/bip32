@@ -22,6 +22,14 @@ Chain.prototype.clone = function () {
   return chain
 }
 
+Chain.prototype.derive = function (address, parent) {
+  var k = this.map[address]
+  if (k === undefined) return
+
+  parent = parent || this.__parent
+  return parent.derive(k)
+}
+
 Chain.prototype.find = function (address) {
   return this.map[address]
 }
