@@ -11,45 +11,6 @@ Compatible with bitcoinjs-lib `2.0.0`.
 
 ## Example
 
-``` javascript
-var bip32utils = require('bip32-utils')
-var bitcoin = require('bitcoinjs-lib')
-var Blockchain = require('cb-blockr')
-
-// ...
-
-var blockchain = new Blockchain('testnet')
-var hdNode = bitcoin.HDNode.fromSeedHex(seedHex)
-var chain = bip32utils.Chain(hdNode)
-var GAP_LIMIT = 20
-
-bip32utils.discovery(chain, GAP_LIMIT, function(addresses, callback) {
-  blockchain.addresses.summary(addresses, function(err, results) {
-    if (err) return callback(err)
-
-    var areUsed = results.map(function(result) {
-      return result.totalReceived > 0
-    })
-
-    callback(undefined, areUsed)
-  })
-}, function(err, used, checked) {
-  if (err) throw err
-
-  console.log('Discovered at most ' + used + ' used addresses')
-  console.log('Checked ' + checked + ' addresses')
-  console.log('With at least ' + (checked - used) + ' unused addresses')
-
-  // throw away ALL unused addresses AFTER the last unused address
-  var unused = checked - used
-  for (var i = 1; i < unused; ++i) chain.pop()
-
-  // remember used !== total, chain may have started at a k-index > 0
-  console.log('Total number of addresses (after prune): ', chain.addresses.length)
-})
-```
-
-
 BIP32 Account
 ``` javascript
 var bitcoin = require('bitcoinjs-lib')
@@ -93,7 +54,6 @@ console.log(account.getChildrenMap(account.getAllAddresses(), [external, interna
 
 
 BIP32 Chains
-
 ``` javascript
 var bitcoin = require('bitcoinjs-lib')
 var bip32utils = require('bip32-utils')
@@ -113,5 +73,46 @@ console.log(chain.find(address))
 console.log(chain.pop())
 // => address
 ```
+
+
+BIP32 Discovery (manual)
+``` javascript
+var bip32utils = require('bip32-utils')
+var bitcoin = require('bitcoinjs-lib')
+var Blockchain = require('cb-blockr')
+
+// ...
+
+var blockchain = new Blockchain('testnet')
+var hdNode = bitcoin.HDNode.fromSeedHex(seedHex)
+var chain = bip32utils.Chain(hdNode)
+var GAP_LIMIT = 20
+
+bip32utils.discovery(chain, GAP_LIMIT, function(addresses, callback) {
+  blockchain.addresses.summary(addresses, function(err, results) {
+    if (err) return callback(err)
+
+    var areUsed = results.map(function(result) {
+      return result.totalReceived > 0
+    })
+
+    callback(undefined, areUsed)
+  })
+}, function(err, used, checked) {
+  if (err) throw err
+
+  console.log('Discovered at most ' + used + ' used addresses')
+  console.log('Checked ' + checked + ' addresses')
+  console.log('With at least ' + (checked - used) + ' unused addresses')
+
+  // throw away ALL unused addresses AFTER the last unused address
+  var unused = checked - used
+  for (var i = 1; i < unused; ++i) chain.pop()
+
+  // remember used !== total, chain may have started at a k-index > 0
+  console.log('Total number of addresses (after prune): ', chain.addresses.length)
+})
+```
+
 
 ## LICENSE [MIT](LICENSE)
