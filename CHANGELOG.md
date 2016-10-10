@@ -1,3 +1,6 @@
+# 0.8.1
+* adds `Chain.prototype.derive` with escalation parameter
+
 # 0.8.0
 * adds `Account.*JSON` functions
 * changes `Account.getChildren` to `Account.getChildrenMap`, returns an address-indexed map and does not throw if not fuond
