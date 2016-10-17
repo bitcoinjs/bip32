@@ -31,6 +31,18 @@ Account.prototype.containsAddress = function (address) {
   })
 }
 
+// optional parents argument for private key escalation
+Account.prototype.derive = function (address, parents) {
+  var derived
+
+  this.chains.some(function (chain, i) {
+    derived = chain.derive(address, parents && parents[i])
+    return derived
+  })
+
+  return derived
+}
+
 Account.prototype.discoverChain = function (i, gapLimit, queryCallback, callback) {
   var chains = this.chains
   var chain = chains[i].clone()
@@ -59,26 +71,6 @@ Account.prototype.getChain = function (i) { return this.chains[i] }
 Account.prototype.getChains = function () { return this.chains }
 Account.prototype.getChainAddress = function (i) { return this.chains[i].get() }
 Account.prototype.getNetwork = function () { return this.chains[0].getParent().keyPair.network }
-
-// optional parents argument for private key escalation
-Account.prototype.getChildrenMap = function (addresses, parents) {
-  var chains = this.chains
-  var children = {}
-
-  addresses.forEach(function (address) {
-    if (children[address]) return
-
-    chains.some(function (chain, i) {
-      var derived = chain.derive(address, parents && parents[i])
-      if (!derived) return false
-
-      children[address] = derived
-      return true
-    })
-  })
-
-  return children
-}
 
 Account.prototype.isChainAddress = function (i, address) {
   return this.chains[i].find(address) !== undefined

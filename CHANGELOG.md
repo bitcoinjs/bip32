@@ -1,3 +1,7 @@
+# 0.9.0
+* add `Account.prototype.derive(address, parents)`
+* removes `Account.prototype.getChildrenMap`, replaced with `.derive`
+
 # 0.8.3
 * fixes `Account.prototype.discoverChain` mutating the internal **during** discovery (instead of mutating after)
 

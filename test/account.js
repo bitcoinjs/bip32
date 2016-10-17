@@ -139,68 +139,65 @@ test('getChains', function (t) {
   t.equal(account.getChains(), account.chains, 'matches internal .chains')
 })
 
-// TODO
-test('discoverChain', function (t) {
-  // .getChainAddress() should remain the same after a uneventful discovery
-  // .getChainAddress() should change after an eventful discovery
-  t.end()
-})
-
-test('getChildrenMap', function (t) {
-  function jsonify (map) {
-    for (var x in map) map[x] = map[x].toBase58()
-    return map
-  }
-
+test('derive', function (t) {
   var neutered = Account.fromJSON(f.neutered.json)
 
   t.test('neutered node', function (t) {
     f.addresses.forEach(function (addresses, i) {
-      var actual = neutered.getChildrenMap(addresses)
-      t.same(f.neutered.children[i], jsonify(actual), 'returns neutered children')
+      addresses.forEach(function (address, j) {
+        var actual = neutered.derive(address)
+        var expected = f.neutered.children[i][j]
+
+        t.equal(expected, actual.toBase58(), 'return a neutered node')
+      })
     })
 
-    var emptyMap = neutered.getChildrenMap(['mpFZW4A9QtRuSpuh9SmeW7RSzFE3TgB8Ko'])
-    t.same(emptyMap, {}, 'ignores unknown children')
-
+    var unknown = neutered.derive('mpFZW4A9QtRuSpuh9SmeW7RSzFE3TgB8Ko')
+    t.equal(undefined, unknown, 'ignores unknown addresses')
     t.end()
   })
 
   var priv = Account.fromJSON(f.private.json)
 
   t.test('neutered node w/ escalation', function (t) {
-    var privParents = priv.chains.map(function (x) {
-      return x.__parent
-    })
+    var privParents = priv.chains.map(function (x) { return x.__parent })
 
     f.addresses.forEach(function (addresses, i) {
-      var actual = neutered.getChildrenMap(addresses, privParents)
-      t.same(f.private.children[i], jsonify(actual), 'returns private children')
+      addresses.forEach(function (address, j) {
+        var actual = neutered.derive(address, privParents)
+        var expected = f.private.children[i][j]
+
+        t.equal(expected, actual.toBase58(), 'returns a private node')
+      })
     })
 
-    f.addresses.forEach(function (addresses, i) {
-      var actual = neutered.getChildrenMap(addresses)
-      t.same(f.neutered.children[i], jsonify(actual), 'still returns neutered children if no parameter provided')
-    })
-
-    var emptyMap = neutered.getChildrenMap(['mpFZW4A9QtRuSpuh9SmeW7RSzFE3TgB8Ko'], privParents)
-    t.same(emptyMap, {}, 'ignores unknown children')
-
+    var unknown = neutered.derive('mpFZW4A9QtRuSpuh9SmeW7RSzFE3TgB8Ko')
+    t.equal(undefined, unknown, 'ignores unknown addresses')
     t.end()
   })
 
   t.test('private node', function (t) {
     f.addresses.forEach(function (addresses, i) {
-      var actual = priv.getChildrenMap(addresses)
-      t.same(f.private.children[i], jsonify(actual), 'returns private children')
+      addresses.forEach(function (address, j) {
+        var actual = priv.derive(address)
+        var expected = f.private.children[i][j]
+
+        t.equal(expected, actual.toBase58(), 'returns a private node')
+      })
     })
 
-    var emptyMap = priv.getChildrenMap(['mpFZW4A9QtRuSpuh9SmeW7RSzFE3TgB8Ko'])
-    t.same(emptyMap, {}, 'ignores unknown children')
-
+    var unknown = neutered.derive('mpFZW4A9QtRuSpuh9SmeW7RSzFE3TgB8Ko')
+    t.equal(undefined, unknown, 'ignores unknown addresses')
     t.end()
   })
 
+  t.end()
+})
+
+// TODO
+test('discoverChain', function (t) {
+  // .getChainAddress() should remain the same after a uneventful discovery
+  // .getChainAddress() should change after an eventful discovery
   t.end()
 })
 
