@@ -38,18 +38,13 @@ console.log(account.getChainAddress(1))
 console.log(account.getChainAddress(1))
 // => 1CXKM323V3kkrHmZQYPUTftGh9VrAWuAYX
 
-console.log(account.getChildrenMap(account.getAllAddresses()))
-// => {
-// 	"1QEj2WQD9vxTzsGEvnmLpvzeLVrpzyKkGt": "xpub6A5Fz4JZg4kd8pLTTaMBKsvVgzRBrvai6ChoxWNTtYQ3UDVG1VyAWQqi6SNqkpsfsx9F8pRqwtKUbU4j4gqpuN2gpgQs4DiJxsJQvTjdzfA",
-// 	...
-// }
+console.log(account.derive('1QEj2WQD9vxTzsGEvnmLpvzeLVrpzyKkGt'))
+// => xpub6A5Fz4JZg4kd8pLTTaMBKsvVgzRBrvai6ChoxWNTtYQ3UDVG1VyAWQqi6SNqkpsfsx9F8pRqwtKUbU4j4gqpuN2gpgQs4DiJxsJQvTjdzfA
 
-console.log(account.getChildrenMap(account.getAllAddresses(), [external, internal]))
-// => {
-//	"1QEj2WQD9vxTzsGEvnmLpvzeLVrpzyKkGt": "xprv9vodQPEygdPGUWeKUVNd6M2N533PvEYP21tYxznauyhrYBBCmdKxRJzmnsTsSNqfTJPrDF98GbLCm6xRnjceZ238Qkf5GQGHk79CrFqtG4d",
-//	...
-// }
 // NOTE: passing in the parent nodes allows for private key escalation (see xprv vs xpub)
+
+console.log(account.derive('1QEj2WQD9vxTzsGEvnmLpvzeLVrpzyKkGt', [external, internal]))
+// => xprv9vodQPEygdPGUWeKUVNd6M2N533PvEYP21tYxznauyhrYBBCmdKxRJzmnsTsSNqfTJPrDF98GbLCm6xRnjceZ238Qkf5GQGHk79CrFqtG4d
 ```
 
 
