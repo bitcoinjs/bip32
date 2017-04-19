@@ -11,7 +11,7 @@ Compatible with bitcoinjs-lib `2.0.0`.
 
 ## Example
 
-BIP32 Account
+#### BIP32 Account
 ``` javascript
 var bitcoin = require('bitcoinjs-lib')
 var bip32utils = require('bip32-utils')
@@ -23,7 +23,7 @@ var i = m.deriveHardened(0)
 var external = i.derive(0)
 var internal = i.derive(1)
 var account = new bip32utils.Account([
-	new bip32utils.Chain(external.neutered())
+	new bip32utils.Chain(external.neutered()),
 	new bip32utils.Chain(internal.neutered())
 ])
 
@@ -48,7 +48,7 @@ console.log(account.derive('1QEj2WQD9vxTzsGEvnmLpvzeLVrpzyKkGt', [external, inte
 ```
 
 
-BIP32 Chains
+#### BIP32 Chains
 ``` javascript
 var bitcoin = require('bitcoinjs-lib')
 var bip32utils = require('bip32-utils')
@@ -70,7 +70,7 @@ console.log(chain.pop())
 ```
 
 
-BIP32 Discovery (manual)
+#### BIP32 Discovery (manual)
 ``` javascript
 var bip32utils = require('bip32-utils')
 var bitcoin = require('bitcoinjs-lib')
