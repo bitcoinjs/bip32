@@ -34,7 +34,7 @@ test('discoverChain', function (t) {
     t.plan(2)
 
     account.discoverChain(0, 20, function (addresses, callback) {
-      return callback(undefined, addresses.map(function (address) {
+      return callback(null, addresses.map(function (address) {
         // account.containsAddress would return true if internally the chain was iterating
         return address !== before && account.containsAddress(address)
       }))
@@ -48,7 +48,7 @@ test('discoverChain', function (t) {
     t.plan(2)
 
     account.discoverChain(0, 20, function (addresses, callback) {
-      return callback(undefined, addresses.map(function (address) {
+      return callback(null, addresses.map(function (address) {
         return account.containsAddress(address)
       }))
     }, function (err) {

@@ -12,7 +12,7 @@ fixtures.valid.forEach(function (f) {
 
   test('discovers until ' + f.expected.used + ' for ' + f.description + ' (GAP_LIMIT = ' + f.gapLimit + ')', function (t) {
     discovery(chain, f.gapLimit, function (addresses, callback) {
-      return callback(undefined, addresses.map(function (address) {
+      return callback(null, addresses.map(function (address) {
         return !!f.used[address]
       }))
     }, function (err, used, checked) {

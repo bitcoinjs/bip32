@@ -32,12 +32,12 @@
     "unit": "tape test/*.js"
   },
   "devDependencies": {
-    "bitcoinjs-lib": "^2.3.0",
+    "bitcoinjs-lib": "^3.0.0",
     "nyc": "*",
     "standard": "*",
     "tape": "*"
   },
   "peerDependencies": {
-    "bitcoinjs-lib": "^2.3.0"
+    "bitcoinjs-lib": "^3.0.0"
   }
 }
