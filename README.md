@@ -23,8 +23,8 @@ var i = m.deriveHardened(0)
 var external = i.derive(0)
 var internal = i.derive(1)
 var account = new bip32utils.Account([
-	new bip32utils.Chain(external.neutered()),
-	new bip32utils.Chain(internal.neutered())
+  new bip32utils.Chain(external.neutered()),
+  new bip32utils.Chain(internal.neutered())
 ])
 
 console.log(account.getChainAddress(0))
