@@ -25,6 +25,12 @@ Account.fromJSON = function (json, network) {
   return new Account(chains)
 }
 
+Account.prototype.clone = function () {
+  return new Account(this.chains.map(function (chain) {
+    return chain.clone()
+  }))
+}
+
 Account.prototype.containsAddress = function (address) {
   return this.chains.some(function (chain) {
     return chain.find(address) !== undefined

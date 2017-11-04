@@ -25,6 +25,23 @@ test('containsAddress', function (t) {
   t.end()
 })
 
+test('clone', function (t) {
+  var account = Account.fromJSON(f.neutered.json)
+  var clone = account.clone()
+
+  // by reference
+  t.equal(account.chains.length, clone.chains.length, 'same number of chains')
+  t.notEqual(account.chains, clone.chains, 'chain arrays are different arrays')
+  t.same(account.chains, clone.chains, 'chains are deep copied')
+  for (var i = 0; i < account.chains.length; ++i) {
+    t.notEqual(account.chains[i], clone.chains[i], 'chains are different objects')
+  }
+
+  account.nextChainAddress(1)
+  t.notSame(account.chains, clone.chains, 'chains now diverge, 1 has an extra address')
+  t.end()
+})
+
 test('discoverChain', function (t) {
   var account = Account.fromJSON(f.neutered.json)
   var before = account.getChainAddress(0)
