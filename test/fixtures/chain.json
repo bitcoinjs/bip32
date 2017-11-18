@@ -1,5 +1,22 @@
 [
   {
+    "addressFunction": "segwit",
+    "addresses": [
+      "bc1q99vym3xh00dn659kd0ajj59hjrfzrqwxjtqxjz",
+      "bc1qqv5dqszlqg33wjtn80xyneknq6atfg6w7f4upp",
+      "bc1q8zzdyhujemc68kgexd7kqxq3cxgk0ac2nwze70",
+      "bc1q9qfcjzp8qd2azktlgv4xmp9cvmnrkxa54k3ecr"
+    ],
+    "k": 3,
+    "map": {
+      "bc1q99vym3xh00dn659kd0ajj59hjrfzrqwxjtqxjz": 0,
+      "bc1qqv5dqszlqg33wjtn80xyneknq6atfg6w7f4upp": 1,
+      "bc1q8zzdyhujemc68kgexd7kqxq3cxgk0ac2nwze70": 2,
+      "bc1q9qfcjzp8qd2azktlgv4xmp9cvmnrkxa54k3ecr": 3
+    },
+    "node": "xprv9s21ZrQH143K2muoCkQq38JjsN4PGCovkjh7LVauc5cgRnkVoEtt1cDA5AjkFTBwfMwJrqw2JRWZk7YkvEQDFScF1BNJoz7CaPeqjkU1WYW"
+  },
+  {
     "addresses": [
       "14mcVKY4W935C7M6rQaEUL3Vjc3bGjrh8s",
       "1HhvM4n8TwNZJfo1EWc3xeqzpoRYPQSbK",
@@ -32,6 +49,23 @@
       "1BuyYw8nWEPEjhNmA4gtRKKQEy4u1uofdD": 8,
       "1KJ9KuEH3EyrqsqXRPSwZX27aD35VD52Ni": 9,
       "1BJ2UQpsyRgo8ZNaVPFBtvtRX2F9tCVtan": 10
+    },
+    "node": "xprv9s21ZrQH143K2muoCkQq38JjsN4PGCovkjh7LVauc5cgRnkVoEtt1cDA5AjkFTBwfMwJrqw2JRWZk7YkvEQDFScF1BNJoz7CaPeqjkU1WYW"
+  },
+  {
+    "addressFunction": "eth",
+    "addresses": [
+      "0x8afb810bd34e0bef8be88959ef21ad618ce8c5eb31b960d4a2e142c109784f97",
+      "0x4c8ee95d7d9cacab1db2599e34aa7b821948468272778b3a8ebce43ec15f93ed",
+      "0xc43bd9d439085d86c6ae446ac0b995d928c73b454e3f208b4c586986cef7d568",
+      "0x7421b47a0bf52fb9210722a82a2a7fda54fdd8ee9b860de201ad5aa9a37bf4d4"
+    ],
+    "k": 3,
+    "map": {
+      "0x8afb810bd34e0bef8be88959ef21ad618ce8c5eb31b960d4a2e142c109784f97": 0,
+      "0x4c8ee95d7d9cacab1db2599e34aa7b821948468272778b3a8ebce43ec15f93ed": 1,
+      "0xc43bd9d439085d86c6ae446ac0b995d928c73b454e3f208b4c586986cef7d568": 2,
+      "0x7421b47a0bf52fb9210722a82a2a7fda54fdd8ee9b860de201ad5aa9a37bf4d4": 3
     },
     "node": "xprv9s21ZrQH143K2muoCkQq38JjsN4PGCovkjh7LVauc5cgRnkVoEtt1cDA5AjkFTBwfMwJrqw2JRWZk7YkvEQDFScF1BNJoz7CaPeqjkU1WYW"
   }
