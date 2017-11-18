@@ -99,7 +99,7 @@ fixtures.forEach(function (f) {
   test('next', function (t) {
     var chain = new Chain(node, f.k - f.addresses.length + 1, addressFunction)
 
-    t.plan(f.addresses.length * 2)
+    t.plan(f.addresses.length * 2 + 1)
     f.addresses.forEach(function (x, i) {
       t.equal(chain.get(), f.addresses[i], 'get returns the current address')
 
@@ -108,6 +108,7 @@ fixtures.forEach(function (f) {
       }
     })
 
+    t.equal(chain.k, f.k, 'results in the the expected k value')
     t.same(chain.map, f.map, 'results in the expected address map')
   })
 
