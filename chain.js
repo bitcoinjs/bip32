@@ -16,8 +16,8 @@ Chain.prototype.__initialize = function () {
 Chain.prototype.clone = function () {
   var chain = new Chain(this.__parent, this.k)
 
-  for (var k in this.addresses) chain.addresses[k] = this.addresses[k]
-  for (k in this.map) chain.map[k] = this.map[k]
+  chain.addresses = this.addresses.concat()
+  for (var s in this.map) chain.map[s] = this.map[s]
 
   return chain
 }
