@@ -7,11 +7,11 @@ function Account (chains) {
   this.chains = chains
 }
 
-Account.fromJSON = function (json, network) {
+Account.fromJSON = function (json, network, addressFunction) {
   var chains = json.map(function (j) {
     var node = bitcoinjs.HDNode.fromBase58(j.node, network)
 
-    var chain = new Chain(node, j.k)
+    var chain = new Chain(node, j.k, addressFunction)
     chain.map = j.map
 
     // derive from k map

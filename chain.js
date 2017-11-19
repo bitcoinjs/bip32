@@ -1,20 +1,25 @@
-function Chain (parent, k) {
+function DEFAULT_ADDRESS_FUNCTION (node) {
+  return node.getAddress()
+}
+
+function Chain (parent, k, addressFunction) {
   k = k || 0
   this.__parent = parent
 
   this.addresses = []
+  this.addressFunction = addressFunction || DEFAULT_ADDRESS_FUNCTION
   this.k = k
   this.map = {}
 }
 
 Chain.prototype.__initialize = function () {
-  var address = this.__parent.derive(this.k).getAddress()
+  var address = this.addressFunction(this.__parent.derive(this.k))
   this.map[address] = this.k
   this.addresses.push(address)
 }
 
 Chain.prototype.clone = function () {
-  var chain = new Chain(this.__parent, this.k)
+  var chain = new Chain(this.__parent, this.k, this.addressFunction)
 
   chain.addresses = this.addresses.concat()
   for (var s in this.map) chain.map[s] = this.map[s]
@@ -52,7 +57,7 @@ Chain.prototype.getParent = function () {
 
 Chain.prototype.next = function () {
   if (this.addresses.length === 0) this.__initialize()
-  var address = this.__parent.derive(this.k + 1).getAddress()
+  var address = this.addressFunction(this.__parent.derive(this.k + 1))
 
   this.k += 1
   this.map[address] = this.k

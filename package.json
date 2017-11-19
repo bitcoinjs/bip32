@@ -33,11 +33,15 @@
   },
   "devDependencies": {
     "bitcoinjs-lib": "^3.0.0",
+    "keccak": "^1.3.0",
     "nyc": "*",
     "standard": "*",
     "tape": "*"
   },
   "peerDependencies": {
     "bitcoinjs-lib": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=4.0.0"
   }
 }
