@@ -184,52 +184,27 @@ tape.test('works when private key has leading zeros', function (t) {
   t.equal(child.d.toString('hex'), '3348069561d2a0fb925e74bf198762acc47dce7db27372257d2d959a9e6f8aeb')
 })
 
-/*
-tape.test('fromSeed', function (t) {
-  t.throws(function () {
-    this.mock(BigInteger).expects('fromBuffer')
-      .once().returns(BigInteger.ZERO)
+tape.test('fromSeed', (t) => {
+  // TODO
+//    'throws if IL is not within interval [1, n - 1] | IL === n || IL === 0'
 
-    t.throws(function () {
-      BIP32.fromSeed('ffffffffffffffffffffffffffffffff')
-    }, /Private key must be greater than 0/)
-  }, /ErrorXXX/, 'throws if IL is not within interval [1, n - 1] | IL === 0')
+  fixtures.invalid.fromSeed.forEach((f) => {
+    t.throws(() => {
+      BIP32.fromSeed(Buffer.from(f.seed, 'hex'))
+    }, new RegExp(f.exception))
+  })
 
-'throws if IL is not within interval [1, n - 1] | IL === n'
-    this.mock(BigInteger).expects('fromBuffer')
-      .once().returns(curve.n)
-
-    t.throws(function () {
-      BIP32.fromSeedHex('ffffffffffffffffffffffffffffffff')
-    }, /Private key must be less than the curve order/)
-
-'throws on low entropy seed'
-    t.throws(function () {
-      BIP32.fromSeedHex('ffffffffff')
-    }, /Seed should be at least 128 bits/)
-
-'throws on too high entropy seed'
-    t.throws(function () {
-      BIP32.fromSeedHex('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
-    }, /Seed should be at most 512 bits/)
-
+  t.end()
 })
 
-//  let hd = BIP32.fromSeed(Buffer.alloc(64))
-//
-//  tape.test('sign', function () {
-//    this.mock(keyPair).expects('sign')
-//      .once().withArgs(hash).returns('signed')
-//
-//    t.equal(hd.sign(hash), 'signed')
-//  })
-//
-//  tape.test('verify', function (t) {
-//    let signature = hd.sign(hash)
-//
-//    this.mock(keyPair).expects('verify')
-//      .once().withArgs(hash, signature).returns('verified')
-//
-//    t.equal(hd.verify(hash, signature), 'verified')
-//  })
-*/
+tape('ecdsa', (t) => {
+  let seed = Buffer.alloc(32, 1)
+  let hash = Buffer.alloc(32, 2)
+  let signature = Buffer.from('9636ee2fac31b795a308856b821ebe297dda7b28220fb46ea1fbbd7285977cc04c82b734956246a0f15a9698f03f546d8d96fe006c8e7bd2256ca7c8229e6f5c', 'hex')
+  let node = BIP32.fromSeed(seed)
+
+  t.plan(3)
+  t.equal(node.sign(hash).toString('hex'), signature.toString('hex'))
+  t.equal(node.verify(hash, signature), true)
+  t.equal(node.verify(seed, signature), false)
+})

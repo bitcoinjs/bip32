@@ -283,7 +283,7 @@ BIP32.prototype.sign = function (hash) {
 }
 
 BIP32.prototype.verify = function (hash, signature) {
-  return ecc.verify(hash, signature, this.Q)
+  return ecc.verify(hash, this.Q, signature)
 }
 
 module.exports = {

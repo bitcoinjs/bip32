@@ -330,6 +330,16 @@
         "string": "xpub661MyMwAqRbcFtXgS5sYJABqqG9YLmC4Q1Rdap9gSE8NqtwybGhePY2gYymDsxxRe3WWeZQ7TadaLSdKUffezzczTCpB8j3JP96UwE2n6w1"
       }
     ],
+    "fromSeed": [
+      {
+        "exception": "Seed should be at least 128 bits",
+        "seed": "ffff"
+      },
+      {
+        "exception": "Seed should be at most 512 bits",
+        "seed": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      }
+    ],
     "deriveHardened": [
       2147483648,
       null,
