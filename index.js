@@ -115,6 +115,10 @@ BIP32.prototype.getNetwork = function () {
   return this.network
 }
 
+BIP32.prototype.getPrivateKey = function () {
+  return this.d
+}
+
 BIP32.prototype.getPublicKey = function () {
   return this.Q
 }
@@ -248,12 +252,12 @@ BIP32.prototype.isNeutered = function () {
   return this.d === null
 }
 
-function isBIP32Path (value) {
+function BIP32Path (value) {
   return typeforce.String(value) && value.match(/^(m\/)?(\d+'?\/)*\d+'?$/)
 }
 
 BIP32.prototype.derivePath = function (path) {
-  typeforce(isBIP32Path, path)
+  typeforce(BIP32Path, path)
 
   let splitPath = path.split('/')
   if (splitPath[0] === 'm') {

@@ -29,8 +29,10 @@ function verify (t, hd, prv, f, network) {
   t.equal(hd.getIdentifier().toString('hex'), f.identifier)
   t.equal(hd.getPublicKey().toString('hex'), f.pubKey)
   if (prv) t.equal(hd.toBase58(), f.base58Priv)
+  if (prv) t.equal(hd.getPrivateKey().toString('hex'), f.privKey)
   if (prv) t.equal(hd.toWIF(), f.wif)
   if (!prv) t.throws(function () { hd.toWIF() }, /Missing private key/)
+  if (!prv) t.equal(hd.getPrivateKey(), null)
   if (!prv) t.equal(hd.d, null) // internal
   t.equal(hd.neutered().toBase58(), f.base58)
   t.equal(hd.isNeutered(), !prv)
