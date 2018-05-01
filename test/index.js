@@ -10,11 +10,11 @@ let LITECOIN = {
 }
 
 let validAll = []
-fixtures.valid.forEach(function (f) {
+fixtures.valid.forEach((f) => {
   f.master.network = f.network
   f.master.children = f.children
   f.master.comment = f.comment
-  f.children.forEach(function (fc) {
+  f.children.forEach((fc) => {
     fc.network = f.network
     validAll.push(fc)
   })
@@ -31,7 +31,7 @@ function verify (t, hd, prv, f, network) {
   if (prv) t.equal(hd.toBase58(), f.base58Priv)
   if (prv) t.equal(hd.getPrivateKey().toString('hex'), f.privKey)
   if (prv) t.equal(hd.toWIF(), f.wif)
-  if (!prv) t.throws(function () { hd.toWIF() }, /Missing private key/)
+  if (!prv) t.throws(() => hd.toWIF(), /Missing private key/)
   if (!prv) t.equal(hd.getPrivateKey(), null)
   if (!prv) t.equal(hd.d, null) // internal
   t.equal(hd.neutered().toBase58(), f.base58)
@@ -63,7 +63,7 @@ function verify (t, hd, prv, f, network) {
       verify(t, shd, prv, cf, network)
     }
 
-    t.throws(function () {
+    t.throws(() => {
       shd.derivePath('m/0')
     }, /Expected master, got child/)
 
@@ -71,8 +71,8 @@ function verify (t, hd, prv, f, network) {
   })
 }
 
-validAll.forEach(function (ff) {
-  tape.test(ff.comment || ff.base58Priv, function (t) {
+validAll.forEach((ff) => {
+  tape(ff.comment || ff.base58Priv, (t) => {
     let network
     if (ff.network === 'litecoin') network = LITECOIN
 
@@ -91,9 +91,9 @@ validAll.forEach(function (ff) {
   })
 })
 
-tape.test('fromBase58 throws', function (t) {
-  fixtures.invalid.fromBase58.forEach(function (f) {
-    t.throws(function () {
+tape('fromBase58 throws', (t) => {
+  fixtures.invalid.fromBase58.forEach((f) => {
+    t.throws(() => {
       let network
       if (f.network === 'litecoin') network = LITECOIN
 
@@ -104,7 +104,7 @@ tape.test('fromBase58 throws', function (t) {
   t.end()
 })
 
-tape.test('works for Private -> public (neutered)', function (t) {
+tape('works for Private -> public (neutered)', (t) => {
   let f = fixtures.valid[1]
   let c = f.children[0]
 
@@ -115,7 +115,7 @@ tape.test('works for Private -> public (neutered)', function (t) {
   t.equal(child.toBase58(), c.base58)
 })
 
-tape.test('works for Private -> public (neutered, hardened)', function (t) {
+tape('works for Private -> public (neutered, hardened)', (t) => {
   let f = fixtures.valid[0]
   let c = f.children[0]
 
@@ -126,7 +126,7 @@ tape.test('works for Private -> public (neutered, hardened)', function (t) {
   t.equal(c.base58, child.toBase58())
 })
 
-tape.test('works for Public -> public', function (t) {
+tape('works for Public -> public', (t) => {
   let f = fixtures.valid[1]
   let c = f.children[0]
 
@@ -137,36 +137,36 @@ tape.test('works for Public -> public', function (t) {
   t.equal(c.base58, child.toBase58())
 })
 
-tape.test('throws on Public -> public (hardened)', function (t) {
+tape('throws on Public -> public (hardened)', (t) => {
   let f = fixtures.valid[0]
   let c = f.children[0]
 
   let master = BIP32.fromBase58(f.master.base58)
 
   t.plan(1)
-  t.throws(function () {
+  t.throws(() => {
     master.deriveHardened(c.m)
   }, /Missing private key for hardened child key/)
 })
 
-tape.test('throws on wrong types', function (t) {
+tape('throws on wrong types', (t) => {
   let f = fixtures.valid[0]
   let master = BIP32.fromBase58(f.master.base58)
 
-  fixtures.invalid.derive.forEach(function (fx) {
-    t.throws(function () {
+  fixtures.invalid.derive.forEach((fx) => {
+    t.throws(() => {
       master.derive(fx)
     }, /Expected UInt32/)
   })
 
-  fixtures.invalid.deriveHardened.forEach(function (fx) {
-    t.throws(function () {
+  fixtures.invalid.deriveHardened.forEach((fx) => {
+    t.throws(() => {
       master.deriveHardened(fx)
     }, /Expected UInt31/)
   })
 
-  fixtures.invalid.derivePath.forEach(function (fx) {
-    t.throws(function () {
+  fixtures.invalid.derivePath.forEach((fx) => {
+    t.throws(() => {
       master.derivePath(fx)
     }, /Expected BIP32Path, got/)
   })
@@ -174,7 +174,7 @@ tape.test('throws on wrong types', function (t) {
   t.end()
 })
 
-tape.test('works when private key has leading zeros', function (t) {
+tape('works when private key has leading zeros', (t) => {
   let key = 'xprv9s21ZrQH143K3ckY9DgU79uMTJkQRLdbCCVDh81SnxTgPzLLGax6uHeBULTtaEtcAvKjXfT7ZWtHzKjTpujMkUd9dDb8msDeAfnJxrgAYhr'
   let hdkey = BIP32.fromBase58(key)
 
@@ -184,7 +184,7 @@ tape.test('works when private key has leading zeros', function (t) {
   t.equal(child.d.toString('hex'), '3348069561d2a0fb925e74bf198762acc47dce7db27372257d2d959a9e6f8aeb')
 })
 
-tape.test('fromSeed', (t) => {
+tape('fromSeed', (t) => {
   // TODO
 //    'throws if IL is not within interval [1, n - 1] | IL === n || IL === 0'
 
