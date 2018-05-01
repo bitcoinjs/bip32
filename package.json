@@ -1,0 +1,44 @@
+{
+  "name": "bip32",
+  "version": "0.99.0",
+  "description": "",
+  "keywords": [
+    "bip32",
+    "bitcoinjs",
+    "bitcoin",
+    "secp256k1"
+  ],
+  "main": "index.js",
+  "engines": {
+    "node": ">=4.5.0"
+  },
+  "scripts": {
+    "coverage-report": "nyc report --reporter=lcov",
+    "coverage": "nyc --check-coverage --branches 90 --functions 90 npm run unit",
+    "standard": "standard",
+    "test": "npm run standard && npm run coverage",
+    "unit": "tape test/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bitcoinjs/bip32.git"
+  },
+  "dependencies": {
+    "bs58check": "^2.1.1",
+    "create-hash": "^1.2.0",
+    "create-hmac": "^1.1.7",
+    "tiny-secp256k1": "0.0.3",
+    "typeforce": "^1.11.5",
+    "wif": "^2.0.6"
+  },
+  "devDependencies": {
+    "nyc": "^11.7.1",
+    "standard": "^11.0.1",
+    "tape": "^4.9.0"
+  },
+  "author": "Daniel Cousens",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bitcoinjs/bip32/issues"
+  }
+}
