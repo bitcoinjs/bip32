@@ -9,6 +9,7 @@ let LITECOIN = {
   }
 }
 
+// TODO: amend the JSON
 let validAll = []
 fixtures.valid.forEach((f) => {
   f.master.network = f.network
@@ -18,6 +19,7 @@ fixtures.valid.forEach((f) => {
     fc.network = f.network
     validAll.push(fc)
   })
+  delete f.children
   validAll.push(f.master)
 })
 
@@ -25,15 +27,14 @@ function verify (t, hd, prv, f, network) {
   t.equal(hd.chainCode.toString('hex'), f.chainCode)
   t.equal(hd.depth, f.depth >>> 0)
   t.equal(hd.index, f.index >>> 0)
-  t.equal(hd.getFingerprint().toString('hex'), f.fingerprint)
-  t.equal(hd.getIdentifier().toString('hex'), f.identifier)
-  t.equal(hd.getPublicKey().toString('hex'), f.pubKey)
+  t.equal(hd.fingerprint.toString('hex'), f.fingerprint)
+  t.equal(hd.identifier.toString('hex'), f.identifier)
+  t.equal(hd.publicKey.toString('hex'), f.pubKey)
   if (prv) t.equal(hd.toBase58(), f.base58Priv)
-  if (prv) t.equal(hd.getPrivateKey().toString('hex'), f.privKey)
+  if (prv) t.equal(hd.privateKey.toString('hex'), f.privKey)
   if (prv) t.equal(hd.toWIF(), f.wif)
   if (!prv) t.throws(() => hd.toWIF(), /Missing private key/)
-  if (!prv) t.equal(hd.getPrivateKey(), null)
-  if (!prv) t.equal(hd.d, null) // internal
+  if (!prv) t.equal(hd.privateKey, null)
   t.equal(hd.neutered().toBase58(), f.base58)
   t.equal(hd.isNeutered(), !prv)
 
@@ -106,7 +107,7 @@ tape('fromBase58 throws', (t) => {
 
 tape('works for Private -> public (neutered)', (t) => {
   let f = fixtures.valid[1]
-  let c = f.children[0]
+  let c = f.master.children[0]
 
   let master = BIP32.fromBase58(f.master.base58Priv)
   let child = master.derive(c.m).neutered()
@@ -117,7 +118,7 @@ tape('works for Private -> public (neutered)', (t) => {
 
 tape('works for Private -> public (neutered, hardened)', (t) => {
   let f = fixtures.valid[0]
-  let c = f.children[0]
+  let c = f.master.children[0]
 
   let master = BIP32.fromBase58(f.master.base58Priv)
   let child = master.deriveHardened(c.m).neutered()
@@ -128,7 +129,7 @@ tape('works for Private -> public (neutered, hardened)', (t) => {
 
 tape('works for Public -> public', (t) => {
   let f = fixtures.valid[1]
-  let c = f.children[0]
+  let c = f.master.children[0]
 
   let master = BIP32.fromBase58(f.master.base58)
   let child = master.derive(c.m)
@@ -139,7 +140,7 @@ tape('works for Public -> public', (t) => {
 
 tape('throws on Public -> public (hardened)', (t) => {
   let f = fixtures.valid[0]
-  let c = f.children[0]
+  let c = f.master.children[0]
 
   let master = BIP32.fromBase58(f.master.base58)
 
@@ -179,15 +180,14 @@ tape('works when private key has leading zeros', (t) => {
   let hdkey = BIP32.fromBase58(key)
 
   t.plan(2)
-  t.equal(hdkey.d.toString('hex'), '00000055378cf5fafb56c711c674143f9b0ee82ab0ba2924f19b64f5ae7cdbfd')
+  t.equal(hdkey.privateKey.toString('hex'), '00000055378cf5fafb56c711c674143f9b0ee82ab0ba2924f19b64f5ae7cdbfd')
   let child = hdkey.derivePath('m/44\'/0\'/0\'/0/0\'')
-  t.equal(child.d.toString('hex'), '3348069561d2a0fb925e74bf198762acc47dce7db27372257d2d959a9e6f8aeb')
+  t.equal(child.privateKey.toString('hex'), '3348069561d2a0fb925e74bf198762acc47dce7db27372257d2d959a9e6f8aeb')
 })
 
 tape('fromSeed', (t) => {
   // TODO
 //    'throws if IL is not within interval [1, n - 1] | IL === n || IL === 0'
-
   fixtures.invalid.fromSeed.forEach((f) => {
     t.throws(() => {
       BIP32.fromSeed(Buffer.from(f.seed, 'hex'))

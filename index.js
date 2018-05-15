@@ -22,9 +22,8 @@ let BITCOIN = {
 }
 
 function BIP32 (d, Q, chainCode, network) {
-  this.d = d || null
-  this.Q = Q || ecc.pointFromScalar(d, true)
-  if (this.Q === null) throw new TypeError('Bad public key')
+  this.__d = d || null
+  this.__Q = Q || null
 
   this.chainCode = chainCode
   this.depth = 0
@@ -33,22 +32,16 @@ function BIP32 (d, Q, chainCode, network) {
   this.parentFingerprint = 0x00000000
 }
 
-function fromSeed (seed, network) {
-  typeforce(typeforce.Buffer, seed)
-  if (seed.length < 16) throw new TypeError('Seed should be at least 128 bits')
-  if (seed.length > 64) throw new TypeError('Seed should be at most 512 bits')
-  if (network) typeforce(NETWORK_TYPE, network)
-  network = network || BITCOIN
-
-  let I = crypto.hmacSHA512('Bitcoin seed', seed)
-  let IL = I.slice(0, 32)
-  let IR = I.slice(32)
-
-  // if IL is 0 or >= n, the master key is invalid
-  if (!ecc.isPrivate(IL)) throw new TypeError('Private key not in range [1, n)')
-
-  return new BIP32(IL, null, IR, network)
-}
+Object.defineProperty(BIP32.prototype, 'identifier', { get: function () { return crypto.hash160(this.publicKey) } })
+Object.defineProperty(BIP32.prototype, 'fingerprint', { get: function () { return this.identifier.slice(0, 4) } })
+Object.defineProperty(BIP32.prototype, 'privateKey', {
+  enumerable: false,
+  get: function () { return this.__d }
+})
+Object.defineProperty(BIP32.prototype, 'publicKey', { get: function () {
+  if (!this.__Q) this.__Q = ecc.pointFromScalar(this.__d, this.compressed)
+  return this.__Q
+}})
 
 function fromBase58 (string, network) {
   let buffer = bs58check.decode(string)
@@ -103,28 +96,31 @@ function fromBase58 (string, network) {
   return hd
 }
 
-BIP32.prototype.getIdentifier = function () {
-  return crypto.hash160(this.Q)
+function fromSeed (seed, network) {
+  typeforce(typeforce.Buffer, seed)
+  if (seed.length < 16) throw new TypeError('Seed should be at least 128 bits')
+  if (seed.length > 64) throw new TypeError('Seed should be at most 512 bits')
+  if (network) typeforce(NETWORK_TYPE, network)
+  network = network || BITCOIN
+
+  let I = crypto.hmacSHA512('Bitcoin seed', seed)
+  let IL = I.slice(0, 32)
+  let IR = I.slice(32)
+
+  // if IL is 0 or >= n, the master key is invalid
+  if (!ecc.isPrivate(IL)) throw new TypeError('Private key not in range [1, n)')
+
+  return new BIP32(IL, null, IR, network)
 }
 
-BIP32.prototype.getFingerprint = function () {
-  return this.getIdentifier().slice(0, 4)
-}
-
-BIP32.prototype.getNetwork = function () {
-  return this.network
-}
-
-BIP32.prototype.getPrivateKey = function () {
-  return this.d
-}
-
-BIP32.prototype.getPublicKey = function () {
-  return this.Q
+// Private === not neutered
+// Public === neutered
+BIP32.prototype.isNeutered = function () {
+  return this.__d === null
 }
 
 BIP32.prototype.neutered = function () {
-  let neutered = new BIP32(null, this.Q, this.chainCode, this.network)
+  let neutered = new BIP32(null, this.publicKey, this.chainCode, this.network)
   neutered.depth = this.depth
   neutered.index = this.index
   neutered.parentFingerprint = this.parentFingerprint
@@ -156,20 +152,20 @@ BIP32.prototype.toBase58 = function () {
   if (!this.isNeutered()) {
     // 0x00 + k for private keys
     buffer.writeUInt8(0, 45)
-    this.d.copy(buffer, 46)
+    this.privateKey.copy(buffer, 46)
 
   // 33 bytes: the public key
   } else {
     // X9.62 encoding for public keys
-    this.Q.copy(buffer, 45)
+    this.publicKey.copy(buffer, 45)
   }
 
   return bs58check.encode(buffer)
 }
 
 BIP32.prototype.toWIF = function () {
-  if (!this.d) throw new TypeError('Missing private key')
-  return wif.encode(this.network.wif, this.d, true)
+  if (!this.privateKey) throw new TypeError('Missing private key')
+  return wif.encode(this.network.wif, this.privateKey, true)
 }
 
 let HIGHEST_BIT = 0x80000000
@@ -187,14 +183,14 @@ BIP32.prototype.derive = function (index) {
 
     // data = 0x00 || ser256(kpar) || ser32(index)
     data[0] = 0x00
-    this.d.copy(data, 1)
+    this.privateKey.copy(data, 1)
     data.writeUInt32BE(index, 33)
 
   // Normal child
   } else {
     // data = serP(point(kpar)) || ser32(index)
     //      = serP(Kpar) || ser32(index)
-    this.Q.copy(data, 0)
+    this.publicKey.copy(data, 0)
     data.writeUInt32BE(index, 33)
   }
 
@@ -209,7 +205,7 @@ BIP32.prototype.derive = function (index) {
   let hd
   if (!this.isNeutered()) {
     // ki = parse256(IL) + kpar (mod n)
-    let ki = ecc.privateAdd(this.d, IL)
+    let ki = ecc.privateAdd(this.privateKey, IL)
 
     // In case ki == 0, proceed with the next value for i
     if (ki == null) return this.derive(index + 1)
@@ -220,7 +216,7 @@ BIP32.prototype.derive = function (index) {
   } else {
     // Ki = point(parse256(IL)) + Kpar
     //    = G*IL + Kpar
-    let Ki = ecc.pointAddScalar(this.Q, IL, true)
+    let Ki = ecc.pointAddScalar(this.publicKey, IL, true)
 
     // In case Ki is the point at infinity, proceed with the next value for i
     if (Ki === null) return this.derive(index + 1)
@@ -230,7 +226,7 @@ BIP32.prototype.derive = function (index) {
 
   hd.depth = this.depth + 1
   hd.index = index
-  hd.parentFingerprint = this.getFingerprint().readUInt32BE(0)
+  hd.parentFingerprint = this.fingerprint.readUInt32BE(0)
   return hd
 }
 
@@ -244,12 +240,6 @@ BIP32.prototype.deriveHardened = function (index) {
 
   // Only derives hardened private keys by default
   return this.derive(index + HIGHEST_BIT)
-}
-
-// Private === not neutered
-// Public === neutered
-BIP32.prototype.isNeutered = function () {
-  return this.d === null
 }
 
 function BIP32Path (value) {
@@ -279,11 +269,11 @@ BIP32.prototype.derivePath = function (path) {
 }
 
 BIP32.prototype.sign = function (hash) {
-  return ecc.sign(hash, this.d)
+  return ecc.sign(hash, this.privateKey)
 }
 
 BIP32.prototype.verify = function (hash, signature) {
-  return ecc.verify(hash, this.Q, signature)
+  return ecc.verify(hash, this.publicKey, signature)
 }
 
 module.exports = {
