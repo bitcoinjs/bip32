@@ -14,11 +14,11 @@ let NETWORK_TYPE = typeforce.compile({
 })
 
 let BITCOIN = {
+  wif: 0x80,
   bip32: {
     public: 0x0488b21e,
     private: 0x0488ade4
-  },
-  wif: 0x80
+  }
 }
 
 function BIP32 (d, Q, chainCode, network) {
@@ -43,76 +43,6 @@ Object.defineProperty(BIP32.prototype, 'publicKey', { get: function () {
   return this.__Q
 }})
 
-function fromBase58 (string, network) {
-  let buffer = bs58check.decode(string)
-  if (buffer.length !== 78) throw new TypeError('Invalid buffer length')
-  if (network) typeforce(NETWORK_TYPE, network)
-  network = network || BITCOIN
-
-  // 4 bytes: version bytes
-  let version = buffer.readUInt32BE(0)
-  if (version !== network.bip32.private &&
-    version !== network.bip32.public) throw new TypeError('Invalid network version')
-
-  // 1 byte: depth: 0x00 for master nodes, 0x01 for level-1 descendants, ...
-  let depth = buffer[4]
-
-  // 4 bytes: the fingerprint of the parent's key (0x00000000 if master key)
-  let parentFingerprint = buffer.readUInt32BE(5)
-  if (depth === 0) {
-    if (parentFingerprint !== 0x00000000) throw new TypeError('Invalid parent fingerprint')
-  }
-
-  // 4 bytes: child number. This is the number i in xi = xpar/i, with xi the key being serialized.
-  // This is encoded in MSB order. (0x00000000 if master key)
-  let index = buffer.readUInt32BE(9)
-  if (depth === 0 && index !== 0) throw new TypeError('Invalid index')
-
-  // 32 bytes: the chain code
-  let chainCode = buffer.slice(13, 45)
-  let hd
-
-  // 33 bytes: private key data (0x00 + k)
-  if (version === network.bip32.private) {
-    if (buffer.readUInt8(45) !== 0x00) throw new TypeError('Invalid private key')
-    let k = buffer.slice(46, 78)
-
-    // if IL is 0 or >= n, the master key is invalid
-    if (!ecc.isPrivate(k)) throw new TypeError('Private key not in range [1, n)')
-    hd = new BIP32(k, null, chainCode, network)
-
-  // 33 bytes: public key data (0x02 + X or 0x03 + X)
-  } else {
-    let X = buffer.slice(45, 78)
-
-    // verify the X coordinate is a point on the curve
-    if (!ecc.isPoint(X)) throw new TypeError('Point is not on the curve')
-    hd = new BIP32(null, X, chainCode, network)
-  }
-
-  hd.depth = depth
-  hd.index = index
-  hd.parentFingerprint = parentFingerprint
-  return hd
-}
-
-function fromSeed (seed, network) {
-  typeforce(typeforce.Buffer, seed)
-  if (seed.length < 16) throw new TypeError('Seed should be at least 128 bits')
-  if (seed.length > 64) throw new TypeError('Seed should be at most 512 bits')
-  if (network) typeforce(NETWORK_TYPE, network)
-  network = network || BITCOIN
-
-  let I = crypto.hmacSHA512('Bitcoin seed', seed)
-  let IL = I.slice(0, 32)
-  let IR = I.slice(32)
-
-  // if IL is 0 or >= n, the master key is invalid
-  if (!ecc.isPrivate(IL)) throw new TypeError('Private key not in range [1, n)')
-
-  return new BIP32(IL, null, IR, network)
-}
-
 // Private === not neutered
 // Public === neutered
 BIP32.prototype.isNeutered = function () {
@@ -120,7 +50,7 @@ BIP32.prototype.isNeutered = function () {
 }
 
 BIP32.prototype.neutered = function () {
-  let neutered = new BIP32(null, this.publicKey, this.chainCode, this.network)
+  let neutered = fromPublicKey(this.publicKey, this.chainCode, this.network)
   neutered.depth = this.depth
   neutered.index = this.index
   neutered.parentFingerprint = this.parentFingerprint
@@ -276,7 +206,95 @@ BIP32.prototype.verify = function (hash, signature) {
   return ecc.verify(hash, this.publicKey, signature)
 }
 
+function fromBase58 (string, network) {
+  let buffer = bs58check.decode(string)
+  if (buffer.length !== 78) throw new TypeError('Invalid buffer length')
+  if (network) typeforce(NETWORK_TYPE, network)
+  network = network || BITCOIN
+
+  // 4 bytes: version bytes
+  let version = buffer.readUInt32BE(0)
+  if (version !== network.bip32.private &&
+    version !== network.bip32.public) throw new TypeError('Invalid network version')
+
+  // 1 byte: depth: 0x00 for master nodes, 0x01 for level-1 descendants, ...
+  let depth = buffer[4]
+
+  // 4 bytes: the fingerprint of the parent's key (0x00000000 if master key)
+  let parentFingerprint = buffer.readUInt32BE(5)
+  if (depth === 0) {
+    if (parentFingerprint !== 0x00000000) throw new TypeError('Invalid parent fingerprint')
+  }
+
+  // 4 bytes: child number. This is the number i in xi = xpar/i, with xi the key being serialized.
+  // This is encoded in MSB order. (0x00000000 if master key)
+  let index = buffer.readUInt32BE(9)
+  if (depth === 0 && index !== 0) throw new TypeError('Invalid index')
+
+  // 32 bytes: the chain code
+  let chainCode = buffer.slice(13, 45)
+  let hd
+
+  // 33 bytes: private key data (0x00 + k)
+  if (version === network.bip32.private) {
+    if (buffer.readUInt8(45) !== 0x00) throw new TypeError('Invalid private key')
+    let k = buffer.slice(46, 78)
+
+    // if IL is 0 or >= n, the master key is invalid
+    if (!ecc.isPrivate(k)) throw new TypeError('Private key not in range [1, n)')
+    hd = new BIP32(k, null, chainCode, network)
+
+  // 33 bytes: public key data (0x02 + X or 0x03 + X)
+  } else {
+    let X = buffer.slice(45, 78)
+
+    // verify the X coordinate is a point on the curve
+    if (!ecc.isPoint(X)) throw new TypeError('Point is not on the curve')
+    hd = new BIP32(null, X, chainCode, network)
+  }
+
+  hd.depth = depth
+  hd.index = index
+  hd.parentFingerprint = parentFingerprint
+  return hd
+}
+
+function fromPrivateKey (d, chainCode, network) {
+  typeforce(typeforce.BufferN(32), d)
+
+  // if IL is 0 or >= n, the master key is invalid
+  if (!ecc.isPrivate(d)) throw new TypeError('Private key not in range [1, n)')
+  if (network) typeforce(NETWORK_TYPE, network)
+  network = network || BITCOIN
+
+  return new BIP32(d, null, chainCode, network)
+}
+
+function fromPublicKey (Q, chainCode, network) {
+  typeforce(ecc.isPoint, Q)
+  if (network) typeforce(NETWORK_TYPE, network)
+  network = network || BITCOIN
+
+  return new BIP32(null, Q, chainCode, network)
+}
+
+function fromSeed (seed, network) {
+  typeforce(typeforce.Buffer, seed)
+  if (seed.length < 16) throw new TypeError('Seed should be at least 128 bits')
+  if (seed.length > 64) throw new TypeError('Seed should be at most 512 bits')
+  if (network) typeforce(NETWORK_TYPE, network)
+  network = network || BITCOIN
+
+  let I = crypto.hmacSHA512('Bitcoin seed', seed)
+  let IL = I.slice(0, 32)
+  let IR = I.slice(32)
+
+  return fromPrivateKey(IL, IR, network)
+}
+
 module.exports = {
   fromBase58,
+  fromPrivateKey,
+  fromPublicKey,
   fromSeed
 }

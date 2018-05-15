@@ -172,6 +172,17 @@ tape('throws on wrong types', (t) => {
     }, /Expected BIP32Path, got/)
   })
 
+  let ZERO = Buffer.alloc(32, 0)
+  let ONES = Buffer.alloc(32, 1)
+
+  t.throws(() => {
+    BIP32.fromPrivateKey(Buffer.alloc(2), ONES)
+  }, /Expected Buffer\(Length: 32\), got Buffer\(Length: 2\)/)
+
+  t.throws(() => {
+    BIP32.fromPrivateKey(ZERO, ONES)
+  }, /Private key not in range \[1, n\)/)
+
   t.end()
 })
 
