@@ -5,6 +5,7 @@ let ecc = require('tiny-secp256k1')
 let typeforce = require('typeforce')
 let wif = require('wif')
 
+let UINT256_TYPE = typeforce.BufferN(32)
 let NETWORK_TYPE = typeforce.compile({
   wif: typeforce.UInt8,
   bip32: {
@@ -22,6 +23,8 @@ let BITCOIN = {
 }
 
 function BIP32 (d, Q, chainCode, network) {
+  typeforce(NETWORK_TYPE, network)
+
   this.__d = d || null
   this.__Q = Q || null
 
@@ -140,7 +143,7 @@ BIP32.prototype.derive = function (index) {
     // In case ki == 0, proceed with the next value for i
     if (ki == null) return this.derive(index + 1)
 
-    hd = new BIP32(ki, null, IR, this.network)
+    hd = fromPrivateKey(ki, IR, this.network)
 
   // Public parent key -> public child key
   } else {
@@ -151,7 +154,7 @@ BIP32.prototype.derive = function (index) {
     // In case Ki is the point at infinity, proceed with the next value for i
     if (Ki === null) return this.derive(index + 1)
 
-    hd = new BIP32(null, Ki, IR, this.network)
+    hd = fromPublicKey(Ki, IR, this.network)
   }
 
   hd.depth = this.depth + 1
@@ -209,7 +212,6 @@ BIP32.prototype.verify = function (hash, signature) {
 function fromBase58 (string, network) {
   let buffer = bs58check.decode(string)
   if (buffer.length !== 78) throw new TypeError('Invalid buffer length')
-  if (network) typeforce(NETWORK_TYPE, network)
   network = network || BITCOIN
 
   // 4 bytes: version bytes
@@ -240,17 +242,13 @@ function fromBase58 (string, network) {
     if (buffer.readUInt8(45) !== 0x00) throw new TypeError('Invalid private key')
     let k = buffer.slice(46, 78)
 
-    // if IL is 0 or >= n, the master key is invalid
-    if (!ecc.isPrivate(k)) throw new TypeError('Private key not in range [1, n)')
-    hd = new BIP32(k, null, chainCode, network)
+    hd = fromPrivateKey(k, chainCode, network)
 
   // 33 bytes: public key data (0x02 + X or 0x03 + X)
   } else {
     let X = buffer.slice(45, 78)
 
-    // verify the X coordinate is a point on the curve
-    if (!ecc.isPoint(X)) throw new TypeError('Point is not on the curve')
-    hd = new BIP32(null, X, chainCode, network)
+    hd = fromPublicKey(X, chainCode, network)
   }
 
   hd.depth = depth
@@ -259,30 +257,33 @@ function fromBase58 (string, network) {
   return hd
 }
 
-function fromPrivateKey (d, chainCode, network) {
-  typeforce(typeforce.BufferN(32), d)
-
-  // if IL is 0 or >= n, the master key is invalid
-  if (!ecc.isPrivate(d)) throw new TypeError('Private key not in range [1, n)')
-  if (network) typeforce(NETWORK_TYPE, network)
+function fromPrivateKey (privateKey, chainCode, network) {
+  typeforce({
+    privateKey: UINT256_TYPE,
+    chainCode: UINT256_TYPE
+  }, { privateKey, chainCode })
   network = network || BITCOIN
 
-  return new BIP32(d, null, chainCode, network)
+  if (!ecc.isPrivate(privateKey)) throw new TypeError('Private key not in range [1, n)')
+  return new BIP32(privateKey, null, chainCode, network)
 }
 
-function fromPublicKey (Q, chainCode, network) {
-  typeforce(ecc.isPoint, Q)
-  if (network) typeforce(NETWORK_TYPE, network)
+function fromPublicKey (publicKey, chainCode, network) {
+  typeforce({
+    publicKey: typeforce.BufferN(33),
+    chainCode: UINT256_TYPE
+  }, { publicKey, chainCode })
   network = network || BITCOIN
 
-  return new BIP32(null, Q, chainCode, network)
+  // verify the X coordinate is a point on the curve
+  if (!ecc.isPoint(publicKey)) throw new TypeError('Point is not on the curve')
+  return new BIP32(null, publicKey, chainCode, network)
 }
 
 function fromSeed (seed, network) {
   typeforce(typeforce.Buffer, seed)
   if (seed.length < 16) throw new TypeError('Seed should be at least 128 bits')
   if (seed.length > 64) throw new TypeError('Seed should be at most 512 bits')
-  if (network) typeforce(NETWORK_TYPE, network)
   network = network || BITCOIN
 
   let I = crypto.hmacSHA512('Bitcoin seed', seed)

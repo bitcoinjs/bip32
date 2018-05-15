@@ -84,7 +84,8 @@ validAll.forEach((ff) => {
     verify(t, hd, false, ff, network)
 
     if (ff.seed) {
-      hd = BIP32.fromSeed(Buffer.from(ff.seed, 'hex'), network)
+      let seed = Buffer.from(ff.seed, 'hex')
+      hd = BIP32.fromSeed(seed, network)
       verify(t, hd, true, ff, network)
     }
 
@@ -177,7 +178,7 @@ tape('throws on wrong types', (t) => {
 
   t.throws(() => {
     BIP32.fromPrivateKey(Buffer.alloc(2), ONES)
-  }, /Expected Buffer\(Length: 32\), got Buffer\(Length: 2\)/)
+  }, /Expected property "privateKey" of type Buffer\(Length: 32\), got Buffer\(Length: 2\)/)
 
   t.throws(() => {
     BIP32.fromPrivateKey(ZERO, ONES)
