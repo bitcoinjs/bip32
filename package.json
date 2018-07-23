@@ -1,7 +1,7 @@
 {
   "name": "bip32",
   "version": "1.0.1",
-  "description": "",
+  "description": "A BIP32 compatible library",
   "keywords": [
     "bip32",
     "bitcoinjs",
