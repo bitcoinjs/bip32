@@ -22,6 +22,14 @@ let BITCOIN = {
   }
 }
 
+let BITCOIN_TEST = {
+  wif: 0xef,
+  bip32: {
+    public: 0x043587cf,
+    private: 0x04358394
+  }
+}
+
 function BIP32 (d, Q, chainCode, network) {
   typeforce(NETWORK_TYPE, network)
 
@@ -297,5 +305,7 @@ module.exports = {
   fromBase58,
   fromPrivateKey,
   fromPublicKey,
-  fromSeed
+  fromSeed,
+  BITCOIN,
+  BITCOIN_TEST,
 }
