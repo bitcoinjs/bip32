@@ -17,4 +17,5 @@ let child = node.derivePath('m/0/0')
 // ...
 ```
 
-## LICENSE [ISC](LICENSE)
+## LICENSE [MIT](LICENSE)
+A derivation (and extraction for modularity) of the `HDWallet`/`HDNode` written and tested by [bitcoinjs-lib](https://github.com/bitcoinjs/bitcoinjs-lib) contributors since 2014.
