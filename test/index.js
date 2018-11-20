@@ -100,7 +100,7 @@ tape('fromBase58 throws', (t) => {
       if (f.network === 'litecoin') network = LITECOIN
 
       BIP32.fromBase58(f.string, network)
-    }, new RegExp(f.exception))
+    }, new RegExp(f.exception), f.string + ' throws')
   })
 
   t.end()
