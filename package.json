@@ -37,7 +37,7 @@
     "tape": "^4.9.0"
   },
   "author": "Daniel Cousens",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/bitcoinjs/bip32/issues"
   }
