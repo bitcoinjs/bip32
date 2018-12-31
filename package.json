@@ -9,6 +9,7 @@
     "secp256k1"
   ],
   "main": "index.js",
+  "types": "index.d.ts",
   "engines": {
     "node": ">=6.0.0"
   },
