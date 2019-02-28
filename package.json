@@ -8,22 +8,32 @@
     "bitcoin",
     "secp256k1"
   ],
-  "main": "index.js",
-  "types": "index.d.ts",
+  "main": "./src/index.js",
+  "types": "./types/index.d.ts",
   "engines": {
     "node": ">=6.0.0"
   },
   "scripts": {
-    "coverage-report": "nyc report --reporter=lcov",
-    "coverage": "nyc --check-coverage --branches 90 --functions 90 npm run unit",
-    "standard": "standard",
-    "test": "npm run standard && npm run coverage",
-    "unit": "tape test/*.js"
+    "build": "tsc -p ./tsconfig.json",
+    "coverage-report": "npm run build && npm run nobuild:coverage-report",
+    "coverage": "npm run build && npm run nobuild:coverage",
+    "nobuild:coverage-report": "nyc report --reporter=lcov",
+    "nobuild:coverage": "nyc --check-coverage --branches 90 --functions 90 npm run nobuild:unit",
+    "nobuild:standard": "standard *.ts",
+    "nobuild:unit": "tape test/*.js",
+    "prepare": "npm run build",
+    "standard": "npm run build && npm run nobuild:standard",
+    "test": "npm run build && npm run nobuild:standard && npm run nobuild:coverage",
+    "unit": "npm run build && npm run nobuild:unit"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bitcoinjs/bip32.git"
   },
+  "files": [
+    "src",
+    "types"
+  ],
   "dependencies": {
     "bs58check": "^2.1.1",
     "create-hash": "^1.2.0",
@@ -33,13 +43,23 @@
     "wif": "^2.0.6"
   },
   "devDependencies": {
-    "nyc": "^11.7.1",
+    "@types/node": "10.12.18",
+    "eslint-plugin-typescript": "0.14.0",
+    "nyc": "^13.3.0",
     "standard": "^11.0.1",
-    "tape": "^4.9.0"
+    "tape": "^4.9.0",
+    "typescript": "3.3.3333",
+    "typescript-eslint-parser": "21.0.2"
   },
   "author": "Daniel Cousens",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/bitcoinjs/bip32/issues"
+  },
+  "standard": {
+    "parser": "typescript-eslint-parser",
+    "plugins": [
+      "typescript"
+    ]
   }
 }
