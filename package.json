@@ -17,13 +17,15 @@
     "build": "tsc -p ./tsconfig.json",
     "coverage-report": "npm run build && npm run nobuild:coverage-report",
     "coverage": "npm run build && npm run nobuild:coverage",
+    "format": "npm run prettier -- --write",
+    "format:ci": "npm run prettier -- --check",
+    "lint": "tslint -p tsconfig.json -c tslint.json",
     "nobuild:coverage-report": "nyc report --reporter=lcov",
     "nobuild:coverage": "nyc --check-coverage --branches 90 --functions 90 npm run nobuild:unit",
-    "nobuild:standard": "standard *.ts",
     "nobuild:unit": "tape test/*.js",
     "prepare": "npm run build",
-    "standard": "npm run build && npm run nobuild:standard",
-    "test": "npm run build && npm run nobuild:standard && npm run nobuild:coverage",
+    "prettier": "prettier 'ts-src/**/*.ts' --ignore-path ./.prettierignore",
+    "test": "npm run build && npm run format:ci && npm run lint && npm run nobuild:coverage",
     "unit": "npm run build && npm run nobuild:unit"
   },
   "repository": {
@@ -44,22 +46,15 @@
   },
   "devDependencies": {
     "@types/node": "10.12.18",
-    "eslint-plugin-typescript": "0.14.0",
     "nyc": "^13.3.0",
-    "standard": "^11.0.1",
+    "prettier": "1.16.4",
     "tape": "^4.9.0",
-    "typescript": "3.3.3333",
-    "typescript-eslint-parser": "21.0.2"
+    "tslint": "5.13.1",
+    "typescript": "3.3.3333"
   },
   "author": "Daniel Cousens",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/bitcoinjs/bip32/issues"
-  },
-  "standard": {
-    "parser": "typescript-eslint-parser",
-    "plugins": [
-      "typescript"
-    ]
   }
 }

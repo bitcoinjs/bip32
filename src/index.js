@@ -10,20 +10,20 @@ const NETWORK_TYPE = typeforce.compile({
     wif: typeforce.UInt8,
     bip32: {
         public: typeforce.UInt32,
-        private: typeforce.UInt32
-    }
+        private: typeforce.UInt32,
+    },
 });
 const BITCOIN = {
     wif: 0x80,
     bip32: {
         public: 0x0488b21e,
-        private: 0x0488ade4
-    }
+        private: 0x0488ade4,
+    },
 };
 const HIGHEST_BIT = 0x80000000;
 const UINT31_MAX = Math.pow(2, 31) - 1;
 function BIP32Path(value) {
-    return typeforce.String(value) && value.match(/^(m\/)?(\d+'?\/)*\d+'?$/) !== null;
+    return (typeforce.String(value) && value.match(/^(m\/)?(\d+'?\/)*\d+'?$/) !== null);
 }
 function UInt31(value) {
     return typeforce.UInt32(value) && value <= UINT31_MAX;
@@ -36,20 +36,20 @@ class BIP32 {
         this.index = 0;
         this.network = network;
         this.parentFingerprint = 0x00000000;
-        this.__d = undefined;
+        this.__D = undefined;
         this.__Q = undefined;
         if (d !== undefined)
-            this.__d = d;
+            this.__D = d;
         if (Q !== undefined)
             this.__Q = Q;
     }
     get publicKey() {
         if (this.__Q === undefined)
-            this.__Q = ecc.pointFromScalar(this.__d, true);
+            this.__Q = ecc.pointFromScalar(this.__D, true);
         return this.__Q;
     }
     get privateKey() {
-        return this.__d;
+        return this.__D;
     }
     get identifier() {
         return crypto.hash160(this.publicKey);
@@ -60,19 +60,21 @@ class BIP32 {
     // Private === not neutered
     // Public === neutered
     isNeutered() {
-        return this.__d === undefined;
+        return this.__D === undefined;
     }
     neutered() {
-        let neutered = fromPublicKey(this.publicKey, this.chainCode, this.network);
+        const neutered = fromPublicKey(this.publicKey, this.chainCode, this.network);
         neutered.depth = this.depth;
         neutered.index = this.index;
         neutered.parentFingerprint = this.parentFingerprint;
         return neutered;
     }
     toBase58() {
-        let network = this.network;
-        let version = (!this.isNeutered()) ? network.bip32.private : network.bip32.public;
-        let buffer = Buffer.allocUnsafe(78);
+        const network = this.network;
+        const version = !this.isNeutered()
+            ? network.bip32.private
+            : network.bip32.public;
+        const buffer = Buffer.allocUnsafe(78);
         // 4 bytes: version bytes
         buffer.writeUInt32BE(version, 0);
         // 1 byte: depth: 0x00 for master nodes, 0x01 for level-1 descendants, ....
@@ -105,8 +107,8 @@ class BIP32 {
     // https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#child-key-derivation-ckd-functions
     derive(index) {
         typeforce(typeforce.UInt32, index);
-        let isHardened = index >= HIGHEST_BIT;
-        let data = Buffer.allocUnsafe(37);
+        const isHardened = index >= HIGHEST_BIT;
+        const data = Buffer.allocUnsafe(37);
         // Hardened child
         if (isHardened) {
             if (this.isNeutered())
@@ -123,9 +125,9 @@ class BIP32 {
             this.publicKey.copy(data, 0);
             data.writeUInt32BE(index, 33);
         }
-        let I = crypto.hmacSHA512(this.chainCode, data);
-        let IL = I.slice(0, 32);
-        let IR = I.slice(32);
+        const I = crypto.hmacSHA512(this.chainCode, data);
+        const IL = I.slice(0, 32);
+        const IR = I.slice(32);
         // if parse256(IL) >= n, proceed with the next value for i
         if (!ecc.isPrivate(IL))
             return this.derive(index + 1);
@@ -133,7 +135,7 @@ class BIP32 {
         let hd;
         if (!this.isNeutered()) {
             // ki = parse256(IL) + kpar (mod n)
-            let ki = ecc.privateAdd(this.privateKey, IL);
+            const ki = ecc.privateAdd(this.privateKey, IL);
             // In case ki == 0, proceed with the next value for i
             if (ki == null)
                 return this.derive(index + 1);
@@ -143,7 +145,7 @@ class BIP32 {
         else {
             // Ki = point(parse256(IL)) + Kpar
             //    = G*IL + Kpar
-            let Ki = ecc.pointAddScalar(this.publicKey, IL, true);
+            const Ki = ecc.pointAddScalar(this.publicKey, IL, true);
             // In case Ki is the point at infinity, proceed with the next value for i
             if (Ki === null)
                 return this.derive(index + 1);
@@ -167,9 +169,9 @@ class BIP32 {
                 throw new TypeError('Expected master, got child');
             splitPath = splitPath.slice(1);
         }
-        return splitPath.reduce(function (prevHd, indexStr) {
+        return splitPath.reduce((prevHd, indexStr) => {
             let index;
-            if (indexStr.slice(-1) === "'") {
+            if (indexStr.slice(-1) === `'`) {
                 index = parseInt(indexStr.slice(0, -1), 10);
                 return prevHd.deriveHardened(index);
             }
@@ -186,42 +188,41 @@ class BIP32 {
         return ecc.verify(hash, this.publicKey, signature);
     }
 }
-function fromBase58(string, network) {
-    let buffer = bs58check.decode(string);
+function fromBase58(inString, network) {
+    const buffer = bs58check.decode(inString);
     if (buffer.length !== 78)
         throw new TypeError('Invalid buffer length');
     network = (network || BITCOIN);
     // 4 bytes: version bytes
-    let version = buffer.readUInt32BE(0);
-    if (version !== network.bip32.private &&
-        version !== network.bip32.public)
+    const version = buffer.readUInt32BE(0);
+    if (version !== network.bip32.private && version !== network.bip32.public)
         throw new TypeError('Invalid network version');
     // 1 byte: depth: 0x00 for master nodes, 0x01 for level-1 descendants, ...
-    let depth = buffer[4];
+    const depth = buffer[4];
     // 4 bytes: the fingerprint of the parent's key (0x00000000 if master key)
-    let parentFingerprint = buffer.readUInt32BE(5);
+    const parentFingerprint = buffer.readUInt32BE(5);
     if (depth === 0) {
         if (parentFingerprint !== 0x00000000)
             throw new TypeError('Invalid parent fingerprint');
     }
     // 4 bytes: child number. This is the number i in xi = xpar/i, with xi the key being serialized.
     // This is encoded in MSB order. (0x00000000 if master key)
-    let index = buffer.readUInt32BE(9);
+    const index = buffer.readUInt32BE(9);
     if (depth === 0 && index !== 0)
         throw new TypeError('Invalid index');
     // 32 bytes: the chain code
-    let chainCode = buffer.slice(13, 45);
+    const chainCode = buffer.slice(13, 45);
     let hd;
     // 33 bytes: private key data (0x00 + k)
     if (version === network.bip32.private) {
         if (buffer.readUInt8(45) !== 0x00)
             throw new TypeError('Invalid private key');
-        let k = buffer.slice(46, 78);
+        const k = buffer.slice(46, 78);
         hd = fromPrivateKey(k, chainCode, network);
         // 33 bytes: public key data (0x02 + X or 0x03 + X)
     }
     else {
-        let X = buffer.slice(45, 78);
+        const X = buffer.slice(45, 78);
         hd = fromPublicKey(X, chainCode, network);
     }
     hd.depth = depth;
@@ -233,7 +234,7 @@ exports.fromBase58 = fromBase58;
 function fromPrivateKey(privateKey, chainCode, network) {
     typeforce({
         privateKey: UINT256_TYPE,
-        chainCode: UINT256_TYPE
+        chainCode: UINT256_TYPE,
     }, { privateKey, chainCode });
     network = (network || BITCOIN);
     if (!ecc.isPrivate(privateKey))
@@ -244,7 +245,7 @@ exports.fromPrivateKey = fromPrivateKey;
 function fromPublicKey(publicKey, chainCode, network) {
     typeforce({
         publicKey: typeforce.BufferN(33),
-        chainCode: UINT256_TYPE
+        chainCode: UINT256_TYPE,
     }, { publicKey, chainCode });
     network = (network || BITCOIN);
     // verify the X coordinate is a point on the curve
@@ -260,9 +261,9 @@ function fromSeed(seed, network) {
     if (seed.length > 64)
         throw new TypeError('Seed should be at most 512 bits');
     network = (network || BITCOIN);
-    let I = crypto.hmacSHA512(Buffer.from('Bitcoin seed', 'utf8'), seed);
-    let IL = I.slice(0, 32);
-    let IR = I.slice(32);
+    const I = crypto.hmacSHA512(Buffer.from('Bitcoin seed', 'utf8'), seed);
+    const IL = I.slice(0, 32);
+    const IR = I.slice(32);
     return fromPrivateKey(IL, IR, network);
 }
 exports.fromSeed = fromSeed;

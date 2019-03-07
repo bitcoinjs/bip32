@@ -1,5 +1,5 @@
 /// <reference types="node" />
-declare type Network = {
+interface Network {
     wif: number;
     bip32: {
         public: number;
@@ -9,7 +9,7 @@ declare type Network = {
     bech32?: string;
     pubKeyHash?: number;
     scriptHash?: number;
-};
+}
 export interface BIP32Interface {
     chainCode: Buffer;
     network: Network;
@@ -30,7 +30,7 @@ export interface BIP32Interface {
     sign(hash: Buffer): Buffer;
     verify(hash: Buffer, signature: Buffer): boolean;
 }
-export declare function fromBase58(string: string, network?: Network): BIP32Interface;
+export declare function fromBase58(inString: string, network?: Network): BIP32Interface;
 export declare function fromPrivateKey(privateKey: Buffer, chainCode: Buffer, network?: Network): BIP32Interface;
 export declare function fromPublicKey(publicKey: Buffer, chainCode: Buffer, network?: Network): BIP32Interface;
 export declare function fromSeed(seed: Buffer, network?: Network): BIP32Interface;
