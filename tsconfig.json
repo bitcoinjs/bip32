@@ -1,24 +1,27 @@
 {
   "compilerOptions": {
-    "target": "ES2015",
-    "module": "commonjs",
-    "outDir": "./src",
-    "rootDir": "./ts-src",
+    "allowJs": false,
+    "alwaysStrict": true,
     "declaration": true,
     "declarationDir": "./types",
+    "esModuleInterop": false,
+    "lib": [
+      "es2017"
+    ],
+    "module": "commonjs",
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "outDir": "./src",
+    "rootDir": "./ts-src",
+    "strict": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "target": "es2017",
     "types": [
       "node"
-    ],
-    "allowJs": false,
-    "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictBindCallApply": true,
-    "strictPropertyInitialization": true,
-    "noImplicitThis": true,
-    "alwaysStrict": true,
-    "esModuleInterop": false
+    ]
   },
   "include": [
       "ts-src/*.ts"
