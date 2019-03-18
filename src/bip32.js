@@ -29,19 +29,15 @@ function UInt31(value) {
     return typeforce.UInt32(value) && value <= UINT31_MAX;
 }
 class BIP32 {
-    constructor(d, Q, chainCode, network) {
-        typeforce(NETWORK_TYPE, network);
+    constructor(__D, __Q, chainCode, network) {
+        this.__D = __D;
+        this.__Q = __Q;
         this.chainCode = chainCode;
+        this.network = network;
         this.depth = 0;
         this.index = 0;
-        this.network = network;
         this.parentFingerprint = 0x00000000;
-        this.__D = undefined;
-        this.__Q = undefined;
-        if (d !== undefined)
-            this.__D = d;
-        if (Q !== undefined)
-            this.__Q = Q;
+        typeforce(NETWORK_TYPE, network);
     }
     get publicKey() {
         if (this.__Q === undefined)

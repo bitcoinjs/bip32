@@ -68,32 +68,17 @@ export interface BIP32Interface {
 }
 
 class BIP32 implements BIP32Interface {
-  chainCode: Buffer;
-  network: Network;
-  depth: number;
-  index: number;
-  parentFingerprint: number;
-  private __D?: Buffer;
-  private __Q?: Buffer;
+  depth = 0;
+  index = 0;
+  parentFingerprint = 0x00000000;
 
   constructor(
-    d: Buffer | undefined,
-    Q: Buffer | undefined,
-    chainCode: Buffer,
-    network: Network,
+    private __D: Buffer | undefined,
+    private __Q: Buffer | undefined,
+    public chainCode: Buffer,
+    public network: Network,
   ) {
     typeforce(NETWORK_TYPE, network);
-
-    this.chainCode = chainCode;
-    this.depth = 0;
-    this.index = 0;
-    this.network = network;
-    this.parentFingerprint = 0x00000000;
-
-    this.__D = undefined;
-    this.__Q = undefined;
-    if (d !== undefined) this.__D = d;
-    if (Q !== undefined) this.__Q = Q;
   }
 
   get publicKey(): Buffer {
