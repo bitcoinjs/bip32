@@ -53,7 +53,7 @@
     "typescript": "3.3.3333"
   },
   "author": "Daniel Cousens",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/bitcoinjs/bip32/issues"
   }
