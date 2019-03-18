@@ -25,7 +25,7 @@ const NETWORK_TYPE = typeforce.compile({
   },
 });
 
-const BITCOIN = {
+const BITCOIN: Network = {
   wif: 0x80,
   bip32: {
     public: 0x0488b21e,
@@ -98,7 +98,7 @@ class BIP32 implements BIP32Interface {
 
   get publicKey(): Buffer {
     if (this.__Q === undefined) this.__Q = ecc.pointFromScalar(this.__D, true);
-    return this.__Q as Buffer;
+    return this.__Q!;
   }
 
   get privateKey(): Buffer | undefined {
@@ -158,7 +158,7 @@ class BIP32 implements BIP32Interface {
     if (!this.isNeutered()) {
       // 0x00 + k for private keys
       buffer.writeUInt8(0, 45);
-      (this.privateKey as Buffer).copy(buffer, 46);
+      this.privateKey!.copy(buffer, 46);
 
       // 33 bytes: the public key
     } else {
@@ -188,7 +188,7 @@ class BIP32 implements BIP32Interface {
 
       // data = 0x00 || ser256(kpar) || ser32(index)
       data[0] = 0x00;
-      (this.privateKey as Buffer).copy(data, 1);
+      this.privateKey!.copy(data, 1);
       data.writeUInt32BE(index, 33);
 
       // Normal child
@@ -283,7 +283,7 @@ export function fromBase58(
 ): BIP32Interface {
   const buffer = bs58check.decode(inString);
   if (buffer.length !== 78) throw new TypeError('Invalid buffer length');
-  network = (network || BITCOIN) as Network;
+  network = network || BITCOIN;
 
   // 4 bytes: version bytes
   const version = buffer.readUInt32BE(0);
@@ -342,7 +342,7 @@ export function fromPrivateKey(
     },
     { privateKey, chainCode },
   );
-  network = (network || BITCOIN) as Network;
+  network = network || BITCOIN;
 
   if (!ecc.isPrivate(privateKey))
     throw new TypeError('Private key not in range [1, n)');
@@ -361,7 +361,7 @@ export function fromPublicKey(
     },
     { publicKey, chainCode },
   );
-  network = (network || BITCOIN) as Network;
+  network = network || BITCOIN;
 
   // verify the X coordinate is a point on the curve
   if (!ecc.isPoint(publicKey)) throw new TypeError('Point is not on the curve');
@@ -372,7 +372,7 @@ export function fromSeed(seed: Buffer, network?: Network): BIP32Interface {
   typeforce(typeforce.Buffer, seed);
   if (seed.length < 16) throw new TypeError('Seed should be at least 128 bits');
   if (seed.length > 64) throw new TypeError('Seed should be at most 512 bits');
-  network = (network || BITCOIN) as Network;
+  network = network || BITCOIN;
 
   const I = crypto.hmacSHA512(Buffer.from('Bitcoin seed', 'utf8'), seed);
   const IL = I.slice(0, 32);

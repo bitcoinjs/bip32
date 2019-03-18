@@ -23,7 +23,6 @@
     "nobuild:coverage-report": "nyc report --reporter=lcov",
     "nobuild:coverage": "nyc --check-coverage --branches 90 --functions 90 npm run nobuild:unit",
     "nobuild:unit": "tape test/*.js",
-    "prepare": "npm run build",
     "prettier": "prettier 'ts-src/**/*.ts' --ignore-path ./.prettierignore",
     "test": "npm run build && npm run format:ci && npm run lint && npm run nobuild:coverage",
     "unit": "npm run build && npm run nobuild:unit"

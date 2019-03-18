@@ -192,7 +192,7 @@ function fromBase58(inString, network) {
     const buffer = bs58check.decode(inString);
     if (buffer.length !== 78)
         throw new TypeError('Invalid buffer length');
-    network = (network || BITCOIN);
+    network = network || BITCOIN;
     // 4 bytes: version bytes
     const version = buffer.readUInt32BE(0);
     if (version !== network.bip32.private && version !== network.bip32.public)
@@ -236,7 +236,7 @@ function fromPrivateKey(privateKey, chainCode, network) {
         privateKey: UINT256_TYPE,
         chainCode: UINT256_TYPE,
     }, { privateKey, chainCode });
-    network = (network || BITCOIN);
+    network = network || BITCOIN;
     if (!ecc.isPrivate(privateKey))
         throw new TypeError('Private key not in range [1, n)');
     return new BIP32(privateKey, undefined, chainCode, network);
@@ -247,7 +247,7 @@ function fromPublicKey(publicKey, chainCode, network) {
         publicKey: typeforce.BufferN(33),
         chainCode: UINT256_TYPE,
     }, { publicKey, chainCode });
-    network = (network || BITCOIN);
+    network = network || BITCOIN;
     // verify the X coordinate is a point on the curve
     if (!ecc.isPoint(publicKey))
         throw new TypeError('Point is not on the curve');
@@ -260,7 +260,7 @@ function fromSeed(seed, network) {
         throw new TypeError('Seed should be at least 128 bits');
     if (seed.length > 64)
         throw new TypeError('Seed should be at most 512 bits');
-    network = (network || BITCOIN);
+    network = network || BITCOIN;
     const I = crypto.hmacSHA512(Buffer.from('Bitcoin seed', 'utf8'), seed);
     const IL = I.slice(0, 32);
     const IR = I.slice(32);
