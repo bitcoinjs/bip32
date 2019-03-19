@@ -29,15 +29,24 @@ function UInt31(value) {
     return typeforce.UInt32(value) && value <= UINT31_MAX;
 }
 class BIP32 {
-    constructor(__D, __Q, chainCode, network) {
+    constructor(__D, __Q, chainCode, network, __DEPTH = 0, __INDEX = 0, __PARENT_FINGERPRINT = 0x00000000) {
         this.__D = __D;
         this.__Q = __Q;
         this.chainCode = chainCode;
         this.network = network;
-        this.depth = 0;
-        this.index = 0;
-        this.parentFingerprint = 0x00000000;
+        this.__DEPTH = __DEPTH;
+        this.__INDEX = __INDEX;
+        this.__PARENT_FINGERPRINT = __PARENT_FINGERPRINT;
         typeforce(NETWORK_TYPE, network);
+    }
+    get depth() {
+        return this.__DEPTH;
+    }
+    get index() {
+        return this.__INDEX;
+    }
+    get parentFingerprint() {
+        return this.__PARENT_FINGERPRINT;
     }
     get publicKey() {
         if (this.__Q === undefined)
@@ -59,11 +68,7 @@ class BIP32 {
         return this.__D === undefined;
     }
     neutered() {
-        const neutered = fromPublicKey(this.publicKey, this.chainCode, this.network);
-        neutered.depth = this.depth;
-        neutered.index = this.index;
-        neutered.parentFingerprint = this.parentFingerprint;
-        return neutered;
+        return fromPublicKeyLocal(this.publicKey, this.chainCode, this.network, this.depth, this.index, this.parentFingerprint);
     }
     toBase58() {
         const network = this.network;
@@ -135,7 +140,7 @@ class BIP32 {
             // In case ki == 0, proceed with the next value for i
             if (ki == null)
                 return this.derive(index + 1);
-            hd = fromPrivateKey(ki, IR, this.network);
+            hd = fromPrivateKeyLocal(ki, IR, this.network, this.depth + 1, index, this.fingerprint.readUInt32BE(0));
             // Public parent key -> public child key
         }
         else {
@@ -145,11 +150,8 @@ class BIP32 {
             // In case Ki is the point at infinity, proceed with the next value for i
             if (Ki === null)
                 return this.derive(index + 1);
-            hd = fromPublicKey(Ki, IR, this.network);
+            hd = fromPublicKeyLocal(Ki, IR, this.network, this.depth + 1, index, this.fingerprint.readUInt32BE(0));
         }
-        hd.depth = this.depth + 1;
-        hd.index = index;
-        hd.parentFingerprint = this.fingerprint.readUInt32BE(0);
         return hd;
     }
     deriveHardened(index) {
@@ -214,20 +216,21 @@ function fromBase58(inString, network) {
         if (buffer.readUInt8(45) !== 0x00)
             throw new TypeError('Invalid private key');
         const k = buffer.slice(46, 78);
-        hd = fromPrivateKey(k, chainCode, network);
+        hd = fromPrivateKeyLocal(k, chainCode, network, depth, index, parentFingerprint);
         // 33 bytes: public key data (0x02 + X or 0x03 + X)
     }
     else {
         const X = buffer.slice(45, 78);
-        hd = fromPublicKey(X, chainCode, network);
+        hd = fromPublicKeyLocal(X, chainCode, network, depth, index, parentFingerprint);
     }
-    hd.depth = depth;
-    hd.index = index;
-    hd.parentFingerprint = parentFingerprint;
     return hd;
 }
 exports.fromBase58 = fromBase58;
 function fromPrivateKey(privateKey, chainCode, network) {
+    return fromPrivateKeyLocal(privateKey, chainCode, network);
+}
+exports.fromPrivateKey = fromPrivateKey;
+function fromPrivateKeyLocal(privateKey, chainCode, network, depth, index, parentFingerprint) {
     typeforce({
         privateKey: UINT256_TYPE,
         chainCode: UINT256_TYPE,
@@ -235,10 +238,13 @@ function fromPrivateKey(privateKey, chainCode, network) {
     network = network || BITCOIN;
     if (!ecc.isPrivate(privateKey))
         throw new TypeError('Private key not in range [1, n)');
-    return new BIP32(privateKey, undefined, chainCode, network);
+    return new BIP32(privateKey, undefined, chainCode, network, depth, index, parentFingerprint);
 }
-exports.fromPrivateKey = fromPrivateKey;
 function fromPublicKey(publicKey, chainCode, network) {
+    return fromPublicKeyLocal(publicKey, chainCode, network);
+}
+exports.fromPublicKey = fromPublicKey;
+function fromPublicKeyLocal(publicKey, chainCode, network, depth, index, parentFingerprint) {
     typeforce({
         publicKey: typeforce.BufferN(33),
         chainCode: UINT256_TYPE,
@@ -247,9 +253,8 @@ function fromPublicKey(publicKey, chainCode, network) {
     // verify the X coordinate is a point on the curve
     if (!ecc.isPoint(publicKey))
         throw new TypeError('Point is not on the curve');
-    return new BIP32(undefined, publicKey, chainCode, network);
+    return new BIP32(undefined, publicKey, chainCode, network, depth, index, parentFingerprint);
 }
-exports.fromPublicKey = fromPublicKey;
 function fromSeed(seed, network) {
     typeforce(typeforce.Buffer, seed);
     if (seed.length < 16)

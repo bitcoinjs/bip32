@@ -68,17 +68,28 @@ export interface BIP32Interface {
 }
 
 class BIP32 implements BIP32Interface {
-  depth = 0;
-  index = 0;
-  parentFingerprint = 0x00000000;
-
   constructor(
     private __D: Buffer | undefined,
     private __Q: Buffer | undefined,
     public chainCode: Buffer,
     public network: Network,
+    private __DEPTH = 0,
+    private __INDEX = 0,
+    private __PARENT_FINGERPRINT = 0x00000000,
   ) {
     typeforce(NETWORK_TYPE, network);
+  }
+
+  get depth(): number {
+    return this.__DEPTH;
+  }
+
+  get index(): number {
+    return this.__INDEX;
+  }
+
+  get parentFingerprint(): number {
+    return this.__PARENT_FINGERPRINT;
   }
 
   get publicKey(): Buffer {
@@ -105,15 +116,14 @@ class BIP32 implements BIP32Interface {
   }
 
   neutered(): BIP32Interface {
-    const neutered = fromPublicKey(
+    return fromPublicKeyLocal(
       this.publicKey,
       this.chainCode,
       this.network,
+      this.depth,
+      this.index,
+      this.parentFingerprint,
     );
-    neutered.depth = this.depth;
-    neutered.index = this.index;
-    neutered.parentFingerprint = this.parentFingerprint;
-    return neutered;
   }
 
   toBase58(): string {
@@ -200,7 +210,14 @@ class BIP32 implements BIP32Interface {
       // In case ki == 0, proceed with the next value for i
       if (ki == null) return this.derive(index + 1);
 
-      hd = fromPrivateKey(ki, IR, this.network);
+      hd = fromPrivateKeyLocal(
+        ki,
+        IR,
+        this.network,
+        this.depth + 1,
+        index,
+        this.fingerprint.readUInt32BE(0),
+      );
 
       // Public parent key -> public child key
     } else {
@@ -211,12 +228,16 @@ class BIP32 implements BIP32Interface {
       // In case Ki is the point at infinity, proceed with the next value for i
       if (Ki === null) return this.derive(index + 1);
 
-      hd = fromPublicKey(Ki, IR, this.network);
+      hd = fromPublicKeyLocal(
+        Ki,
+        IR,
+        this.network,
+        this.depth + 1,
+        index,
+        this.fingerprint.readUInt32BE(0),
+      );
     }
 
-    hd.depth = this.depth + 1;
-    hd.index = index;
-    hd.parentFingerprint = this.fingerprint.readUInt32BE(0);
     return hd;
   }
 
@@ -292,7 +313,7 @@ export function fromBase58(
 
   // 32 bytes: the chain code
   const chainCode = buffer.slice(13, 45);
-  let hd;
+  let hd: BIP32Interface;
 
   // 33 bytes: private key data (0x00 + k)
   if (version === network.bip32.private) {
@@ -300,18 +321,29 @@ export function fromBase58(
       throw new TypeError('Invalid private key');
     const k = buffer.slice(46, 78);
 
-    hd = fromPrivateKey(k, chainCode, network);
+    hd = fromPrivateKeyLocal(
+      k,
+      chainCode,
+      network,
+      depth,
+      index,
+      parentFingerprint,
+    );
 
     // 33 bytes: public key data (0x02 + X or 0x03 + X)
   } else {
     const X = buffer.slice(45, 78);
 
-    hd = fromPublicKey(X, chainCode, network);
+    hd = fromPublicKeyLocal(
+      X,
+      chainCode,
+      network,
+      depth,
+      index,
+      parentFingerprint,
+    );
   }
 
-  hd.depth = depth;
-  hd.index = index;
-  hd.parentFingerprint = parentFingerprint;
   return hd;
 }
 
@@ -319,6 +351,17 @@ export function fromPrivateKey(
   privateKey: Buffer,
   chainCode: Buffer,
   network?: Network,
+): BIP32Interface {
+  return fromPrivateKeyLocal(privateKey, chainCode, network);
+}
+
+function fromPrivateKeyLocal(
+  privateKey: Buffer,
+  chainCode: Buffer,
+  network?: Network,
+  depth?: number,
+  index?: number,
+  parentFingerprint?: number,
 ): BIP32Interface {
   typeforce(
     {
@@ -331,13 +374,32 @@ export function fromPrivateKey(
 
   if (!ecc.isPrivate(privateKey))
     throw new TypeError('Private key not in range [1, n)');
-  return new BIP32(privateKey, undefined, chainCode, network);
+  return new BIP32(
+    privateKey,
+    undefined,
+    chainCode,
+    network,
+    depth,
+    index,
+    parentFingerprint,
+  );
 }
 
 export function fromPublicKey(
   publicKey: Buffer,
   chainCode: Buffer,
   network?: Network,
+): BIP32Interface {
+  return fromPublicKeyLocal(publicKey, chainCode, network);
+}
+
+function fromPublicKeyLocal(
+  publicKey: Buffer,
+  chainCode: Buffer,
+  network?: Network,
+  depth?: number,
+  index?: number,
+  parentFingerprint?: number,
 ): BIP32Interface {
   typeforce(
     {
@@ -350,7 +412,15 @@ export function fromPublicKey(
 
   // verify the X coordinate is a point on the curve
   if (!ecc.isPoint(publicKey)) throw new TypeError('Point is not on the curve');
-  return new BIP32(undefined, publicKey, chainCode, network);
+  return new BIP32(
+    undefined,
+    publicKey,
+    chainCode,
+    network,
+    depth,
+    index,
+    parentFingerprint,
+  );
 }
 
 export function fromSeed(seed: Buffer, network?: Network): BIP32Interface {
