@@ -1,4 +1,4 @@
-let BIP32 = require('../')
+let BIP32 = require('..')
 let tape = require('tape')
 let fixtures = require('./fixtures/index.json')
 let LITECOIN = {
@@ -34,7 +34,7 @@ function verify (t, hd, prv, f, network) {
   if (prv) t.equal(hd.privateKey.toString('hex'), f.privKey)
   if (prv) t.equal(hd.toWIF(), f.wif)
   if (!prv) t.throws(() => hd.toWIF(), /Missing private key/)
-  if (!prv) t.equal(hd.privateKey, null)
+  if (!prv) t.equal(hd.privateKey, undefined)
   t.equal(hd.neutered().toBase58(), f.base58)
   t.equal(hd.isNeutered(), !prv)
 

@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "allowJs": false,
+    "alwaysStrict": true,
+    "declaration": true,
+    "declarationDir": "./types",
+    "esModuleInterop": false,
+    "lib": [
+      "es2017"
+    ],
+    "module": "commonjs",
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "outDir": "./src",
+    "rootDir": "./ts-src",
+    "strict": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "target": "es2017",
+    "types": [
+      "node"
+    ]
+  },
+  "include": [
+      "ts-src/*.ts"
+  ],
+  "exclude": [
+      "**/*.spec.ts",
+      "node_modules/**/*"
+  ]
+}
