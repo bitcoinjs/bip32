@@ -63,7 +63,7 @@ export interface BIP32Interface {
   derive(index: number): BIP32Interface;
   deriveHardened(index: number): BIP32Interface;
   derivePath(path: string): BIP32Interface;
-  sign(hash: Buffer): Buffer;
+  sign(hash: Buffer, lowR?: boolean): Buffer;
   verify(hash: Buffer, signature: Buffer): boolean;
 }
 
@@ -274,8 +274,23 @@ class BIP32 implements BIP32Interface {
     );
   }
 
-  sign(hash: Buffer): Buffer {
-    return ecc.sign(hash, this.privateKey);
+  sign(hash: Buffer, lowR: boolean = false): Buffer {
+    if (!this.privateKey) throw new Error('Missing private key');
+    if (lowR === false) {
+      return ecc.sign(hash, this.privateKey);
+    } else {
+      let sig = ecc.sign(hash, this.privateKey);
+      const extraData = Buffer.alloc(32, 0);
+      let counter = 0;
+      // if first try is lowR, skip the loop
+      // for second try and on, add extra entropy counting up
+      while (sig[0] > 0x7f) {
+        counter++;
+        extraData.writeUIntLE(counter, 0, 6);
+        sig = ecc.signWithEntropy(hash, this.privateKey, extraData);
+      }
+      return sig;
+    }
   }
 
   verify(hash: Buffer, signature: Buffer): boolean {

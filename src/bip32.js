@@ -179,8 +179,25 @@ class BIP32 {
             }
         }, this);
     }
-    sign(hash) {
-        return ecc.sign(hash, this.privateKey);
+    sign(hash, lowR = false) {
+        if (!this.privateKey)
+            throw new Error('Missing private key');
+        if (lowR === false) {
+            return ecc.sign(hash, this.privateKey);
+        }
+        else {
+            let sig = ecc.sign(hash, this.privateKey);
+            const extraData = Buffer.alloc(32, 0);
+            let counter = 0;
+            // if first try is lowR, skip the loop
+            // for second try and on, add extra entropy counting up
+            while (sig[0] > 0x7f) {
+                counter++;
+                extraData.writeUIntLE(counter, 0, 6);
+                sig = ecc.signWithEntropy(hash, this.privateKey, extraData);
+            }
+            return sig;
+        }
     }
     verify(hash, signature) {
         return ecc.verify(hash, this.publicKey, signature);

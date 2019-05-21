@@ -27,7 +27,7 @@ export interface BIP32Interface {
     derive(index: number): BIP32Interface;
     deriveHardened(index: number): BIP32Interface;
     derivePath(path: string): BIP32Interface;
-    sign(hash: Buffer): Buffer;
+    sign(hash: Buffer, lowR?: boolean): Buffer;
     verify(hash: Buffer, signature: Buffer): boolean;
 }
 export declare function fromBase58(inString: string, network?: Network): BIP32Interface;
