@@ -13,6 +13,7 @@ interface Network {
 export interface BIP32Interface {
     chainCode: Buffer;
     network: Network;
+    lowR: boolean;
     depth: number;
     index: number;
     parentFingerprint: number;

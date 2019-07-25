@@ -38,6 +38,7 @@ class BIP32 {
         this.__INDEX = __INDEX;
         this.__PARENT_FINGERPRINT = __PARENT_FINGERPRINT;
         typeforce(NETWORK_TYPE, network);
+        this.lowR = false;
     }
     get depth() {
         return this.__DEPTH;
@@ -179,9 +180,11 @@ class BIP32 {
             }
         }, this);
     }
-    sign(hash, lowR = false) {
+    sign(hash, lowR) {
         if (!this.privateKey)
             throw new Error('Missing private key');
+        if (lowR === undefined)
+            lowR = this.lowR;
         if (lowR === false) {
             return ecc.sign(hash, this.privateKey);
         }
