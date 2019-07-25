@@ -49,6 +49,7 @@ function UInt31(value: number): boolean {
 export interface BIP32Interface {
   chainCode: Buffer;
   network: Network;
+  lowR: boolean;
   depth: number;
   index: number;
   parentFingerprint: number;
@@ -68,6 +69,7 @@ export interface BIP32Interface {
 }
 
 class BIP32 implements BIP32Interface {
+  lowR: boolean;
   constructor(
     private __D: Buffer | undefined,
     private __Q: Buffer | undefined,
@@ -78,6 +80,7 @@ class BIP32 implements BIP32Interface {
     private __PARENT_FINGERPRINT = 0x00000000,
   ) {
     typeforce(NETWORK_TYPE, network);
+    this.lowR = false;
   }
 
   get depth(): number {
@@ -274,8 +277,9 @@ class BIP32 implements BIP32Interface {
     );
   }
 
-  sign(hash: Buffer, lowR: boolean = false): Buffer {
+  sign(hash: Buffer, lowR?: boolean): Buffer {
     if (!this.privateKey) throw new Error('Missing private key');
+    if (lowR === undefined) lowR = this.lowR;
     if (lowR === false) {
       return ecc.sign(hash, this.privateKey);
     } else {
