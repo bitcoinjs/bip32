@@ -5,15 +5,15 @@ const typeforce = require('typeforce');
 const wif = require('wif');
 
 interface Network {
-  wif: number;
+  messagePrefix: string;
+  bech32: string;
   bip32: {
     public: number;
     private: number;
   };
-  messagePrefix?: string;
-  bech32?: string;
-  pubKeyHash?: number;
-  scriptHash?: number;
+  pubKeyHash: number;
+  scriptHash: number;
+  wif: number;
 }
 
 const UINT256_TYPE = typeforce.BufferN(32);
@@ -26,11 +26,15 @@ const NETWORK_TYPE = typeforce.compile({
 });
 
 const BITCOIN: Network = {
-  wif: 0x80,
+  messagePrefix: '\x18Bitcoin Signed Message:\n',
+  bech32: 'bc',
   bip32: {
     public: 0x0488b21e,
     private: 0x0488ade4,
   },
+  pubKeyHash: 0x00,
+  scriptHash: 0x05,
+  wif: 0x80,
 };
 
 const HIGHEST_BIT = 0x80000000;

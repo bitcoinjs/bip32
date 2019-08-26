@@ -1,14 +1,14 @@
 /// <reference types="node" />
 interface Network {
-    wif: number;
+    messagePrefix: string;
+    bech32: string;
     bip32: {
         public: number;
         private: number;
     };
-    messagePrefix?: string;
-    bech32?: string;
-    pubKeyHash?: number;
-    scriptHash?: number;
+    pubKeyHash: number;
+    scriptHash: number;
+    wif: number;
 }
 export interface BIP32Interface {
     chainCode: Buffer;
