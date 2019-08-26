@@ -207,14 +207,29 @@ class BIP32 {
     }
 }
 function fromBase58(inString, network) {
+    return _fromBase58(inString, false, network);
+}
+exports.fromBase58 = fromBase58;
+function fromBase58Unsafe(inString, network) {
+    return _fromBase58(inString, true, network);
+}
+exports.fromBase58Unsafe = fromBase58Unsafe;
+function _fromBase58(inString, ignoreNetwork, network) {
     const buffer = bs58check.decode(inString);
     if (buffer.length !== 78)
         throw new TypeError('Invalid buffer length');
+    const checkNetwork = !(ignoreNetwork && network === undefined);
     network = network || BITCOIN;
     // 4 bytes: version bytes
-    const version = buffer.readUInt32BE(0);
-    if (version !== network.bip32.private && version !== network.bip32.public)
+    let version = buffer.readUInt32BE(0);
+    if (checkNetwork &&
+        version !== network.bip32.private &&
+        version !== network.bip32.public)
         throw new TypeError('Invalid network version');
+    if (!checkNetwork) {
+        const isPrivate = buffer.readUInt8(45) === 0x00;
+        version = isPrivate ? network.bip32.private : network.bip32.public;
+    }
     // 1 byte: depth: 0x00 for master nodes, 0x01 for level-1 descendants, ...
     const depth = buffer[4];
     // 4 bytes: the fingerprint of the parent's key (0x00000000 if master key)
@@ -245,7 +260,6 @@ function fromBase58(inString, network) {
     }
     return hd;
 }
-exports.fromBase58 = fromBase58;
 function fromPrivateKey(privateKey, chainCode, network) {
     return fromPrivateKeyLocal(privateKey, chainCode, network);
 }

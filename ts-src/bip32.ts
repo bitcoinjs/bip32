@@ -306,14 +306,39 @@ export function fromBase58(
   inString: string,
   network?: Network,
 ): BIP32Interface {
+  return _fromBase58(inString, false, network);
+}
+
+export function fromBase58Unsafe(
+  inString: string,
+  network?: Network,
+): BIP32Interface {
+  return _fromBase58(inString, true, network);
+}
+
+function _fromBase58(
+  inString: string,
+  ignoreNetwork: boolean,
+  network?: Network,
+): BIP32Interface {
   const buffer = bs58check.decode(inString);
   if (buffer.length !== 78) throw new TypeError('Invalid buffer length');
+  const checkNetwork = !(ignoreNetwork && network === undefined);
   network = network || BITCOIN;
 
   // 4 bytes: version bytes
-  const version = buffer.readUInt32BE(0);
-  if (version !== network.bip32.private && version !== network.bip32.public)
+  let version = buffer.readUInt32BE(0);
+  if (
+    checkNetwork &&
+    version !== network.bip32.private &&
+    version !== network.bip32.public
+  )
     throw new TypeError('Invalid network version');
+
+  if (!checkNetwork) {
+    const isPrivate = buffer.readUInt8(45) === 0x00;
+    version = isPrivate ? network.bip32.private : network.bip32.public;
+  }
 
   // 1 byte: depth: 0x00 for master nodes, 0x01 for level-1 descendants, ...
   const depth = buffer[4];

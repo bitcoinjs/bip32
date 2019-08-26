@@ -224,3 +224,18 @@ tape('ecdsa', (t) => {
   t.equal(node.verify(hash, signatureLowR), true)
   t.equal(node.verify(seed, signatureLowR), false)
 })
+
+tape('fromBase58Unsafe', (t) => {
+  const xprv = 'tnpv5LJfSb9TMZU5pfndGX16ntf7uofxGzdg6T2ccUrpciw5Eow2N73XfKwLrtoZALa2TLDDDhADnYU1rDQMwLUM2puLo4m3wnmWSTTZesGg7f4'
+  const xpub = 'tnpb2k1Y4Bqt5GZPS4vYefc3armddYDtgGbKPjBa6yjR7Hb8YFyHEamWWv59cW4PfUk8rhpa5eYVUCAUKPqBK8eLmCPWt9godkeugHo1Ueju4ht'
+
+  const prv123 = 'xprv9y8tofwvpx21AJEGg5a1xpqUL3o5vrQNjCzAuTCi1rm2a4cjzKH8EmtUcVCouQb8xHUSUJwGGDZBmLJKQhRvsxucz4tQ9tCSZzjWhy8ji3f'
+  const pub123 = 'xpub6C8FDBUpfKaJNnJjn772KxnCt5daLK8E6RumhqcKaCJ1SrwtXrbNnaCxToTF19pbvr8xTwvtFkPvABuDZRivGiSMEpr521c4tAs3x5hV3TP'
+
+  const prvNode = BIP32.fromBase58Unsafe(xprv)
+  const pubNode = BIP32.fromBase58Unsafe(xpub)
+
+  t.plan(2)
+  t.equal(prvNode.derivePath('m/1/2/3').toBase58(), prv123)
+  t.equal(pubNode.derivePath('m/1/2/3').toBase58(), pub123)
+})

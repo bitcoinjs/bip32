@@ -32,6 +32,7 @@ export interface BIP32Interface {
     verify(hash: Buffer, signature: Buffer): boolean;
 }
 export declare function fromBase58(inString: string, network?: Network): BIP32Interface;
+export declare function fromBase58Unsafe(inString: string, network?: Network): BIP32Interface;
 export declare function fromPrivateKey(privateKey: Buffer, chainCode: Buffer, network?: Network): BIP32Interface;
 export declare function fromPublicKey(publicKey: Buffer, chainCode: Buffer, network?: Network): BIP32Interface;
 export declare function fromSeed(seed: Buffer, network?: Network): BIP32Interface;
