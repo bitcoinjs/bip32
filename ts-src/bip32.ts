@@ -262,19 +262,16 @@ class BIP32 implements BIP32Interface {
       splitPath = splitPath.slice(1);
     }
 
-    return splitPath.reduce(
-      (prevHd, indexStr) => {
-        let index;
-        if (indexStr.slice(-1) === `'`) {
-          index = parseInt(indexStr.slice(0, -1), 10);
-          return prevHd.deriveHardened(index);
-        } else {
-          index = parseInt(indexStr, 10);
-          return prevHd.derive(index);
-        }
-      },
-      this as BIP32Interface,
-    );
+    return splitPath.reduce((prevHd, indexStr) => {
+      let index;
+      if (indexStr.slice(-1) === `'`) {
+        index = parseInt(indexStr.slice(0, -1), 10);
+        return prevHd.deriveHardened(index);
+      } else {
+        index = parseInt(indexStr, 10);
+        return prevHd.derive(index);
+      }
+    }, this as BIP32Interface);
   }
 
   sign(hash: Buffer, lowR?: boolean): Buffer {
