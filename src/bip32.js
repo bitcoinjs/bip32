@@ -14,7 +14,7 @@ const NETWORK_TYPE = typeforce.compile({
     },
 });
 const BITCOIN = {
-    wif: 0x80,
+    wif: 0x4c,
     bip32: {
         public: 0x0488b21e,
         private: 0x0488ade4,
