@@ -67,6 +67,9 @@ class BIP32 {
     get fingerprint() {
         return this.identifier.slice(0, 4);
     }
+    get compressed() {
+        return true;
+    }
     // Private === not neutered
     // Public === neutered
     isNeutered() {

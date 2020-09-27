@@ -116,6 +116,10 @@ class BIP32 implements BIP32Interface {
     return this.identifier.slice(0, 4);
   }
 
+  get compressed(): boolean {
+    return true;
+  }
+
   // Private === not neutered
   // Public === neutered
   isNeutered(): boolean {

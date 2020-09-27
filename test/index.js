@@ -27,6 +27,7 @@ function verify (t, hd, prv, f, network) {
   t.equal(hd.chainCode.toString('hex'), f.chainCode)
   t.equal(hd.depth, f.depth >>> 0)
   t.equal(hd.index, f.index >>> 0)
+  t.equal(hd.compressed, true)
   t.equal(hd.fingerprint.toString('hex'), f.fingerprint)
   t.equal(hd.identifier.toString('hex'), f.identifier)
   t.equal(hd.publicKey.toString('hex'), f.pubKey)
