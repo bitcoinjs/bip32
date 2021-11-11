@@ -1,4 +1,5 @@
 import * as crypto from './crypto';
+import { testEcc } from './testecc';
 const bs58check = require('bs58check');
 const typeforce = require('typeforce');
 const wif = require('wif');
@@ -65,17 +66,18 @@ export interface TinySecp256k1Interface {
   ): Uint8Array | null;
   privateAdd(d: Uint8Array, tweak: Uint8Array): Uint8Array | null;
   sign(h: Uint8Array, d: Uint8Array, e?: Uint8Array): Uint8Array;
-  signSchnorr(h: Uint8Array, d: Uint8Array, e?: Uint8Array): Uint8Array;
+  signSchnorr?(h: Uint8Array, d: Uint8Array, e?: Uint8Array): Uint8Array;
   verify(
     h: Uint8Array,
     Q: Uint8Array,
     signature: Uint8Array,
     strict?: boolean,
   ): boolean;
-  verifySchnorr(h: Uint8Array, Q: Uint8Array, signature: Uint8Array): boolean;
+  verifySchnorr?(h: Uint8Array, Q: Uint8Array, signature: Uint8Array): boolean;
 }
 
 export default function(ecc: TinySecp256k1Interface): BIP32API {
+  testEcc(ecc);
   const UINT256_TYPE = typeforce.BufferN(32);
   const NETWORK_TYPE = typeforce.compile({
     wif: typeforce.UInt8,
@@ -346,6 +348,8 @@ export default function(ecc: TinySecp256k1Interface): BIP32API {
 
     signSchnorr(hash: Buffer): Buffer {
       if (!this.privateKey) throw new Error('Missing private key');
+      if (!ecc.signSchnorr)
+        throw new Error('signSchnorr not supported by ecc library');
       return Buffer.from(ecc.signSchnorr(hash, this.privateKey));
     }
 
@@ -354,6 +358,8 @@ export default function(ecc: TinySecp256k1Interface): BIP32API {
     }
 
     verifySchnorr(hash: Buffer, signature: Buffer): boolean {
+      if (!ecc.verifySchnorr)
+        throw new Error('verifySchnorr not supported by ecc library');
       return ecc.verifySchnorr(hash, this.publicKey.subarray(1, 33), signature);
     }
   }

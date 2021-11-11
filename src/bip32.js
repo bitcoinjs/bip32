@@ -1,10 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const crypto = require("./crypto");
+const testecc_1 = require("./testecc");
 const bs58check = require('bs58check');
 const typeforce = require('typeforce');
 const wif = require('wif');
 function default_1(ecc) {
+    testecc_1.testEcc(ecc);
     const UINT256_TYPE = typeforce.BufferN(32);
     const NETWORK_TYPE = typeforce.compile({
         wif: typeforce.UInt8,
@@ -212,12 +214,16 @@ function default_1(ecc) {
         signSchnorr(hash) {
             if (!this.privateKey)
                 throw new Error('Missing private key');
+            if (!ecc.signSchnorr)
+                throw new Error('signSchnorr not supported by ecc library');
             return Buffer.from(ecc.signSchnorr(hash, this.privateKey));
         }
         verify(hash, signature) {
             return ecc.verify(hash, this.publicKey, signature);
         }
         verifySchnorr(hash, signature) {
+            if (!ecc.verifySchnorr)
+                throw new Error('verifySchnorr not supported by ecc library');
             return ecc.verifySchnorr(hash, this.publicKey.subarray(1, 33), signature);
         }
     }

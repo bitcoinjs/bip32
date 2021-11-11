@@ -46,9 +46,9 @@ export interface TinySecp256k1Interface {
     pointAddScalar(p: Uint8Array, tweak: Uint8Array, compressed?: boolean): Uint8Array | null;
     privateAdd(d: Uint8Array, tweak: Uint8Array): Uint8Array | null;
     sign(h: Uint8Array, d: Uint8Array, e?: Uint8Array): Uint8Array;
-    signSchnorr(h: Uint8Array, d: Uint8Array, e?: Uint8Array): Uint8Array;
+    signSchnorr?(h: Uint8Array, d: Uint8Array, e?: Uint8Array): Uint8Array;
     verify(h: Uint8Array, Q: Uint8Array, signature: Uint8Array, strict?: boolean): boolean;
-    verifySchnorr(h: Uint8Array, Q: Uint8Array, signature: Uint8Array): boolean;
+    verifySchnorr?(h: Uint8Array, Q: Uint8Array, signature: Uint8Array): boolean;
 }
 export default function (ecc: TinySecp256k1Interface): BIP32API;
 export {};

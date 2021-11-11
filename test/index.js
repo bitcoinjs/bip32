@@ -1,7 +1,11 @@
 let BIP32Creator = require('..').default
 let tape = require('tape')
 let fixtures = require('./fixtures/index.json')
-import('tiny-secp256k1').then(ecc => BIP32Creator(ecc)).then(BIP32 => {
+let ecc
+import('tiny-secp256k1').then(lib => {
+  ecc = lib
+  return BIP32Creator(lib)
+}).then(BIP32 => {
 let LITECOIN = {
   wif: 0xb0,
   bip32: {
@@ -93,6 +97,15 @@ validAll.forEach((ff) => {
 
     t.end()
   })
+})
+
+tape('invalid ecc library throws', (t) => {
+  t.throws(() => {
+    BIP32Creator({ isPoint: () => false })
+  }, /ecc library invalid/)
+  // Run with no schnorr and check it doesn't throw
+  BIP32Creator({ ...ecc, signSchnorr: null, verifySchnorr: null })
+  t.end()
 })
 
 tape('fromBase58 throws', (t) => {
