@@ -31,8 +31,20 @@ export interface BIP32Interface {
     sign(hash: Buffer, lowR?: boolean): Buffer;
     verify(hash: Buffer, signature: Buffer): boolean;
 }
-export declare function fromBase58(inString: string, network?: Network): BIP32Interface;
-export declare function fromPrivateKey(privateKey: Buffer, chainCode: Buffer, network?: Network): BIP32Interface;
-export declare function fromPublicKey(publicKey: Buffer, chainCode: Buffer, network?: Network): BIP32Interface;
-export declare function fromSeed(seed: Buffer, network?: Network): BIP32Interface;
+export interface BIP32API {
+    fromSeed(seed: Buffer, network?: Network): BIP32Interface;
+    fromBase58(inString: string, network?: Network): BIP32Interface;
+    fromPublicKey(publicKey: Buffer, chainCode: Buffer, network?: Network): BIP32Interface;
+    fromPrivateKey(privateKey: Buffer, chainCode: Buffer, network?: Network): BIP32Interface;
+}
+export interface TinySecp256k1Interface {
+    isPoint(p: Uint8Array): boolean;
+    isPrivate(d: Uint8Array): boolean;
+    pointFromScalar(d: Uint8Array, compressed?: boolean): Uint8Array | null;
+    pointAddScalar(p: Uint8Array, tweak: Uint8Array, compressed?: boolean): Uint8Array | null;
+    privateAdd(d: Uint8Array, tweak: Uint8Array): Uint8Array | null;
+    sign(h: Uint8Array, d: Uint8Array, e?: Uint8Array): Uint8Array;
+    verify(h: Uint8Array, Q: Uint8Array, signature: Uint8Array, strict?: boolean): boolean;
+}
+export default function (ecc: TinySecp256k1Interface): BIP32API;
 export {};

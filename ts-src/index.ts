@@ -1,7 +1,6 @@
 export {
+  default,
   BIP32Interface,
-  fromSeed,
-  fromBase58,
-  fromPublicKey,
-  fromPrivateKey,
+  BIP32API,
+  TinySecp256k1Interface,
 } from './bip32';

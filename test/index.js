@@ -1,6 +1,7 @@
-let BIP32 = require('..')
+let BIP32Creator = require('..').default
 let tape = require('tape')
 let fixtures = require('./fixtures/index.json')
+import('tiny-secp256k1').then(ecc => BIP32Creator(ecc)).then(BIP32 => {
 let LITECOIN = {
   wif: 0xb0,
   bip32: {
@@ -224,4 +225,5 @@ tape('ecdsa', (t) => {
   t.equal(node.verify(seed, signature), false)
   t.equal(node.verify(hash, signatureLowR), true)
   t.equal(node.verify(seed, signatureLowR), false)
+})
 })
