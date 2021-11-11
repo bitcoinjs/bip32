@@ -1,7 +1,11 @@
 let BIP32Creator = require('..').default
 let tape = require('tape')
 let fixtures = require('./fixtures/index.json')
-import('tiny-secp256k1').then(ecc => BIP32Creator(ecc)).then(BIP32 => {
+let ecc
+import('tiny-secp256k1').then(lib => {
+  ecc = lib
+  return BIP32Creator(lib)
+}).then(BIP32 => {
 let LITECOIN = {
   wif: 0xb0,
   bip32: {
@@ -93,6 +97,15 @@ validAll.forEach((ff) => {
 
     t.end()
   })
+})
+
+tape('invalid ecc library throws', (t) => {
+  t.throws(() => {
+    BIP32Creator({ isPoint: () => false })
+  }, /ecc library invalid/)
+  // Run with no schnorr and check it doesn't throw
+  BIP32Creator({ ...ecc, signSchnorr: null, verifySchnorr: null })
+  t.end()
 })
 
 tape('fromBase58 throws', (t) => {
@@ -215,15 +228,19 @@ tape('ecdsa', (t) => {
   let seed = Buffer.alloc(32, 1)
   let hash = Buffer.alloc(32, 2)
   let signature = Buffer.from('9636ee2fac31b795a308856b821ebe297dda7b28220fb46ea1fbbd7285977cc04c82b734956246a0f15a9698f03f546d8d96fe006c8e7bd2256ca7c8229e6f5c', 'hex')
+  let schnorrsig = Buffer.from('2fae8b517cb0e7302ca48a4109d1819e3d75af96bd58d297023e3058c4e98ff812fe6ae32a2b2bc4abab10f88f7fe56efbafc8a4e4fa437af78926f528b0585e', 'hex')
   let signatureLowR = Buffer.from('0587a40b391b76596c257bf59565b24eaff2cc42b45caa2640902e73fb97a6e702c3402ab89348a7dae1bf171c3e172fa60353d7b01621a94cb7caca59b995db', 'hex')
   let node = BIP32.fromSeed(seed)
 
-  t.plan(6)
+  t.plan(9)
   t.equal(node.sign(hash).toString('hex'), signature.toString('hex'))
   t.equal(node.sign(hash, true).toString('hex'), signatureLowR.toString('hex'))
+  t.equal(node.signSchnorr(hash).toString('hex'), schnorrsig.toString('hex'))
   t.equal(node.verify(hash, signature), true)
   t.equal(node.verify(seed, signature), false)
   t.equal(node.verify(hash, signatureLowR), true)
   t.equal(node.verify(seed, signatureLowR), false)
+  t.equal(node.verifySchnorr(hash, schnorrsig), true)
+  t.equal(node.verifySchnorr(seed, schnorrsig), false)
 })
 })
