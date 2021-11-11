@@ -209,8 +209,16 @@ function default_1(ecc) {
                 return sig;
             }
         }
+        signSchnorr(hash) {
+            if (!this.privateKey)
+                throw new Error('Missing private key');
+            return Buffer.from(ecc.signSchnorr(hash, this.privateKey));
+        }
         verify(hash, signature) {
             return ecc.verify(hash, this.publicKey, signature);
+        }
+        verifySchnorr(hash, signature) {
+            return ecc.verifySchnorr(hash, this.publicKey.subarray(1, 33), signature);
         }
     }
     function fromBase58(inString, network) {

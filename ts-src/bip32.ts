@@ -35,6 +35,8 @@ export interface BIP32Interface {
   derivePath(path: string): BIP32Interface;
   sign(hash: Buffer, lowR?: boolean): Buffer;
   verify(hash: Buffer, signature: Buffer): boolean;
+  signSchnorr(hash: Buffer): Buffer;
+  verifySchnorr(hash: Buffer, signature: Buffer): boolean;
 }
 
 export interface BIP32API {
@@ -63,12 +65,14 @@ export interface TinySecp256k1Interface {
   ): Uint8Array | null;
   privateAdd(d: Uint8Array, tweak: Uint8Array): Uint8Array | null;
   sign(h: Uint8Array, d: Uint8Array, e?: Uint8Array): Uint8Array;
+  signSchnorr(h: Uint8Array, d: Uint8Array, e?: Uint8Array): Uint8Array;
   verify(
     h: Uint8Array,
     Q: Uint8Array,
     signature: Uint8Array,
     strict?: boolean,
   ): boolean;
+  verifySchnorr(h: Uint8Array, Q: Uint8Array, signature: Uint8Array): boolean;
 }
 
 export default function(ecc: TinySecp256k1Interface): BIP32API {
@@ -340,8 +344,17 @@ export default function(ecc: TinySecp256k1Interface): BIP32API {
       }
     }
 
+    signSchnorr(hash: Buffer): Buffer {
+      if (!this.privateKey) throw new Error('Missing private key');
+      return Buffer.from(ecc.signSchnorr(hash, this.privateKey));
+    }
+
     verify(hash: Buffer, signature: Buffer): boolean {
       return ecc.verify(hash, this.publicKey, signature);
+    }
+
+    verifySchnorr(hash: Buffer, signature: Buffer): boolean {
+      return ecc.verifySchnorr(hash, this.publicKey.subarray(1, 33), signature);
     }
   }
 
