@@ -50,5 +50,5 @@ export interface TinySecp256k1Interface {
     verify(h: Uint8Array, Q: Uint8Array, signature: Uint8Array, strict?: boolean): boolean;
     verifySchnorr?(h: Uint8Array, Q: Uint8Array, signature: Uint8Array): boolean;
 }
-export default function (ecc: TinySecp256k1Interface): BIP32API;
+export declare function BIP32Factory(ecc: TinySecp256k1Interface): BIP32API;
 export {};
