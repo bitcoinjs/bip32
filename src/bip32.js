@@ -5,7 +5,7 @@ const testecc_1 = require("./testecc");
 const bs58check = require('bs58check');
 const typeforce = require('typeforce');
 const wif = require('wif');
-function default_1(ecc) {
+function BIP32Factory(ecc) {
     testecc_1.testEcc(ecc);
     const UINT256_TYPE = typeforce.BufferN(32);
     const NETWORK_TYPE = typeforce.compile({
@@ -312,4 +312,4 @@ function default_1(ecc) {
         fromPrivateKey,
     };
 }
-exports.default = default_1;
+exports.BIP32Factory = BIP32Factory;

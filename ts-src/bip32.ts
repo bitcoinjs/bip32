@@ -76,7 +76,7 @@ export interface TinySecp256k1Interface {
   verifySchnorr?(h: Uint8Array, Q: Uint8Array, signature: Uint8Array): boolean;
 }
 
-export default function(ecc: TinySecp256k1Interface): BIP32API {
+export function BIP32Factory(ecc: TinySecp256k1Interface): BIP32API {
   testEcc(ecc);
   const UINT256_TYPE = typeforce.BufferN(32);
   const NETWORK_TYPE = typeforce.compile({
