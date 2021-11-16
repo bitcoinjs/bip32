@@ -1,6 +1,6 @@
 {
   "name": "bip32",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "A BIP32 compatible library",
   "keywords": [
     "bip32",
