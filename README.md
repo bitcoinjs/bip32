@@ -15,25 +15,23 @@ import { BIP32Interface } from 'bip32';
 // You must wrap a tiny-secp256k1 compatible implementation
 const bip32 = BIP32Factory(ecc);
 
-let node: BIP32Interface = bip32.fromBase58('xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHi');
+const node: BIP32Interface = bip32.fromBase58('xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHi');
 
-let child: BIP32Interface = node.derivePath('m/0/0');
+const child: BIP32Interface = node.derivePath('m/0/0');
 // ...
 ```
 
 NodeJS
 
 ``` javascript
-let BIP32Factory = require('bip32').default
-// tiny-secp256k1 v2 is ES module and must be imported, not required
-// (This requires v14 of node or greater)
-// But as long as you implement the interface, any library is fine
-import('tiny-secp256k1').then(ecc => BIP32Factory(ecc)).then(bip32 => {
-  let node = bip32.fromBase58('xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHi')
+const ecc = require('tiny-secp256k1')
+const { BIP32Factory } = require('bip32')
+// You must wrap a tiny-secp256k1 compatible implementation
+const bip32 = BIP32Factory(ecc)
 
-  let child = node.derivePath('m/0/0')
-  // ...
-})
+const node = bip32.fromBase58('xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHi')
+
+const child = node.derivePath('m/0/0')
 ```
 
 ## LICENSE [MIT](LICENSE)
