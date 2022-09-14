@@ -150,8 +150,11 @@ tape('works for Public -> public', (t) => {
   let master = BIP32.fromBase58(f.master.base58)
   let child = master.derive(c.m)
 
-  t.plan(1)
+  t.plan(2)
   t.equal(c.base58, child.toBase58())
+
+  const hdNeutered = BIP32.fromPublicKey(Buffer.from(f.master.pubKey, 'hex'), Buffer.from(f.master.chainCode, 'hex'))
+  t.equal(child.toBase58(), hdNeutered.derive(c.m).toBase58())
 })
 
 tape('throws on Public -> public (hardened)', (t) => {
@@ -232,7 +235,7 @@ tape('ecdsa', (t) => {
   let signatureLowR = Buffer.from('0587a40b391b76596c257bf59565b24eaff2cc42b45caa2640902e73fb97a6e702c3402ab89348a7dae1bf171c3e172fa60353d7b01621a94cb7caca59b995db', 'hex')
   let node = BIP32.fromSeed(seed)
 
-  t.plan(9)
+  t.plan(11)
   t.equal(node.sign(hash).toString('hex'), signature.toString('hex'))
   t.equal(node.sign(hash, true).toString('hex'), signatureLowR.toString('hex'))
   t.equal(node.signSchnorr(hash).toString('hex'), schnorrsig.toString('hex'))
@@ -242,5 +245,71 @@ tape('ecdsa', (t) => {
   t.equal(node.verify(seed, signatureLowR), false)
   t.equal(node.verifySchnorr(hash, schnorrsig), true)
   t.equal(node.verifySchnorr(seed, schnorrsig), false)
+
+  const neuteredNode = node.neutered()
+  t.throws(() => neuteredNode.sign(hash), /Missing private key/)
+  t.throws(() => neuteredNode.signSchnorr(hash), /Missing private key/)
+})
+
+tape('ecdsa - no schnorr', (t) => {
+  let seed = Buffer.alloc(32, 1)
+  let hash = Buffer.alloc(32, 2)
+  const tweak = Buffer.alloc(32, 3)
+
+  const bip32NoSchnorr = BIP32Creator({ ...ecc, signSchnorr: null, verifySchnorr: null })
+  const node = bip32NoSchnorr.fromSeed(seed)
+
+  t.plan(5)
+  t.throws(() => node.signSchnorr(hash), /signSchnorr not supported by ecc library/)
+  t.throws(() => node.verifySchnorr(hash), /verifySchnorr not supported by ecc library/)
+
+  const tweakedNode = node.tweak(tweak)
+  t.throws(() => tweakedNode.signSchnorr(hash), /signSchnorr not supported by ecc library/)
+  t.throws(() => tweakedNode.verifySchnorr(hash), /verifySchnorr not supported by ecc library/)
+
+  const signer = node.neutered().tweak(tweak)
+  t.throws(() => signer.verifySchnorr(hash), /verifySchnorr not supported by ecc library/)
+})
+
+tape('tweak', (t) => {
+  const seed = Buffer.alloc(32, 1)
+  const hash = Buffer.alloc(32, 2)
+  const tweak = Buffer.alloc(32, 3)
+  const signature = Buffer.from('5a38c6652feb5166c9c91cfa5fa4a4c7cec27445d4619499df8afdd05ebc823246d644b0c7d3b960625393df537f900528ec4b14e6ddab8fd0c7e87c98cfe9d0', 'hex')
+  const schnorrsig = Buffer.from('20506478d341d0ab1afd32671eb1550b1c5329ad5179a19712212b857f06b3210d949964cd513ff25719e2e9b0087d5a9745afd5d38641ce0dfa86f67c86de63', 'hex')
+  const signatureLowR = Buffer.from('5a38c6652feb5166c9c91cfa5fa4a4c7cec27445d4619499df8afdd05ebc823246d644b0c7d3b960625393df537f900528ec4b14e6ddab8fd0c7e87c98cfe9d0', 'hex')
+  const signer = BIP32.fromSeed(seed).tweak(tweak)
+
+  t.plan(9)
+  t.equal(signer.sign(hash).toString('hex'), signature.toString('hex'))
+  t.equal(signer.sign(hash, true).toString('hex'), signatureLowR.toString('hex'))
+  t.equal(signer.signSchnorr(hash).toString('hex'), schnorrsig.toString('hex'))
+  t.equal(signer.verify(hash, signature), true)
+  t.equal(signer.verify(seed, signature), false)
+  t.equal(signer.verify(hash, signatureLowR), true)
+  t.equal(signer.verify(seed, signatureLowR), false)
+  t.equal(signer.verifySchnorr(hash, schnorrsig), true)
+  t.equal(signer.verifySchnorr(seed, schnorrsig), false)
+})
+
+tape('tweak - neutered', (t) => {
+  const seed = Buffer.alloc(32, 1)
+  const hash = Buffer.alloc(32, 2)
+  const tweak = Buffer.alloc(32, 3)
+  const signature = Buffer.from('5a38c6652feb5166c9c91cfa5fa4a4c7cec27445d4619499df8afdd05ebc823246d644b0c7d3b960625393df537f900528ec4b14e6ddab8fd0c7e87c98cfe9d0', 'hex')
+  const schnorrsig = Buffer.from('20506478d341d0ab1afd32671eb1550b1c5329ad5179a19712212b857f06b3210d949964cd513ff25719e2e9b0087d5a9745afd5d38641ce0dfa86f67c86de63', 'hex')
+  const signatureLowR = Buffer.from('5a38c6652feb5166c9c91cfa5fa4a4c7cec27445d4619499df8afdd05ebc823246d644b0c7d3b960625393df537f900528ec4b14e6ddab8fd0c7e87c98cfe9d0', 'hex')
+  const signer = BIP32.fromSeed(seed).neutered().tweak(tweak)
+
+  t.plan(8)
+  t.throws(() => signer.sign(hash), /Missing private key/)
+  t.throws(() => signer.signSchnorr(hash), /Missing private key/)
+  
+  t.equal(signer.verify(hash, signature), true)
+  t.equal(signer.verify(seed, signature), false)
+  t.equal(signer.verify(hash, signatureLowR), true)
+  t.equal(signer.verify(seed, signatureLowR), false)
+  t.equal(signer.verifySchnorr(hash, schnorrsig), true)
+  t.equal(signer.verifySchnorr(seed, schnorrsig), false)
 })
 })
