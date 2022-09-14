@@ -34,6 +34,9 @@ function BIP32Factory(ecc) {
     function UInt31(value) {
         return typeforce.UInt32(value) && value <= UINT31_MAX;
     }
+    function toXOnly(pubKey) {
+        return pubKey.length === 32 ? pubKey : pubKey.slice(1, 33);
+    }
     class BIP32 {
         constructor(__D, __Q, chainCode, network, __DEPTH = 0, __INDEX = 0, __PARENT_FINGERPRINT = 0x00000000) {
             this.__D = __D;
@@ -189,6 +192,11 @@ function BIP32Factory(ecc) {
                 }
             }, this);
         }
+        tweak(t) {
+            if (this.privateKey)
+                return this.tweakFromPrivateKey(t);
+            return this.tweakFromPublicKey(t);
+        }
         sign(hash, lowR) {
             if (!this.privateKey)
                 throw new Error('Missing private key');
@@ -225,6 +233,47 @@ function BIP32Factory(ecc) {
             if (!ecc.verifySchnorr)
                 throw new Error('verifySchnorr not supported by ecc library');
             return ecc.verifySchnorr(hash, this.publicKey.subarray(1, 33), signature);
+        }
+        tweakFromPublicKey(t) {
+            const xOnlyPubKey = toXOnly(this.publicKey);
+            const tweakedPublicKey = ecc.xOnlyPointAddTweak(xOnlyPubKey, t);
+            if (!tweakedPublicKey || tweakedPublicKey.xOnlyPubkey === null)
+                throw new Error('Cannot tweak public key!');
+            const parityByte = Buffer.from([
+                tweakedPublicKey.parity === 0 ? 0x02 : 0x03,
+            ]);
+            const tweakedPublicKeyCompresed = Buffer.concat([
+                parityByte,
+                tweakedPublicKey.xOnlyPubkey,
+            ]);
+            return {
+                publicKey: tweakedPublicKeyCompresed,
+                sign: (hash, lowR) => {
+                    throw new Error('Missing private key');
+                },
+                signSchnorr: (hash) => {
+                    throw new Error('Missing private key');
+                },
+                verify: (hash, signature) => {
+                    return ecc.verify(hash, tweakedPublicKeyCompresed, signature);
+                },
+                verifySchnorr: (hash, signature) => {
+                    if (!ecc.verifySchnorr)
+                        throw new Error('verifySchnorr not supported by ecc library');
+                    return ecc.verifySchnorr(hash, tweakedPublicKey.xOnlyPubkey, signature);
+                },
+            };
+        }
+        tweakFromPrivateKey(t) {
+            const hasOddY = this.publicKey[0] === 3 ||
+                (this.publicKey[0] === 4 && (this.publicKey[64] & 1) === 1);
+            const privateKey = hasOddY
+                ? ecc.privateNegate(this.privateKey)
+                : this.privateKey;
+            const tweakedPrivateKey = ecc.privateAdd(privateKey, t);
+            if (!tweakedPrivateKey)
+                throw new Error('Invalid tweaked private key!');
+            return fromPrivateKey(Buffer.from(tweakedPrivateKey), Buffer.alloc(32, 0));
         }
     }
     function fromBase58(inString, network) {
