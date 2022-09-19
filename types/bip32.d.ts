@@ -12,6 +12,7 @@ interface Network {
 }
 export interface Signer {
     publicKey: Buffer;
+    lowR: boolean;
     sign(hash: Buffer, lowR?: boolean): Buffer;
     verify(hash: Buffer, signature: Buffer): boolean;
     signSchnorr(hash: Buffer): Buffer;
@@ -20,7 +21,6 @@ export interface Signer {
 export interface BIP32Interface extends Signer {
     chainCode: Buffer;
     network: Network;
-    lowR: boolean;
     depth: number;
     index: number;
     parentFingerprint: number;
