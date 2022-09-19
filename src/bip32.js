@@ -41,8 +41,6 @@ function BIP32Factory(ecc) {
         constructor(__D, __Q) {
             this.__D = __D;
             this.__Q = __Q;
-            // protected __Q: Buffer | undefined;
-            // protected __D: Buffer | undefined;
             this.lowR = false;
         }
         get publicKey() {
