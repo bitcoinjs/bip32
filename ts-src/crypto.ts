@@ -1,3 +1,4 @@
+import * as RipeMd160 from 'ripemd160';
 const createHash = require('create-hash');
 const createHmac = require('create-hmac');
 
@@ -10,9 +11,13 @@ export function hash160(buffer: Buffer): Buffer {
       .update(sha256Hash)
       .digest();
   } catch (err) {
-    return createHash('ripemd160')
-      .update(sha256Hash)
-      .digest();
+    try {
+      return createHash('ripemd160')
+        .update(sha256Hash)
+        .digest();
+    } catch (err2) {
+      return new RipeMd160().update(sha256Hash).digest();
+    }
   }
 }
 

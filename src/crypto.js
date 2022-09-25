@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const RipeMd160 = require("ripemd160");
 const createHash = require('create-hash');
 const createHmac = require('create-hmac');
 function hash160(buffer) {
@@ -12,9 +13,14 @@ function hash160(buffer) {
             .digest();
     }
     catch (err) {
-        return createHash('ripemd160')
-            .update(sha256Hash)
-            .digest();
+        try {
+            return createHash('ripemd160')
+                .update(sha256Hash)
+                .digest();
+        }
+        catch (err2) {
+            return new RipeMd160().update(sha256Hash).digest();
+        }
     }
 }
 exports.hash160 = hash160;
