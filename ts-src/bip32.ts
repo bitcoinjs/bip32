@@ -15,15 +15,20 @@ interface Network {
   pubKeyHash?: number;
   scriptHash?: number;
 }
-
-export interface BIP32Interface {
+export interface Signer {
+  publicKey: Buffer;
+  lowR: boolean;
+  sign(hash: Buffer, lowR?: boolean): Buffer;
+  verify(hash: Buffer, signature: Buffer): boolean;
+  signSchnorr(hash: Buffer): Buffer;
+  verifySchnorr(hash: Buffer, signature: Buffer): boolean;
+}
+export interface BIP32Interface extends Signer {
   chainCode: Buffer;
   network: Network;
-  lowR: boolean;
   depth: number;
   index: number;
   parentFingerprint: number;
-  publicKey: Buffer;
   privateKey?: Buffer;
   identifier: Buffer;
   fingerprint: Buffer;
@@ -34,10 +39,7 @@ export interface BIP32Interface {
   derive(index: number): BIP32Interface;
   deriveHardened(index: number): BIP32Interface;
   derivePath(path: string): BIP32Interface;
-  sign(hash: Buffer, lowR?: boolean): Buffer;
-  verify(hash: Buffer, signature: Buffer): boolean;
-  signSchnorr(hash: Buffer): Buffer;
-  verifySchnorr(hash: Buffer, signature: Buffer): boolean;
+  tweak(t: Buffer): Signer;
 }
 
 export interface BIP32API {
@@ -53,6 +55,11 @@ export interface BIP32API {
     chainCode: Buffer,
     network?: Network,
   ): BIP32Interface;
+}
+
+interface XOnlyPointAddTweakResult {
+  parity: 1 | 0;
+  xOnlyPubkey: Uint8Array;
 }
 
 export interface TinySecp256k1Interface {
@@ -74,6 +81,11 @@ export interface TinySecp256k1Interface {
     strict?: boolean,
   ): boolean;
   verifySchnorr?(h: Uint8Array, Q: Uint8Array, signature: Uint8Array): boolean;
+  xOnlyPointAddTweak(
+    p: Uint8Array,
+    tweak: Uint8Array,
+  ): XOnlyPointAddTweakResult | null;
+  privateNegate(d: Uint8Array): Uint8Array;
 }
 
 export function BIP32Factory(ecc: TinySecp256k1Interface): BIP32API {
@@ -112,19 +124,78 @@ export function BIP32Factory(ecc: TinySecp256k1Interface): BIP32API {
     return typeforce.UInt32(value) && value <= UINT31_MAX;
   }
 
-  class BIP32 implements BIP32Interface {
-    lowR: boolean;
+  function toXOnly(pubKey: Buffer) {
+    return pubKey.length === 32 ? pubKey : pubKey.slice(1, 33);
+  }
+
+  class Bip32Signer implements Signer {
+    lowR: boolean = false;
+
     constructor(
-      private __D: Buffer | undefined,
-      private __Q: Buffer | undefined,
+      protected __D: Buffer | undefined,
+      protected __Q: Buffer | undefined,
+    ) {}
+
+    get publicKey(): Buffer {
+      if (this.__Q === undefined)
+        this.__Q = Buffer.from(ecc.pointFromScalar(this.__D!, true)!);
+      return this.__Q!;
+    }
+
+    get privateKey(): Buffer | undefined {
+      return this.__D;
+    }
+
+    sign(hash: Buffer, lowR?: boolean): Buffer {
+      if (!this.privateKey) throw new Error('Missing private key');
+      if (lowR === undefined) lowR = this.lowR;
+      if (lowR === false) {
+        return Buffer.from(ecc.sign(hash, this.privateKey));
+      } else {
+        let sig = Buffer.from(ecc.sign(hash, this.privateKey));
+        const extraData = Buffer.alloc(32, 0);
+        let counter = 0;
+        // if first try is lowR, skip the loop
+        // for second try and on, add extra entropy counting up
+        while (sig[0] > 0x7f) {
+          counter++;
+          extraData.writeUIntLE(counter, 0, 6);
+          sig = Buffer.from(ecc.sign(hash, this.privateKey, extraData));
+        }
+        return sig;
+      }
+    }
+
+    signSchnorr(hash: Buffer): Buffer {
+      if (!this.privateKey) throw new Error('Missing private key');
+      if (!ecc.signSchnorr)
+        throw new Error('signSchnorr not supported by ecc library');
+      return Buffer.from(ecc.signSchnorr(hash, this.privateKey));
+    }
+
+    verify(hash: Buffer, signature: Buffer): boolean {
+      return ecc.verify(hash, this.publicKey, signature);
+    }
+
+    verifySchnorr(hash: Buffer, signature: Buffer): boolean {
+      if (!ecc.verifySchnorr)
+        throw new Error('verifySchnorr not supported by ecc library');
+      return ecc.verifySchnorr(hash, this.publicKey.subarray(1, 33), signature);
+    }
+  }
+
+  class BIP32 extends Bip32Signer implements BIP32Interface {
+    constructor(
+      __D: Buffer | undefined,
+      __Q: Buffer | undefined,
       public chainCode: Buffer,
       public network: Network,
       private __DEPTH = 0,
       private __INDEX = 0,
       private __PARENT_FINGERPRINT = 0x00000000,
     ) {
+      super(__D, __Q);
       typeforce(NETWORK_TYPE, network);
-      this.lowR = false;
     }
 
     get depth(): number {
@@ -137,16 +208,6 @@ export function BIP32Factory(ecc: TinySecp256k1Interface): BIP32API {
 
     get parentFingerprint(): number {
       return this.__PARENT_FINGERPRINT;
-    }
-
-    get publicKey(): Buffer {
-      if (this.__Q === undefined)
-        this.__Q = Buffer.from(ecc.pointFromScalar(this.__D!, true)!);
-      return this.__Q!;
-    }
-
-    get privateKey(): Buffer | undefined {
-      return this.__D;
     }
 
     get identifier(): Buffer {
@@ -326,41 +387,39 @@ export function BIP32Factory(ecc: TinySecp256k1Interface): BIP32API {
       );
     }
 
-    sign(hash: Buffer, lowR?: boolean): Buffer {
-      if (!this.privateKey) throw new Error('Missing private key');
-      if (lowR === undefined) lowR = this.lowR;
-      if (lowR === false) {
-        return Buffer.from(ecc.sign(hash, this.privateKey));
-      } else {
-        let sig = Buffer.from(ecc.sign(hash, this.privateKey));
-        const extraData = Buffer.alloc(32, 0);
-        let counter = 0;
-        // if first try is lowR, skip the loop
-        // for second try and on, add extra entropy counting up
-        while (sig[0] > 0x7f) {
-          counter++;
-          extraData.writeUIntLE(counter, 0, 6);
-          sig = Buffer.from(ecc.sign(hash, this.privateKey, extraData));
-        }
-        return sig;
-      }
+    tweak(t: Buffer): Signer {
+      if (this.privateKey) return this.tweakFromPrivateKey(t);
+      return this.tweakFromPublicKey(t);
     }
 
-    signSchnorr(hash: Buffer): Buffer {
-      if (!this.privateKey) throw new Error('Missing private key');
-      if (!ecc.signSchnorr)
-        throw new Error('signSchnorr not supported by ecc library');
-      return Buffer.from(ecc.signSchnorr(hash, this.privateKey));
+    private tweakFromPublicKey(t: Buffer): Signer {
+      const xOnlyPubKey = toXOnly(this.publicKey);
+      const tweakedPublicKey = ecc.xOnlyPointAddTweak(xOnlyPubKey, t);
+      if (!tweakedPublicKey || tweakedPublicKey.xOnlyPubkey === null)
+        throw new Error('Cannot tweak public key!');
+      const parityByte = Buffer.from([
+        tweakedPublicKey.parity === 0 ? 0x02 : 0x03,
+      ]);
+      const tweakedPublicKeyCompresed = Buffer.concat([
+        parityByte,
+        tweakedPublicKey.xOnlyPubkey,
+      ]);
+
+      return new Bip32Signer(undefined, tweakedPublicKeyCompresed);
     }
 
-    verify(hash: Buffer, signature: Buffer): boolean {
-      return ecc.verify(hash, this.publicKey, signature);
-    }
+    private tweakFromPrivateKey(t: Buffer): Signer {
+      const hasOddY =
+        this.publicKey[0] === 3 ||
+        (this.publicKey[0] === 4 && (this.publicKey[64] & 1) === 1);
+      const privateKey = hasOddY
+        ? ecc.privateNegate(this.privateKey!)
+        : this.privateKey;
 
-    verifySchnorr(hash: Buffer, signature: Buffer): boolean {
-      if (!ecc.verifySchnorr)
-        throw new Error('verifySchnorr not supported by ecc library');
-      return ecc.verifySchnorr(hash, this.publicKey.subarray(1, 33), signature);
+      const tweakedPrivateKey = ecc.privateAdd(privateKey!, t);
+      if (!tweakedPrivateKey) throw new Error('Invalid tweaked private key!');
+
+      return new Bip32Signer(Buffer.from(tweakedPrivateKey), undefined);
     }
   }
 
