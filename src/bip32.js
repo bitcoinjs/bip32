@@ -241,6 +241,8 @@ function BIP32Factory(ecc) {
         }
         tweakFromPublicKey(t) {
             const xOnlyPubKey = toXOnly(this.publicKey);
+            if (!ecc.xOnlyPointAddTweak)
+                throw new Error('xOnlyPointAddTweak not supported by ecc library');
             const tweakedPublicKey = ecc.xOnlyPointAddTweak(xOnlyPubKey, t);
             if (!tweakedPublicKey || tweakedPublicKey.xOnlyPubkey === null)
                 throw new Error('Cannot tweak public key!');
@@ -256,9 +258,14 @@ function BIP32Factory(ecc) {
         tweakFromPrivateKey(t) {
             const hasOddY = this.publicKey[0] === 3 ||
                 (this.publicKey[0] === 4 && (this.publicKey[64] & 1) === 1);
-            const privateKey = hasOddY
-                ? ecc.privateNegate(this.privateKey)
-                : this.privateKey;
+            const privateKey = (() => {
+                if (!hasOddY)
+                    return this.privateKey;
+                else if (!ecc.privateNegate)
+                    throw new Error('privateNegate not supported by ecc library');
+                else
+                    return ecc.privateNegate(this.privateKey);
+            })();
             const tweakedPrivateKey = ecc.privateAdd(privateKey, t);
             if (!tweakedPrivateKey)
                 throw new Error('Invalid tweaked private key!');

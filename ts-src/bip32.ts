@@ -81,11 +81,11 @@ export interface TinySecp256k1Interface {
     strict?: boolean,
   ): boolean;
   verifySchnorr?(h: Uint8Array, Q: Uint8Array, signature: Uint8Array): boolean;
-  xOnlyPointAddTweak(
+  xOnlyPointAddTweak?(
     p: Uint8Array,
     tweak: Uint8Array,
   ): XOnlyPointAddTweakResult | null;
-  privateNegate(d: Uint8Array): Uint8Array;
+  privateNegate?(d: Uint8Array): Uint8Array;
 }
 
 export function BIP32Factory(ecc: TinySecp256k1Interface): BIP32API {
@@ -394,6 +394,8 @@ export function BIP32Factory(ecc: TinySecp256k1Interface): BIP32API {
 
     private tweakFromPublicKey(t: Buffer): Signer {
       const xOnlyPubKey = toXOnly(this.publicKey);
+      if (!ecc.xOnlyPointAddTweak)
+        throw new Error('xOnlyPointAddTweak not supported by ecc library');
       const tweakedPublicKey = ecc.xOnlyPointAddTweak(xOnlyPubKey, t);
       if (!tweakedPublicKey || tweakedPublicKey.xOnlyPubkey === null)
         throw new Error('Cannot tweak public key!');
@@ -412,10 +414,14 @@ export function BIP32Factory(ecc: TinySecp256k1Interface): BIP32API {
       const hasOddY =
         this.publicKey[0] === 3 ||
         (this.publicKey[0] === 4 && (this.publicKey[64] & 1) === 1);
-      const privateKey = hasOddY
-        ? ecc.privateNegate(this.privateKey!)
-        : this.privateKey;
-
+      const privateKey = (() => {
+        if (!hasOddY) 
+          return this.privateKey
+        else if (!ecc.privateNegate) 
+          throw new Error('privateNegate not supported by ecc library');
+        else 
+          return ecc.privateNegate(this.privateKey!);
+      })();
       const tweakedPrivateKey = ecc.privateAdd(privateKey!, t);
       if (!tweakedPrivateKey) throw new Error('Invalid tweaked private key!');
 
