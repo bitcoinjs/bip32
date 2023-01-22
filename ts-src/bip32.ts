@@ -415,12 +415,10 @@ export function BIP32Factory(ecc: TinySecp256k1Interface): BIP32API {
         this.publicKey[0] === 3 ||
         (this.publicKey[0] === 4 && (this.publicKey[64] & 1) === 1);
       const privateKey = (() => {
-        if (!hasOddY) 
-          return this.privateKey
-        else if (!ecc.privateNegate) 
+        if (!hasOddY) return this.privateKey;
+        else if (!ecc.privateNegate)
           throw new Error('privateNegate not supported by ecc library');
-        else 
-          return ecc.privateNegate(this.privateKey!);
+        else return ecc.privateNegate(this.privateKey!);
       })();
       const tweakedPrivateKey = ecc.privateAdd(privateKey!, t);
       if (!tweakedPrivateKey) throw new Error('Invalid tweaked private key!');
