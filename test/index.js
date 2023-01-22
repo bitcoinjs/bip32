@@ -271,6 +271,19 @@ tape('ecdsa - no schnorr', (t) => {
   t.throws(() => signer.verifySchnorr(hash), /verifySchnorr not supported by ecc library/)
 })
 
+tape('ecc without tweak support', (t) => {
+  let seed = Buffer.alloc(32, 1)
+  const tweak = Buffer.alloc(32, 3)
+
+  const bip32NoTweak = BIP32Creator({ ...ecc, xOnlyPointAddTweak: null, privateNegate: null })
+  const node = bip32NoTweak.fromSeed(seed)
+  const nodeWithoutPrivKey = bip32NoTweak.fromPublicKey(node.publicKey, node.chainCode)
+
+  t.plan(2)
+  t.throws(() => node.tweak(tweak), /privateNegate not supported by ecc library/)
+  t.throws(() => nodeWithoutPrivKey.tweak(tweak), /xOnlyPointAddTweak not supported by ecc library/)
+})
+
 tape('tweak', (t) => {
   const seed = Buffer.alloc(32, 1)
   const hash = Buffer.alloc(32, 2)
