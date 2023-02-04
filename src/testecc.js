@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.testEcc = void 0;
 const h = (hex) => Buffer.from(hex, 'hex');
 function testEcc(ecc) {
     assert(ecc.isPoint(h('0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798')));

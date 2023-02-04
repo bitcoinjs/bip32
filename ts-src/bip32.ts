@@ -1,8 +1,14 @@
 import * as crypto from './crypto';
 import { testEcc } from './testecc';
-const bs58check = require('bs58check');
+import { base58check } from '@scure/base';
+import { sha256 } from '@noble/hashes/sha256';
 const typeforce = require('typeforce');
 const wif = require('wif');
+const _bs58check = base58check(sha256);
+const bs58check = {
+  encode: (data: Buffer): string => _bs58check.encode(Uint8Array.from(data)),
+  decode: (str: string): Buffer => Buffer.from(_bs58check.decode(str)),
+};
 
 interface Network {
   wif: number;
