@@ -1,32 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const RipeMd160 = require("ripemd160");
-const createHash = require('create-hash');
-const createHmac = require('create-hmac');
+const hmac_1 = require("@noble/hashes/hmac");
+const ripemd160_1 = require("@noble/hashes/ripemd160");
+const sha256_1 = require("@noble/hashes/sha256");
+const sha512_1 = require("@noble/hashes/sha512");
 function hash160(buffer) {
-    const sha256Hash = createHash('sha256')
-        .update(buffer)
-        .digest();
-    try {
-        return createHash('rmd160')
-            .update(sha256Hash)
-            .digest();
-    }
-    catch (err) {
-        try {
-            return createHash('ripemd160')
-                .update(sha256Hash)
-                .digest();
-        }
-        catch (err2) {
-            return new RipeMd160().update(sha256Hash).digest();
-        }
-    }
+    const sha256Hash = sha256_1.sha256(Uint8Array.from(buffer));
+    return Buffer.from(ripemd160_1.ripemd160(sha256Hash));
 }
 exports.hash160 = hash160;
 function hmacSHA512(key, data) {
-    return createHmac('sha512', key)
-        .update(data)
-        .digest();
+    return Buffer.from(hmac_1.hmac(sha512_1.sha512, key, data));
 }
 exports.hmacSHA512 = hmacSHA512;

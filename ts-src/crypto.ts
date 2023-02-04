@@ -1,28 +1,13 @@
-import * as RipeMd160 from 'ripemd160';
-const createHash = require('create-hash');
-const createHmac = require('create-hmac');
+import { hmac } from '@noble/hashes/hmac';
+import { ripemd160 } from '@noble/hashes/ripemd160';
+import { sha256 } from '@noble/hashes/sha256';
+import { sha512 } from '@noble/hashes/sha512';
 
 export function hash160(buffer: Buffer): Buffer {
-  const sha256Hash: Buffer = createHash('sha256')
-    .update(buffer)
-    .digest();
-  try {
-    return createHash('rmd160')
-      .update(sha256Hash)
-      .digest();
-  } catch (err) {
-    try {
-      return createHash('ripemd160')
-        .update(sha256Hash)
-        .digest();
-    } catch (err2) {
-      return new RipeMd160().update(sha256Hash).digest();
-    }
-  }
+  const sha256Hash = sha256(Uint8Array.from(buffer));
+  return Buffer.from(ripemd160(sha256Hash));
 }
 
 export function hmacSHA512(key: Buffer, data: Buffer): Buffer {
-  return createHmac('sha512', key)
-    .update(data)
-    .digest();
+  return Buffer.from(hmac(sha512, key, data));
 }
