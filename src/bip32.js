@@ -1,12 +1,19 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.BIP32Factory = void 0;
 const crypto = require("./crypto");
 const testecc_1 = require("./testecc");
-const bs58check = require('bs58check');
+const base_1 = require("@scure/base");
+const sha256_1 = require("@noble/hashes/sha256");
 const typeforce = require('typeforce');
 const wif = require('wif');
+const _bs58check = (0, base_1.base58check)(sha256_1.sha256);
+const bs58check = {
+    encode: (data) => _bs58check.encode(Uint8Array.from(data)),
+    decode: (str) => Buffer.from(_bs58check.decode(str)),
+};
 function BIP32Factory(ecc) {
-    testecc_1.testEcc(ecc);
+    (0, testecc_1.testEcc)(ecc);
     const UINT256_TYPE = typeforce.BufferN(32);
     const NETWORK_TYPE = typeforce.compile({
         wif: typeforce.UInt8,

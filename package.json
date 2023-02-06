@@ -37,22 +37,19 @@
     "types"
   ],
   "dependencies": {
-    "bs58check": "^2.1.1",
-    "create-hash": "^1.2.0",
-    "create-hmac": "^1.1.7",
-    "ripemd160": "^2.0.2",
+    "@noble/hashes": "^1.2.0",
+    "@scure/base": "^1.1.1",
     "typeforce": "^1.11.5",
     "wif": "^2.0.6"
   },
   "devDependencies": {
-    "@types/node": "10.12.18",
-    "@types/ripemd160": "^2.0.0",
+    "@types/node": "18.x",
     "nyc": "^15.0.0",
     "prettier": "1.16.4",
     "tape": "^4.13.2",
     "tiny-secp256k1": "^2.2.1",
     "tslint": "^6.1.0",
-    "typescript": "3.3.3333"
+    "typescript": "4.7"
   },
   "author": "Daniel Cousens",
   "license": "MIT",
