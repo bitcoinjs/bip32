@@ -56,8 +56,8 @@ export interface TinySecp256k1Interface {
     signSchnorr?(h: Uint8Array, d: Uint8Array, e?: Uint8Array): Uint8Array;
     verify(h: Uint8Array, Q: Uint8Array, signature: Uint8Array, strict?: boolean): boolean;
     verifySchnorr?(h: Uint8Array, Q: Uint8Array, signature: Uint8Array): boolean;
-    xOnlyPointAddTweak(p: Uint8Array, tweak: Uint8Array): XOnlyPointAddTweakResult | null;
-    privateNegate(d: Uint8Array): Uint8Array;
+    xOnlyPointAddTweak?(p: Uint8Array, tweak: Uint8Array): XOnlyPointAddTweakResult | null;
+    privateNegate?(d: Uint8Array): Uint8Array;
 }
 export declare function BIP32Factory(ecc: TinySecp256k1Interface): BIP32API;
 export {};
