@@ -38,8 +38,6 @@ function verify (t, hd, prv, f, network) {
   t.equal(hd.publicKey.toString('hex'), f.pubKey)
   if (prv) t.equal(hd.toBase58(), f.base58Priv)
   if (prv) t.equal(hd.privateKey.toString('hex'), f.privKey)
-  if (prv) t.equal(hd.toWIF(), f.wif)
-  if (!prv) t.throws(() => hd.toWIF(), /Missing private key/)
   if (!prv) t.equal(hd.privateKey, undefined)
   t.equal(hd.neutered().toBase58(), f.base58)
   t.equal(hd.isNeutered(), !prv)

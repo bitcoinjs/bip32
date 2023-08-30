@@ -39,8 +39,7 @@
   "dependencies": {
     "@noble/hashes": "^1.2.0",
     "@scure/base": "^1.1.1",
-    "typeforce": "^1.11.5",
-    "wif": "^2.0.6"
+    "typeforce": "^1.11.5"
   },
   "devDependencies": {
     "@types/node": "18.x",

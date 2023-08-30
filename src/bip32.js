@@ -6,7 +6,6 @@ const testecc_1 = require("./testecc");
 const base_1 = require("@scure/base");
 const sha256_1 = require("@noble/hashes/sha256");
 const typeforce = require('typeforce');
-const wif = require('wif');
 const _bs58check = (0, base_1.base58check)(sha256_1.sha256);
 const bs58check = {
     encode: (data) => _bs58check.encode(Uint8Array.from(data)),
@@ -161,11 +160,6 @@ function BIP32Factory(ecc) {
                 this.publicKey.copy(buffer, 45);
             }
             return bs58check.encode(buffer);
-        }
-        toWIF() {
-            if (!this.privateKey)
-                throw new TypeError('Missing private key');
-            return wif.encode(this.network.wif, this.privateKey, true);
         }
         // https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#child-key-derivation-ckd-functions
         derive(index) {

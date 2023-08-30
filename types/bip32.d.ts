@@ -30,7 +30,6 @@ export interface BIP32Interface extends Signer {
     isNeutered(): boolean;
     neutered(): BIP32Interface;
     toBase58(): string;
-    toWIF(): string;
     derive(index: number): BIP32Interface;
     deriveHardened(index: number): BIP32Interface;
     derivePath(path: string): BIP32Interface;
