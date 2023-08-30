@@ -3,7 +3,6 @@ import { testEcc } from './testecc';
 import { base58check } from '@scure/base';
 import { sha256 } from '@noble/hashes/sha256';
 const typeforce = require('typeforce');
-const wif = require('wif');
 const _bs58check = base58check(sha256);
 const bs58check = {
   encode: (data: Buffer): string => _bs58check.encode(Uint8Array.from(data)),
@@ -41,7 +40,6 @@ export interface BIP32Interface extends Signer {
   isNeutered(): boolean;
   neutered(): BIP32Interface;
   toBase58(): string;
-  toWIF(): string;
   derive(index: number): BIP32Interface;
   deriveHardened(index: number): BIP32Interface;
   derivePath(path: string): BIP32Interface;
@@ -281,11 +279,6 @@ export function BIP32Factory(ecc: TinySecp256k1Interface): BIP32API {
       }
 
       return bs58check.encode(buffer);
-    }
-
-    toWIF(): string {
-      if (!this.privateKey) throw new TypeError('Missing private key');
-      return wif.encode(this.network.wif, this.privateKey, true);
     }
 
     // https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#child-key-derivation-ckd-functions
