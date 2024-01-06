@@ -1,3 +1,2 @@
-/// <reference types="node" />
-export declare function hash160(buffer: Buffer): Buffer;
-export declare function hmacSHA512(key: Buffer, data: Buffer): Buffer;
+export declare function hash160(buffer: Uint8Array): Uint8Array;
+export declare function hmacSHA512(key: Uint8Array, data: Uint8Array): Uint8Array;
