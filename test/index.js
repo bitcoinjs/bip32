@@ -1,4 +1,5 @@
 let BIP32Creator = require('..').default
+let { bytesToHex, hexToBytes } = require('@noble/hashes/utils')
 let tape = require('tape')
 let fixtures = require('./fixtures/index.json')
 let ecc
@@ -29,17 +30,15 @@ fixtures.valid.forEach((f) => {
 })
 
 function verify (t, hd, prv, f, network) {
-  t.equal(hd.chainCode.toString('hex'), f.chainCode)
+  t.equal(bytesToHex(hd.chainCode), f.chainCode)
   t.equal(hd.depth, f.depth >>> 0)
   t.equal(hd.index, f.index >>> 0)
   t.equal(hd.compressed, true)
-  t.equal(hd.fingerprint.toString('hex'), f.fingerprint)
-  t.equal(hd.identifier.toString('hex'), f.identifier)
-  t.equal(hd.publicKey.toString('hex'), f.pubKey)
+  t.equal(bytesToHex(hd.fingerprint), f.fingerprint)
+  t.equal(bytesToHex(hd.identifier), f.identifier)
+  t.equal(bytesToHex(hd.publicKey), f.pubKey)
   if (prv) t.equal(hd.toBase58(), f.base58Priv)
-  if (prv) t.equal(hd.privateKey.toString('hex'), f.privKey)
-  if (prv) t.equal(hd.toWIF(), f.wif)
-  if (!prv) t.throws(() => hd.toWIF(), /Missing private key/)
+  if (prv) t.equal(bytesToHex(hd.privateKey), f.privKey)
   if (!prv) t.equal(hd.privateKey, undefined)
   t.equal(hd.neutered().toBase58(), f.base58)
   t.equal(hd.isNeutered(), !prv)
@@ -90,7 +89,7 @@ validAll.forEach((ff) => {
     verify(t, hd, false, ff, network)
 
     if (ff.seed) {
-      let seed = Buffer.from(ff.seed, 'hex')
+      let seed = hexToBytes(ff.seed)
       hd = BIP32.fromSeed(seed, network)
       verify(t, hd, true, ff, network)
     }
@@ -153,7 +152,7 @@ tape('works for Public -> public', (t) => {
   t.plan(2)
   t.equal(c.base58, child.toBase58())
 
-  const hdNeutered = BIP32.fromPublicKey(Buffer.from(f.master.pubKey, 'hex'), Buffer.from(f.master.chainCode, 'hex'))
+  const hdNeutered = BIP32.fromPublicKey(hexToBytes(f.master.pubKey), hexToBytes(f.master.chainCode))
   t.equal(child.toBase58(), hdNeutered.derive(c.m).toBase58())
 })
 
@@ -191,12 +190,12 @@ tape('throws on wrong types', (t) => {
     }, /Expected BIP32Path, got/)
   })
 
-  let ZERO = Buffer.alloc(32, 0)
-  let ONES = Buffer.alloc(32, 1)
+  let ZERO = new Uint8Array(32).fill(0);
+  let ONES = new Uint8Array(32).fill(1);
 
   t.throws(() => {
-    BIP32.fromPrivateKey(Buffer.alloc(2), ONES)
-  }, /Expected property "privateKey" of type Buffer\(Length: 32\), got Buffer\(Length: 2\)/)
+    BIP32.fromPrivateKey(new Uint8Array(2), ONES)
+  }, /Expected property "privateKey" of type Uint8Array\(Length: 32\), got Uint8Array\(Length: 2\)/)
 
   t.throws(() => {
     BIP32.fromPrivateKey(ZERO, ONES)
@@ -210,9 +209,9 @@ tape('works when private key has leading zeros', (t) => {
   let hdkey = BIP32.fromBase58(key)
 
   t.plan(2)
-  t.equal(hdkey.privateKey.toString('hex'), '00000055378cf5fafb56c711c674143f9b0ee82ab0ba2924f19b64f5ae7cdbfd')
+  t.equal(bytesToHex(hdkey.privateKey), '00000055378cf5fafb56c711c674143f9b0ee82ab0ba2924f19b64f5ae7cdbfd')
   let child = hdkey.derivePath('m/44\'/0\'/0\'/0/0\'')
-  t.equal(child.privateKey.toString('hex'), '3348069561d2a0fb925e74bf198762acc47dce7db27372257d2d959a9e6f8aeb')
+  t.equal(bytesToHex(child.privateKey), '3348069561d2a0fb925e74bf198762acc47dce7db27372257d2d959a9e6f8aeb')
 })
 
 tape('fromSeed', (t) => {
@@ -220,7 +219,7 @@ tape('fromSeed', (t) => {
 //    'throws if IL is not within interval [1, n - 1] | IL === n || IL === 0'
   fixtures.invalid.fromSeed.forEach((f) => {
     t.throws(() => {
-      BIP32.fromSeed(Buffer.from(f.seed, 'hex'))
+      BIP32.fromSeed(hexToBytes(f.seed))
     }, new RegExp(f.exception))
   })
 
@@ -228,17 +227,17 @@ tape('fromSeed', (t) => {
 })
 
 tape('ecdsa', (t) => {
-  let seed = Buffer.alloc(32, 1)
-  let hash = Buffer.alloc(32, 2)
-  let signature = Buffer.from('9636ee2fac31b795a308856b821ebe297dda7b28220fb46ea1fbbd7285977cc04c82b734956246a0f15a9698f03f546d8d96fe006c8e7bd2256ca7c8229e6f5c', 'hex')
-  let schnorrsig = Buffer.from('2fae8b517cb0e7302ca48a4109d1819e3d75af96bd58d297023e3058c4e98ff812fe6ae32a2b2bc4abab10f88f7fe56efbafc8a4e4fa437af78926f528b0585e', 'hex')
-  let signatureLowR = Buffer.from('0587a40b391b76596c257bf59565b24eaff2cc42b45caa2640902e73fb97a6e702c3402ab89348a7dae1bf171c3e172fa60353d7b01621a94cb7caca59b995db', 'hex')
+  let seed = new Uint8Array(32).fill(1)
+  let hash = new Uint8Array(32).fill(2)
+  let signature = hexToBytes('9636ee2fac31b795a308856b821ebe297dda7b28220fb46ea1fbbd7285977cc04c82b734956246a0f15a9698f03f546d8d96fe006c8e7bd2256ca7c8229e6f5c')
+  let schnorrsig = hexToBytes('2fae8b517cb0e7302ca48a4109d1819e3d75af96bd58d297023e3058c4e98ff812fe6ae32a2b2bc4abab10f88f7fe56efbafc8a4e4fa437af78926f528b0585e')
+  let signatureLowR = hexToBytes('0587a40b391b76596c257bf59565b24eaff2cc42b45caa2640902e73fb97a6e702c3402ab89348a7dae1bf171c3e172fa60353d7b01621a94cb7caca59b995db')
   let node = BIP32.fromSeed(seed)
 
   t.plan(11)
-  t.equal(node.sign(hash).toString('hex'), signature.toString('hex'))
-  t.equal(node.sign(hash, true).toString('hex'), signatureLowR.toString('hex'))
-  t.equal(node.signSchnorr(hash).toString('hex'), schnorrsig.toString('hex'))
+  t.equal(bytesToHex(node.sign(hash)), bytesToHex(signature))
+  t.equal(bytesToHex(node.sign(hash, true)), bytesToHex(signatureLowR))
+  t.equal(bytesToHex(node.signSchnorr(hash)), bytesToHex(schnorrsig))
   t.equal(node.verify(hash, signature), true)
   t.equal(node.verify(seed, signature), false)
   t.equal(node.verify(hash, signatureLowR), true)
@@ -252,9 +251,9 @@ tape('ecdsa', (t) => {
 })
 
 tape('ecdsa - no schnorr', (t) => {
-  let seed = Buffer.alloc(32, 1)
-  let hash = Buffer.alloc(32, 2)
-  const tweak = Buffer.alloc(32, 3)
+  let seed = new Uint8Array(32).fill(1)
+  let hash = new Uint8Array(32).fill(2)
+  const tweak = new Uint8Array(32).fill(3)
 
   const bip32NoSchnorr = BIP32Creator({ ...ecc, signSchnorr: null, verifySchnorr: null })
   const node = bip32NoSchnorr.fromSeed(seed)
@@ -272,8 +271,8 @@ tape('ecdsa - no schnorr', (t) => {
 })
 
 tape('ecc without tweak support', (t) => {
-  let seed = Buffer.alloc(32, 1)
-  const tweak = Buffer.alloc(32, 3)
+  let seed = new Uint8Array(32).fill(1)
+  const tweak = new Uint8Array(32).fill(3)
 
   const bip32NoTweak = BIP32Creator({ ...ecc, xOnlyPointAddTweak: null, privateNegate: null })
   const node = bip32NoTweak.fromSeed(seed)
@@ -285,18 +284,18 @@ tape('ecc without tweak support', (t) => {
 })
 
 tape('tweak', (t) => {
-  const seed = Buffer.alloc(32, 1)
-  const hash = Buffer.alloc(32, 2)
-  const tweak = Buffer.alloc(32, 3)
-  const signature = Buffer.from('5a38c6652feb5166c9c91cfa5fa4a4c7cec27445d4619499df8afdd05ebc823246d644b0c7d3b960625393df537f900528ec4b14e6ddab8fd0c7e87c98cfe9d0', 'hex')
-  const schnorrsig = Buffer.from('20506478d341d0ab1afd32671eb1550b1c5329ad5179a19712212b857f06b3210d949964cd513ff25719e2e9b0087d5a9745afd5d38641ce0dfa86f67c86de63', 'hex')
-  const signatureLowR = Buffer.from('5a38c6652feb5166c9c91cfa5fa4a4c7cec27445d4619499df8afdd05ebc823246d644b0c7d3b960625393df537f900528ec4b14e6ddab8fd0c7e87c98cfe9d0', 'hex')
+  const seed = new Uint8Array(32).fill(1)
+  const hash = new Uint8Array(32).fill(2)
+  const tweak = new Uint8Array(32).fill(3)
+  const signature = hexToBytes('5a38c6652feb5166c9c91cfa5fa4a4c7cec27445d4619499df8afdd05ebc823246d644b0c7d3b960625393df537f900528ec4b14e6ddab8fd0c7e87c98cfe9d0')
+  const schnorrsig = hexToBytes('20506478d341d0ab1afd32671eb1550b1c5329ad5179a19712212b857f06b3210d949964cd513ff25719e2e9b0087d5a9745afd5d38641ce0dfa86f67c86de63')
+  const signatureLowR = hexToBytes('5a38c6652feb5166c9c91cfa5fa4a4c7cec27445d4619499df8afdd05ebc823246d644b0c7d3b960625393df537f900528ec4b14e6ddab8fd0c7e87c98cfe9d0')
   const signer = BIP32.fromSeed(seed).tweak(tweak)
 
   t.plan(9)
-  t.equal(signer.sign(hash).toString('hex'), signature.toString('hex'))
-  t.equal(signer.sign(hash, true).toString('hex'), signatureLowR.toString('hex'))
-  t.equal(signer.signSchnorr(hash).toString('hex'), schnorrsig.toString('hex'))
+  t.equal(bytesToHex(signer.sign(hash)), bytesToHex(signature))
+  t.equal(bytesToHex(signer.sign(hash, true)), bytesToHex(signatureLowR))
+  t.equal(bytesToHex(signer.signSchnorr(hash)), bytesToHex(schnorrsig))
   t.equal(signer.verify(hash, signature), true)
   t.equal(signer.verify(seed, signature), false)
   t.equal(signer.verify(hash, signatureLowR), true)
@@ -306,18 +305,18 @@ tape('tweak', (t) => {
 })
 
 tape('tweak - neutered', (t) => {
-  const seed = Buffer.alloc(32, 1)
-  const hash = Buffer.alloc(32, 2)
-  const tweak = Buffer.alloc(32, 3)
-  const signature = Buffer.from('5a38c6652feb5166c9c91cfa5fa4a4c7cec27445d4619499df8afdd05ebc823246d644b0c7d3b960625393df537f900528ec4b14e6ddab8fd0c7e87c98cfe9d0', 'hex')
-  const schnorrsig = Buffer.from('20506478d341d0ab1afd32671eb1550b1c5329ad5179a19712212b857f06b3210d949964cd513ff25719e2e9b0087d5a9745afd5d38641ce0dfa86f67c86de63', 'hex')
-  const signatureLowR = Buffer.from('5a38c6652feb5166c9c91cfa5fa4a4c7cec27445d4619499df8afdd05ebc823246d644b0c7d3b960625393df537f900528ec4b14e6ddab8fd0c7e87c98cfe9d0', 'hex')
+  const seed = new Uint8Array(32).fill(1)
+  const hash = new Uint8Array(32).fill(2)
+  const tweak = new Uint8Array(32).fill(3)
+  const signature = hexToBytes('5a38c6652feb5166c9c91cfa5fa4a4c7cec27445d4619499df8afdd05ebc823246d644b0c7d3b960625393df537f900528ec4b14e6ddab8fd0c7e87c98cfe9d0')
+  const schnorrsig = hexToBytes('20506478d341d0ab1afd32671eb1550b1c5329ad5179a19712212b857f06b3210d949964cd513ff25719e2e9b0087d5a9745afd5d38641ce0dfa86f67c86de63')
+  const signatureLowR = hexToBytes('5a38c6652feb5166c9c91cfa5fa4a4c7cec27445d4619499df8afdd05ebc823246d644b0c7d3b960625393df537f900528ec4b14e6ddab8fd0c7e87c98cfe9d0')
   const signer = BIP32.fromSeed(seed).neutered().tweak(tweak)
 
   t.plan(8)
   t.throws(() => signer.sign(hash), /Missing private key/)
   t.throws(() => signer.signSchnorr(hash), /Missing private key/)
-  
+
   t.equal(signer.verify(hash, signature), true)
   t.equal(signer.verify(seed, signature), false)
   t.equal(signer.verify(hash, signatureLowR), true)

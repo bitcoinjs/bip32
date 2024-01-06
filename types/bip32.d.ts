@@ -1,4 +1,3 @@
-/// <reference types="node" />
 interface Network {
     wif: number;
     bip32: {
@@ -11,36 +10,35 @@ interface Network {
     scriptHash?: number;
 }
 export interface Signer {
-    publicKey: Buffer;
+    publicKey: Uint8Array;
     lowR: boolean;
-    sign(hash: Buffer, lowR?: boolean): Buffer;
-    verify(hash: Buffer, signature: Buffer): boolean;
-    signSchnorr(hash: Buffer): Buffer;
-    verifySchnorr(hash: Buffer, signature: Buffer): boolean;
+    sign(hash: Uint8Array, lowR?: boolean): Uint8Array;
+    verify(hash: Uint8Array, signature: Uint8Array): boolean;
+    signSchnorr(hash: Uint8Array): Uint8Array;
+    verifySchnorr(hash: Uint8Array, signature: Uint8Array): boolean;
 }
 export interface BIP32Interface extends Signer {
-    chainCode: Buffer;
+    chainCode: Uint8Array;
     network: Network;
     depth: number;
     index: number;
     parentFingerprint: number;
-    privateKey?: Buffer;
-    identifier: Buffer;
-    fingerprint: Buffer;
+    privateKey?: Uint8Array;
+    identifier: Uint8Array;
+    fingerprint: Uint8Array;
     isNeutered(): boolean;
     neutered(): BIP32Interface;
     toBase58(): string;
-    toWIF(): string;
     derive(index: number): BIP32Interface;
     deriveHardened(index: number): BIP32Interface;
     derivePath(path: string): BIP32Interface;
-    tweak(t: Buffer): Signer;
+    tweak(t: Uint8Array): Signer;
 }
 export interface BIP32API {
-    fromSeed(seed: Buffer, network?: Network): BIP32Interface;
+    fromSeed(seed: Uint8Array, network?: Network): BIP32Interface;
     fromBase58(inString: string, network?: Network): BIP32Interface;
-    fromPublicKey(publicKey: Buffer, chainCode: Buffer, network?: Network): BIP32Interface;
-    fromPrivateKey(privateKey: Buffer, chainCode: Buffer, network?: Network): BIP32Interface;
+    fromPublicKey(publicKey: Uint8Array, chainCode: Uint8Array, network?: Network): BIP32Interface;
+    fromPrivateKey(privateKey: Uint8Array, chainCode: Uint8Array, network?: Network): BIP32Interface;
 }
 interface XOnlyPointAddTweakResult {
     parity: 1 | 0;
