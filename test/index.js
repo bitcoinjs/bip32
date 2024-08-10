@@ -3,6 +3,7 @@ import tape from 'tape'
 import fixtures from './fixtures/index.json' assert { type: "json" }
 const { valid, invalid } = fixtures 
 import * as ecc from "tiny-secp256k1";
+import * as tools from "uint8array-tools";
 const BIP32 = BIP32Creator(ecc)
 let LITECOIN = {
   wif: 0xb0,
@@ -27,15 +28,15 @@ let validAll = []
 })
 
 function verify (t, hd, prv, f, network) {
-  t.equal(hd.chainCode.toString('hex'), f.chainCode)
+  t.equal(tools.toHex(hd.chainCode), f.chainCode)
   t.equal(hd.depth, f.depth >>> 0)
   t.equal(hd.index, f.index >>> 0)
   t.equal(hd.compressed, true)
-  t.equal(hd.fingerprint.toString('hex'), f.fingerprint)
-  t.equal(hd.identifier.toString('hex'), f.identifier)
-  t.equal(hd.publicKey.toString('hex'), f.pubKey)
+  t.equal(tools.toHex(hd.fingerprint), f.fingerprint)
+  t.equal(tools.toHex(hd.identifier), f.identifier)
+  t.equal(tools.toHex(hd.publicKey), f.pubKey)
   if (prv) t.equal(hd.toBase58(), f.base58Priv)
-  if (prv) t.equal(hd.privateKey.toString('hex'), f.privKey)
+  if (prv) t.equal(tools.toHex(hd.privateKey), f.privKey)
   if (prv) t.equal(hd.toWIF(), f.wif)
   if (!prv) t.throws(() => hd.toWIF(), /Missing private key/)
   if (!prv) t.equal(hd.privateKey, undefined)
@@ -208,9 +209,9 @@ tape('works when private key has leading zeros', (t) => {
   let hdkey = BIP32.fromBase58(key)
 
   t.plan(2)
-  t.equal(hdkey.privateKey.toString('hex'), '00000055378cf5fafb56c711c674143f9b0ee82ab0ba2924f19b64f5ae7cdbfd')
+  t.equal(tools.toHex(hdkey.privateKey), '00000055378cf5fafb56c711c674143f9b0ee82ab0ba2924f19b64f5ae7cdbfd')
   let child = hdkey.derivePath('m/44\'/0\'/0\'/0/0\'')
-  t.equal(child.privateKey.toString('hex'), '3348069561d2a0fb925e74bf198762acc47dce7db27372257d2d959a9e6f8aeb')
+  t.equal(tools.toHex(child.privateKey), '3348069561d2a0fb925e74bf198762acc47dce7db27372257d2d959a9e6f8aeb')
 })
 
 tape('fromSeed', (t) => {
@@ -234,9 +235,9 @@ tape('ecdsa', (t) => {
   let node = BIP32.fromSeed(seed)
 
   t.plan(11)
-  t.equal(node.sign(hash).toString('hex'), signature.toString('hex'))
-  t.equal(node.sign(hash, true).toString('hex'), signatureLowR.toString('hex'))
-  t.equal(node.signSchnorr(hash).toString('hex'), schnorrsig.toString('hex'))
+  t.equal(tools.toHex(node.sign(hash)), tools.toHex(signature))
+  t.equal(tools.toHex(node.sign(hash, true)), tools.toHex(signatureLowR))
+  t.equal(tools.toHex(node.signSchnorr(hash)), tools.toHex(schnorrsig))
   t.equal(node.verify(hash, signature), true)
   t.equal(node.verify(seed, signature), false)
   t.equal(node.verify(hash, signatureLowR), true)
@@ -292,9 +293,9 @@ tape('tweak', (t) => {
   const signer = BIP32.fromSeed(seed).tweak(tweak)
 
   t.plan(9)
-  t.equal(signer.sign(hash).toString('hex'), signature.toString('hex'))
-  t.equal(signer.sign(hash, true).toString('hex'), signatureLowR.toString('hex'))
-  t.equal(signer.signSchnorr(hash).toString('hex'), schnorrsig.toString('hex'))
+  t.equal(tools.toHex(signer.sign(hash)), tools.toHex(signature))
+  t.equal(tools.toHex(signer.sign(hash, true)), tools.toHex(signatureLowR))
+  t.equal(tools.toHex(signer.signSchnorr(hash)), tools.toHex(schnorrsig))
   t.equal(signer.verify(hash, signature), true)
   t.equal(signer.verify(seed, signature), false)
   t.equal(signer.verify(hash, signatureLowR), true)

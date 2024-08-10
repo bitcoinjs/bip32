@@ -43,12 +43,12 @@
     "url": "git+https://github.com/bitcoinjs/bip32.git"
   },
   "files": [
-    "src",
-    "types"
+    "src"
   ],
   "dependencies": {
     "@noble/hashes": "^1.2.0",
     "@scure/base": "^1.1.1",
+    "uint8array-tools": "^0.0.8",
     "valibot": "^0.37.0",
     "wif": "^5.0.0"
   },
