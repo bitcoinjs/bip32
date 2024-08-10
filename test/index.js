@@ -175,8 +175,8 @@ tape('throws on wrong types', (t) => {
 
   fixtures.invalid.derive.forEach((fx) => {
     t.throws(() => {
-      master.derive(fx)
-    }, /Expected UInt32/)
+      master.derive(fx.index)
+    }, fx.exception)
   })
 
   fixtures.invalid.deriveHardened.forEach((fx) => {
@@ -187,8 +187,8 @@ tape('throws on wrong types', (t) => {
 
   fixtures.invalid.derivePath.forEach((fx) => {
     t.throws(() => {
-      master.derivePath(fx)
-    }, /Expected BIP32Path, got/)
+      master.derivePath(fx.derivationPath)
+    }, fx.exception)
   })
 
   let ZERO = Buffer.alloc(32, 0)
@@ -196,7 +196,7 @@ tape('throws on wrong types', (t) => {
 
   t.throws(() => {
     BIP32.fromPrivateKey(Buffer.alloc(2), ONES)
-  }, /Expected property "privateKey" of type Buffer\(Length: 32\), got Buffer\(Length: 2\)/)
+  }, /ValiError: Invalid length: Expected 32 but received 2/)
 
   t.throws(() => {
     BIP32.fromPrivateKey(ZERO, ONES)

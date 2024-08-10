@@ -2,7 +2,14 @@ import * as crypto from './crypto';
 import { testEcc } from './testecc';
 import { base58check } from '@scure/base';
 import { sha256 } from '@noble/hashes/sha256';
-const typeforce = require('typeforce');
+import * as v from 'valibot';
+import {
+  Bip32PathSchema,
+  Buffer256Bit,
+  Buffer33Bytes,
+  NetworkSchema,
+  Uint32Schema,
+} from './types';
 const wif = require('wif');
 const _bs58check = base58check(sha256);
 const bs58check = {
@@ -96,14 +103,6 @@ export interface TinySecp256k1Interface {
 
 export function BIP32Factory(ecc: TinySecp256k1Interface): BIP32API {
   testEcc(ecc);
-  const UINT256_TYPE = typeforce.BufferN(32);
-  const NETWORK_TYPE = typeforce.compile({
-    wif: typeforce.UInt8,
-    bip32: {
-      public: typeforce.UInt32,
-      private: typeforce.UInt32,
-    },
-  });
 
   const BITCOIN: Network = {
     messagePrefix: '\x18Bitcoin Signed Message:\n',
@@ -121,13 +120,21 @@ export function BIP32Factory(ecc: TinySecp256k1Interface): BIP32API {
   const UINT31_MAX = Math.pow(2, 31) - 1;
 
   function BIP32Path(value: string): boolean {
-    return (
-      typeforce.String(value) && value.match(/^(m\/)?(\d+'?\/)*\d+'?$/) !== null
-    );
+    try {
+      v.parse(Bip32PathSchema, value);
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   function UInt31(value: number): boolean {
-    return typeforce.UInt32(value) && value <= UINT31_MAX;
+    try {
+      v.parse(Uint32Schema, value);
+      return value <= UINT31_MAX;
+    } catch (e) {
+      return false;
+    }
   }
 
   function toXOnly(pubKey: Buffer) {
@@ -201,7 +208,8 @@ export function BIP32Factory(ecc: TinySecp256k1Interface): BIP32API {
       private __PARENT_FINGERPRINT = 0x00000000,
     ) {
       super(__D, __Q);
-      typeforce(NETWORK_TYPE, network);
+      // typeforce(NETWORK_TYPE, network);
+      v.parse(NetworkSchema, network);
     }
 
     get depth(): number {
@@ -290,7 +298,8 @@ export function BIP32Factory(ecc: TinySecp256k1Interface): BIP32API {
 
     // https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#child-key-derivation-ckd-functions
     derive(index: number): BIP32Interface {
-      typeforce(typeforce.UInt32, index);
+      // typeforce(typeforce.UInt32, index);
+      v.parse(Uint32Schema, index);
 
       const isHardened = index >= HIGHEST_BIT;
       const data = Buffer.allocUnsafe(37);
@@ -361,14 +370,15 @@ export function BIP32Factory(ecc: TinySecp256k1Interface): BIP32API {
     }
 
     deriveHardened(index: number): BIP32Interface {
-      typeforce(UInt31, index);
-
-      // Only derives hardened private keys by default
-      return this.derive(index + HIGHEST_BIT);
+      if (UInt31(index))
+        // Only derives hardened private keys by default
+        return this.derive(index + HIGHEST_BIT);
+      throw new TypeError('Expected UInt31, got ' + index);
     }
 
     derivePath(path: string): BIP32Interface {
-      typeforce(BIP32Path, path);
+      // typeforce(BIP32Path, path);
+      v.parse(Bip32PathSchema, path);
 
       let splitPath = path.split('/');
       if (splitPath[0] === 'm') {
@@ -510,13 +520,9 @@ export function BIP32Factory(ecc: TinySecp256k1Interface): BIP32API {
     index?: number,
     parentFingerprint?: number,
   ): BIP32Interface {
-    typeforce(
-      {
-        privateKey: UINT256_TYPE,
-        chainCode: UINT256_TYPE,
-      },
-      { privateKey, chainCode },
-    );
+    v.parse(Buffer256Bit, privateKey);
+    v.parse(Buffer256Bit, chainCode);
+
     network = network || BITCOIN;
 
     if (!ecc.isPrivate(privateKey))
@@ -548,13 +554,9 @@ export function BIP32Factory(ecc: TinySecp256k1Interface): BIP32API {
     index?: number,
     parentFingerprint?: number,
   ): BIP32Interface {
-    typeforce(
-      {
-        publicKey: typeforce.BufferN(33),
-        chainCode: UINT256_TYPE,
-      },
-      { publicKey, chainCode },
-    );
+    v.parse(Buffer33Bytes, publicKey);
+    v.parse(Buffer256Bit, chainCode);
+
     network = network || BITCOIN;
 
     // verify the X coordinate is a point on the curve
@@ -572,7 +574,7 @@ export function BIP32Factory(ecc: TinySecp256k1Interface): BIP32API {
   }
 
   function fromSeed(seed: Buffer, network?: Network): BIP32Interface {
-    typeforce(typeforce.Buffer, seed);
+    v.parse(v.instance(Uint8Array), seed);
     if (seed.length < 16)
       throw new TypeError('Seed should be at least 128 bits');
     if (seed.length > 64)

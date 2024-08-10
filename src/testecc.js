@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.testEcc = void 0;
+exports.testEcc = testEcc;
 const h = (hex) => Buffer.from(hex, 'hex');
 function testEcc(ecc) {
     assert(ecc.isPoint(h('0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798')));
@@ -37,7 +37,6 @@ function testEcc(ecc) {
         assert(ecc.verifySchnorr(h('7e2d58d8b3bcdf1abadec7829054f90dda9805aab56c77333024b9d0a508b75c'), h('dd308afec5777e13121fa72b9cc1b7cc0139715309b086c960e18fd969774eb8'), h('5831aaeed7b44bb74e5eab94ba9d4294c49bcf2a60728d8b4c200f50dd313c1bab745879a5ad954a72c45a91c3a51d3c7adea98d82f8481e0e1e03674a6f3fb7')));
     }
 }
-exports.testEcc = testEcc;
 function assert(bool) {
     if (!bool)
         throw new Error('ecc library invalid');

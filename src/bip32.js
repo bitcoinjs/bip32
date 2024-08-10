@@ -1,11 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BIP32Factory = void 0;
+exports.BIP32Factory = BIP32Factory;
 const crypto = require("./crypto");
 const testecc_1 = require("./testecc");
 const base_1 = require("@scure/base");
 const sha256_1 = require("@noble/hashes/sha256");
-const typeforce = require('typeforce');
+const v = require("valibot");
+const types_1 = require("./types");
 const wif = require('wif');
 const _bs58check = (0, base_1.base58check)(sha256_1.sha256);
 const bs58check = {
@@ -14,14 +15,6 @@ const bs58check = {
 };
 function BIP32Factory(ecc) {
     (0, testecc_1.testEcc)(ecc);
-    const UINT256_TYPE = typeforce.BufferN(32);
-    const NETWORK_TYPE = typeforce.compile({
-        wif: typeforce.UInt8,
-        bip32: {
-            public: typeforce.UInt32,
-            private: typeforce.UInt32,
-        },
-    });
     const BITCOIN = {
         messagePrefix: '\x18Bitcoin Signed Message:\n',
         bech32: 'bc',
@@ -36,10 +29,22 @@ function BIP32Factory(ecc) {
     const HIGHEST_BIT = 0x80000000;
     const UINT31_MAX = Math.pow(2, 31) - 1;
     function BIP32Path(value) {
-        return (typeforce.String(value) && value.match(/^(m\/)?(\d+'?\/)*\d+'?$/) !== null);
+        try {
+            v.parse(types_1.Bip32PathSchema, value);
+            return true;
+        }
+        catch (e) {
+            return false;
+        }
     }
     function UInt31(value) {
-        return typeforce.UInt32(value) && value <= UINT31_MAX;
+        try {
+            v.parse(types_1.Uint32Schema, value);
+            return value <= UINT31_MAX;
+        }
+        catch (e) {
+            return false;
+        }
     }
     function toXOnly(pubKey) {
         return pubKey.length === 32 ? pubKey : pubKey.slice(1, 33);
@@ -104,7 +109,8 @@ function BIP32Factory(ecc) {
             this.__DEPTH = __DEPTH;
             this.__INDEX = __INDEX;
             this.__PARENT_FINGERPRINT = __PARENT_FINGERPRINT;
-            typeforce(NETWORK_TYPE, network);
+            // typeforce(NETWORK_TYPE, network);
+            v.parse(types_1.NetworkSchema, network);
         }
         get depth() {
             return this.__DEPTH;
@@ -169,7 +175,8 @@ function BIP32Factory(ecc) {
         }
         // https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#child-key-derivation-ckd-functions
         derive(index) {
-            typeforce(typeforce.UInt32, index);
+            // typeforce(typeforce.UInt32, index);
+            v.parse(types_1.Uint32Schema, index);
             const isHardened = index >= HIGHEST_BIT;
             const data = Buffer.allocUnsafe(37);
             // Hardened child
@@ -217,12 +224,14 @@ function BIP32Factory(ecc) {
             return hd;
         }
         deriveHardened(index) {
-            typeforce(UInt31, index);
-            // Only derives hardened private keys by default
-            return this.derive(index + HIGHEST_BIT);
+            if (UInt31(index))
+                // Only derives hardened private keys by default
+                return this.derive(index + HIGHEST_BIT);
+            throw new TypeError('Expected UInt31, got ' + index);
         }
         derivePath(path) {
-            typeforce(BIP32Path, path);
+            // typeforce(BIP32Path, path);
+            v.parse(types_1.Bip32PathSchema, path);
             let splitPath = path.split('/');
             if (splitPath[0] === 'm') {
                 if (this.parentFingerprint)
@@ -322,10 +331,8 @@ function BIP32Factory(ecc) {
         return fromPrivateKeyLocal(privateKey, chainCode, network);
     }
     function fromPrivateKeyLocal(privateKey, chainCode, network, depth, index, parentFingerprint) {
-        typeforce({
-            privateKey: UINT256_TYPE,
-            chainCode: UINT256_TYPE,
-        }, { privateKey, chainCode });
+        v.parse(types_1.Buffer256Bit, privateKey);
+        v.parse(types_1.Buffer256Bit, chainCode);
         network = network || BITCOIN;
         if (!ecc.isPrivate(privateKey))
             throw new TypeError('Private key not in range [1, n)');
@@ -335,10 +342,8 @@ function BIP32Factory(ecc) {
         return fromPublicKeyLocal(publicKey, chainCode, network);
     }
     function fromPublicKeyLocal(publicKey, chainCode, network, depth, index, parentFingerprint) {
-        typeforce({
-            publicKey: typeforce.BufferN(33),
-            chainCode: UINT256_TYPE,
-        }, { publicKey, chainCode });
+        v.parse(types_1.Buffer33Bytes, publicKey);
+        v.parse(types_1.Buffer256Bit, chainCode);
         network = network || BITCOIN;
         // verify the X coordinate is a point on the curve
         if (!ecc.isPoint(publicKey))
@@ -346,7 +351,7 @@ function BIP32Factory(ecc) {
         return new BIP32(undefined, publicKey, chainCode, network, depth, index, parentFingerprint);
     }
     function fromSeed(seed, network) {
-        typeforce(typeforce.Buffer, seed);
+        v.parse(v.instance(Uint8Array), seed);
         if (seed.length < 16)
             throw new TypeError('Seed should be at least 128 bits');
         if (seed.length > 64)
@@ -364,4 +369,3 @@ function BIP32Factory(ecc) {
         fromPrivateKey,
     };
 }
-exports.BIP32Factory = BIP32Factory;

@@ -1,4 +1,3 @@
-/// <reference types="node" />
 interface Network {
     wif: number;
     bip32: {

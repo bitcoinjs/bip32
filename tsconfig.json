@@ -5,9 +5,8 @@
     "declaration": true,
     "declarationDir": "./types",
     "esModuleInterop": false,
-    "lib": [
-      "es2017"
-    ],
+    "skipLibCheck": true,
+    "lib": ["es2017"],
     "module": "commonjs",
     "noImplicitAny": true,
     "noImplicitThis": true,
@@ -19,15 +18,8 @@
     "strictNullChecks": true,
     "strictPropertyInitialization": true,
     "target": "es2017",
-    "types": [
-      "node"
-    ]
+    "types": ["node"]
   },
-  "include": [
-      "ts-src/*.ts"
-  ],
-  "exclude": [
-      "**/*.spec.ts",
-      "node_modules/**/*"
-  ]
+  "include": ["ts-src/*.ts"],
+  "exclude": ["**/*.spec.ts", "node_modules/**/*"]
 }
