@@ -1,5 +1,5 @@
-import * as crypto from './crypto';
-import { testEcc } from './testecc';
+import * as crypto from './crypto.js';
+import { testEcc } from './testecc.js';
 import { base58check } from '@scure/base';
 import { sha256 } from '@noble/hashes/sha256';
 import * as v from 'valibot';
@@ -9,8 +9,8 @@ import {
   Buffer33Bytes,
   NetworkSchema,
   Uint32Schema,
-} from './types';
-const wif = require('wif');
+} from './types.js';
+import * as wif from 'wif';
 const _bs58check = base58check(sha256);
 const bs58check = {
   encode: (data: Buffer): string => _bs58check.encode(Uint8Array.from(data)),
@@ -119,6 +119,7 @@ export function BIP32Factory(ecc: TinySecp256k1Interface): BIP32API {
   const HIGHEST_BIT = 0x80000000;
   const UINT31_MAX = Math.pow(2, 31) - 1;
 
+  // @ts-ignore
   function BIP32Path(value: string): boolean {
     try {
       v.parse(Bip32PathSchema, value);
@@ -293,7 +294,11 @@ export function BIP32Factory(ecc: TinySecp256k1Interface): BIP32API {
 
     toWIF(): string {
       if (!this.privateKey) throw new TypeError('Missing private key');
-      return wif.encode(this.network.wif, this.privateKey, true);
+      return wif.encode({
+        version: this.network.wif,
+        privateKey: this.privateKey,
+        compressed: true,
+      });
     }
 
     // https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#child-key-derivation-ckd-functions

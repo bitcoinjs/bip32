@@ -1,20 +1,43 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BIP32Factory = BIP32Factory;
-const crypto = require("./crypto");
-const testecc_1 = require("./testecc");
+const crypto = __importStar(require("./crypto.cjs"));
+const testecc_js_1 = require("./testecc.cjs");
 const base_1 = require("@scure/base");
 const sha256_1 = require("@noble/hashes/sha256");
-const v = require("valibot");
-const types_1 = require("./types");
-const wif = require('wif');
+const v = __importStar(require("valibot"));
+const types_js_1 = require("./types.cjs");
+const wif = __importStar(require("wif"));
 const _bs58check = (0, base_1.base58check)(sha256_1.sha256);
 const bs58check = {
     encode: (data) => _bs58check.encode(Uint8Array.from(data)),
     decode: (str) => Buffer.from(_bs58check.decode(str)),
 };
 function BIP32Factory(ecc) {
-    (0, testecc_1.testEcc)(ecc);
+    (0, testecc_js_1.testEcc)(ecc);
     const BITCOIN = {
         messagePrefix: '\x18Bitcoin Signed Message:\n',
         bech32: 'bc',
@@ -28,9 +51,10 @@ function BIP32Factory(ecc) {
     };
     const HIGHEST_BIT = 0x80000000;
     const UINT31_MAX = Math.pow(2, 31) - 1;
+    // @ts-ignore
     function BIP32Path(value) {
         try {
-            v.parse(types_1.Bip32PathSchema, value);
+            v.parse(types_js_1.Bip32PathSchema, value);
             return true;
         }
         catch (e) {
@@ -39,7 +63,7 @@ function BIP32Factory(ecc) {
     }
     function UInt31(value) {
         try {
-            v.parse(types_1.Uint32Schema, value);
+            v.parse(types_js_1.Uint32Schema, value);
             return value <= UINT31_MAX;
         }
         catch (e) {
@@ -50,10 +74,12 @@ function BIP32Factory(ecc) {
         return pubKey.length === 32 ? pubKey : pubKey.slice(1, 33);
     }
     class Bip32Signer {
+        __D;
+        __Q;
+        lowR = false;
         constructor(__D, __Q) {
             this.__D = __D;
             this.__Q = __Q;
-            this.lowR = false;
         }
         get publicKey() {
             if (this.__Q === undefined)
@@ -102,6 +128,11 @@ function BIP32Factory(ecc) {
         }
     }
     class BIP32 extends Bip32Signer {
+        chainCode;
+        network;
+        __DEPTH;
+        __INDEX;
+        __PARENT_FINGERPRINT;
         constructor(__D, __Q, chainCode, network, __DEPTH = 0, __INDEX = 0, __PARENT_FINGERPRINT = 0x00000000) {
             super(__D, __Q);
             this.chainCode = chainCode;
@@ -110,7 +141,7 @@ function BIP32Factory(ecc) {
             this.__INDEX = __INDEX;
             this.__PARENT_FINGERPRINT = __PARENT_FINGERPRINT;
             // typeforce(NETWORK_TYPE, network);
-            v.parse(types_1.NetworkSchema, network);
+            v.parse(types_js_1.NetworkSchema, network);
         }
         get depth() {
             return this.__DEPTH;
@@ -171,12 +202,16 @@ function BIP32Factory(ecc) {
         toWIF() {
             if (!this.privateKey)
                 throw new TypeError('Missing private key');
-            return wif.encode(this.network.wif, this.privateKey, true);
+            return wif.encode({
+                version: this.network.wif,
+                privateKey: this.privateKey,
+                compressed: true,
+            });
         }
         // https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#child-key-derivation-ckd-functions
         derive(index) {
             // typeforce(typeforce.UInt32, index);
-            v.parse(types_1.Uint32Schema, index);
+            v.parse(types_js_1.Uint32Schema, index);
             const isHardened = index >= HIGHEST_BIT;
             const data = Buffer.allocUnsafe(37);
             // Hardened child
@@ -231,7 +266,7 @@ function BIP32Factory(ecc) {
         }
         derivePath(path) {
             // typeforce(BIP32Path, path);
-            v.parse(types_1.Bip32PathSchema, path);
+            v.parse(types_js_1.Bip32PathSchema, path);
             let splitPath = path.split('/');
             if (splitPath[0] === 'm') {
                 if (this.parentFingerprint)
@@ -331,8 +366,8 @@ function BIP32Factory(ecc) {
         return fromPrivateKeyLocal(privateKey, chainCode, network);
     }
     function fromPrivateKeyLocal(privateKey, chainCode, network, depth, index, parentFingerprint) {
-        v.parse(types_1.Buffer256Bit, privateKey);
-        v.parse(types_1.Buffer256Bit, chainCode);
+        v.parse(types_js_1.Buffer256Bit, privateKey);
+        v.parse(types_js_1.Buffer256Bit, chainCode);
         network = network || BITCOIN;
         if (!ecc.isPrivate(privateKey))
             throw new TypeError('Private key not in range [1, n)');
@@ -342,8 +377,8 @@ function BIP32Factory(ecc) {
         return fromPublicKeyLocal(publicKey, chainCode, network);
     }
     function fromPublicKeyLocal(publicKey, chainCode, network, depth, index, parentFingerprint) {
-        v.parse(types_1.Buffer33Bytes, publicKey);
-        v.parse(types_1.Buffer256Bit, chainCode);
+        v.parse(types_js_1.Buffer33Bytes, publicKey);
+        v.parse(types_js_1.Buffer256Bit, chainCode);
         network = network || BITCOIN;
         // verify the X coordinate is a point on the curve
         if (!ecc.isPoint(publicKey))

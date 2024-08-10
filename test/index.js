@@ -1,11 +1,9 @@
-let BIP32Creator = require('..').default
-let tape = require('tape')
-let fixtures = require('./fixtures/index.json')
-let ecc
-import('tiny-secp256k1').then(lib => {
-  ecc = lib
-  return BIP32Creator(lib)
-}).then(BIP32 => {
+import BIP32Creator from '../src/esm/index.js'
+import tape from 'tape'
+import fixtures from './fixtures/index.json' assert { type: "json" }
+const { valid, invalid } = fixtures 
+import * as ecc from "tiny-secp256k1";
+const BIP32 = BIP32Creator(ecc)
 let LITECOIN = {
   wif: 0xb0,
   bip32: {
@@ -16,7 +14,7 @@ let LITECOIN = {
 
 // TODO: amend the JSON
 let validAll = []
-fixtures.valid.forEach((f) => {
+  valid.forEach((f) => {
   f.master.network = f.network
   f.master.children = f.children
   f.master.comment = f.comment
@@ -109,7 +107,7 @@ tape('invalid ecc library throws', (t) => {
 })
 
 tape('fromBase58 throws', (t) => {
-  fixtures.invalid.fromBase58.forEach((f) => {
+  invalid.fromBase58.forEach((f) => {
     t.throws(() => {
       let network
       if (f.network === 'litecoin') network = LITECOIN
@@ -122,7 +120,7 @@ tape('fromBase58 throws', (t) => {
 })
 
 tape('works for Private -> public (neutered)', (t) => {
-  let f = fixtures.valid[1]
+  let f = valid[1]
   let c = f.master.children[0]
 
   let master = BIP32.fromBase58(f.master.base58Priv)
@@ -133,7 +131,7 @@ tape('works for Private -> public (neutered)', (t) => {
 })
 
 tape('works for Private -> public (neutered, hardened)', (t) => {
-  let f = fixtures.valid[0]
+  let f = valid[0]
   let c = f.master.children[0]
 
   let master = BIP32.fromBase58(f.master.base58Priv)
@@ -144,7 +142,7 @@ tape('works for Private -> public (neutered, hardened)', (t) => {
 })
 
 tape('works for Public -> public', (t) => {
-  let f = fixtures.valid[1]
+  let f = valid[1]
   let c = f.master.children[0]
 
   let master = BIP32.fromBase58(f.master.base58)
@@ -158,7 +156,7 @@ tape('works for Public -> public', (t) => {
 })
 
 tape('throws on Public -> public (hardened)', (t) => {
-  let f = fixtures.valid[0]
+  let f = valid[0]
   let c = f.master.children[0]
 
   let master = BIP32.fromBase58(f.master.base58)
@@ -170,22 +168,22 @@ tape('throws on Public -> public (hardened)', (t) => {
 })
 
 tape('throws on wrong types', (t) => {
-  let f = fixtures.valid[0]
+  let f = valid[0]
   let master = BIP32.fromBase58(f.master.base58)
 
-  fixtures.invalid.derive.forEach((fx) => {
+  invalid.derive.forEach((fx) => {
     t.throws(() => {
       master.derive(fx.index)
     }, fx.exception)
   })
 
-  fixtures.invalid.deriveHardened.forEach((fx) => {
+  invalid.deriveHardened.forEach((fx) => {
     t.throws(() => {
       master.deriveHardened(fx)
     }, /Expected UInt31/)
   })
 
-  fixtures.invalid.derivePath.forEach((fx) => {
+  invalid.derivePath.forEach((fx) => {
     t.throws(() => {
       master.derivePath(fx.derivationPath)
     }, fx.exception)
@@ -218,7 +216,7 @@ tape('works when private key has leading zeros', (t) => {
 tape('fromSeed', (t) => {
   // TODO
 //    'throws if IL is not within interval [1, n - 1] | IL === n || IL === 0'
-  fixtures.invalid.fromSeed.forEach((f) => {
+  invalid.fromSeed.forEach((f) => {
     t.throws(() => {
       BIP32.fromSeed(Buffer.from(f.seed, 'hex'))
     }, new RegExp(f.exception))
@@ -324,5 +322,4 @@ tape('tweak - neutered', (t) => {
   t.equal(signer.verify(seed, signatureLowR), false)
   t.equal(signer.verifySchnorr(hash, schnorrsig), true)
   t.equal(signer.verifySchnorr(seed, schnorrsig), false)
-})
 })
