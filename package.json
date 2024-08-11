@@ -11,7 +11,7 @@
   "main": "./src/index.js",
   "types": "./types/index.d.ts",
   "engines": {
-    "node": ">=6.0.0"
+    "node": ">=18.0.0"
   },
   "scripts": {
     "build": "tsc -p ./tsconfig.json",
