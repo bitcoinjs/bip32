@@ -342,7 +342,7 @@
     ],
     "deriveHardened": [
       {
-        "exception": "ValiError: Invalid value: Expected <=4294967295 but received 2147483648",
+        "exception": "ValiError: Invalid value: Expected <=2147483647 but received 2147483648",
         "index": 2147483648
       },
       {
