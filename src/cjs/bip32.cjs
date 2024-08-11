@@ -51,26 +51,6 @@ function BIP32Factory(ecc) {
         wif: 0x80,
     };
     const HIGHEST_BIT = 0x80000000;
-    const UINT31_MAX = Math.pow(2, 31) - 1;
-    // @ts-ignore
-    function BIP32Path(value) {
-        try {
-            v.parse(types_js_1.Bip32PathSchema, value);
-            return true;
-        }
-        catch (e) {
-            return false;
-        }
-    }
-    function UInt31(value) {
-        try {
-            v.parse(types_js_1.Uint32Schema, value);
-            return value <= UINT31_MAX;
-        }
-        catch (e) {
-            return false;
-        }
-    }
     function toXOnly(pubKey) {
         return pubKey.length === 32 ? pubKey : pubKey.slice(1, 33);
     }
@@ -258,7 +238,7 @@ function BIP32Factory(ecc) {
             return hd;
         }
         deriveHardened(index) {
-            if (UInt31(index))
+            if (typeof v.parse(types_js_1.Uint31Schema, index) === 'number')
                 // Only derives hardened private keys by default
                 return this.derive(index + HIGHEST_BIT);
             throw new TypeError('Expected UInt31, got ' + index);

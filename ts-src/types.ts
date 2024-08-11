@@ -7,6 +7,13 @@ export const Uint32Schema = v.pipe(
   v.maxValue(0xffffffff),
 );
 
+export const Uint31Schema = v.pipe(
+  v.number(),
+  v.integer(),
+  v.minValue(0),
+  v.maxValue(0x7fffffff),
+);
+
 const Uint8Schema = v.pipe(
   v.number(),
   v.integer(),

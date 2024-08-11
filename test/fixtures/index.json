@@ -341,10 +341,22 @@
       }
     ],
     "deriveHardened": [
-      2147483648,
-      null,
-      "foo",
-      -1
+      {
+        "exception": "ValiError: Invalid value: Expected <=4294967295 but received 2147483648",
+        "index": 2147483648
+      },
+      {
+        "exception": "ValiError: Invalid type: Expected number but received null",
+        "index": null
+      },
+      {
+        "exception": "ValiError: Invalid type: Expected number but received \"foo\"",
+        "index": "foo"
+      }, 
+      {
+        "exception": "ValiError: Invalid value: Expected >=0 but received -1",
+        "index": -1
+      }
     ],
     "derive": [ 
       {

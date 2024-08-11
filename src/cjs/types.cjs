@@ -23,9 +23,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Bip32PathSchema = exports.NetworkSchema = exports.Buffer33Bytes = exports.Buffer256Bit = exports.Uint32Schema = void 0;
+exports.Bip32PathSchema = exports.NetworkSchema = exports.Buffer33Bytes = exports.Buffer256Bit = exports.Uint31Schema = exports.Uint32Schema = void 0;
 const v = __importStar(require("valibot"));
 exports.Uint32Schema = v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(0xffffffff));
+exports.Uint31Schema = v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(0x7fffffff));
 const Uint8Schema = v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(0xff));
 exports.Buffer256Bit = v.pipe(v.instance(Uint8Array), v.length(32));
 exports.Buffer33Bytes = v.pipe(v.instance(Uint8Array), v.length(33));

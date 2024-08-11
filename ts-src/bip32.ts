@@ -8,6 +8,7 @@ import {
   Buffer256Bit,
   Buffer33Bytes,
   NetworkSchema,
+  Uint31Schema,
   Uint32Schema,
 } from './types.js';
 import * as wif from 'wif';
@@ -118,26 +119,6 @@ export function BIP32Factory(ecc: TinySecp256k1Interface): BIP32API {
   };
 
   const HIGHEST_BIT = 0x80000000;
-  const UINT31_MAX = Math.pow(2, 31) - 1;
-
-  // @ts-ignore
-  function BIP32Path(value: string): boolean {
-    try {
-      v.parse(Bip32PathSchema, value);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  function UInt31(value: number): boolean {
-    try {
-      v.parse(Uint32Schema, value);
-      return value <= UINT31_MAX;
-    } catch (e) {
-      return false;
-    }
-  }
 
   function toXOnly(pubKey: Uint8Array) {
     return pubKey.length === 32 ? pubKey : pubKey.slice(1, 33);
@@ -375,7 +356,7 @@ export function BIP32Factory(ecc: TinySecp256k1Interface): BIP32API {
     }
 
     deriveHardened(index: number): BIP32Interface {
-      if (UInt31(index))
+      if (typeof v.parse(Uint31Schema, index) === 'number')
         // Only derives hardened private keys by default
         return this.derive(index + HIGHEST_BIT);
       throw new TypeError('Expected UInt31, got ' + index);

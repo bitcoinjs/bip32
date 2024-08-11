@@ -180,8 +180,8 @@ tape('throws on wrong types', (t) => {
 
   invalid.deriveHardened.forEach((fx) => {
     t.throws(() => {
-      master.deriveHardened(fx)
-    }, /Expected UInt31/)
+      master.deriveHardened(fx.index)
+    }, fx.exception)
   })
 
   invalid.derivePath.forEach((fx) => {
