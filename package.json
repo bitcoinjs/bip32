@@ -1,6 +1,7 @@
 {
   "name": "bip32",
   "version": "4.0.0",
+  "type": "module",
   "description": "A BIP32 compatible library",
   "keywords": [
     "bip32",
@@ -8,21 +9,30 @@
     "bitcoin",
     "secp256k1"
   ],
-  "main": "./src/index.js",
-  "types": "./types/index.d.ts",
+  "main": "./src/cjs/index.cjs",
+  "module": "./src/esm/index.js",
+  "types": "./src/cjs/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./src/cjs/index.cjs",
+      "import": "./src/esm/index.js",
+      "types": "./src/cjs/index.d.ts"
+    }
+  },
   "engines": {
     "node": ">=18.0.0"
   },
   "scripts": {
-    "build": "tsc -p ./tsconfig.json",
+    "build": "tsc -p ./tsconfig.json && tsc -p ./tsconfig.cjs.json",
+    "postbuild": "find src/cjs -type f -name \"*.js\" -exec bash -c 'mv \"$0\" \"${0%.js}.cjs\"' {} \\; && chmod +x fixup.cjs && node fixup.cjs",
     "coverage-report": "npm run build && npm run nobuild:coverage-report",
     "coverage": "npm run build && npm run nobuild:coverage",
     "format": "npm run prettier -- --write",
     "format:ci": "npm run prettier -- --check",
     "gitdiff:ci": "npm run build && git diff --exit-code",
     "lint": "tslint -p tsconfig.json -c tslint.json",
-    "nobuild:coverage-report": "nyc report --reporter=lcov",
-    "nobuild:coverage": "nyc --check-coverage --branches 90 --functions 90 npm run nobuild:unit",
+    "nobuild:coverage-report": "c8 report --reporter=lcov",
+    "nobuild:coverage": "c8 --check-coverage --branches 90 --functions 90 npm run nobuild:unit",
     "nobuild:unit": "tape test/*.js",
     "prettier": "prettier 'ts-src/**/*.ts' --ignore-path ./.prettierignore",
     "test": "npm run build && npm run format:ci && npm run lint && npm run nobuild:coverage",
@@ -33,23 +43,24 @@
     "url": "git+https://github.com/bitcoinjs/bip32.git"
   },
   "files": [
-    "src",
-    "types"
+    "src"
   ],
   "dependencies": {
     "@noble/hashes": "^1.2.0",
     "@scure/base": "^1.1.1",
-    "typeforce": "^1.11.5",
-    "wif": "^2.0.6"
+    "uint8array-tools": "^0.0.8",
+    "valibot": "^0.37.0",
+    "wif": "^5.0.0"
   },
   "devDependencies": {
     "@types/node": "18.x",
-    "nyc": "^15.0.0",
+    "@types/tape": "^5.6.4",
+    "c8": "^10.1.2",
     "prettier": "1.16.4",
-    "tape": "^4.13.2",
+    "tape": "^5.3.0",
     "tiny-secp256k1": "^2.2.1",
     "tslint": "^6.1.0",
-    "typescript": "4.7"
+    "typescript": "^5.0.4"
   },
   "author": "Daniel Cousens",
   "license": "MIT",

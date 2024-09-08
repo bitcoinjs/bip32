@@ -341,29 +341,70 @@
       }
     ],
     "deriveHardened": [
-      2147483648,
-      null,
-      "foo",
-      -1
+      {
+        "exception": "ValiError: Invalid value: Expected <=2147483647 but received 2147483648",
+        "index": 2147483648
+      },
+      {
+        "exception": "ValiError: Invalid type: Expected number but received null",
+        "index": null
+      },
+      {
+        "exception": "ValiError: Invalid type: Expected number but received \"foo\"",
+        "index": "foo"
+      }, 
+      {
+        "exception": "ValiError: Invalid value: Expected >=0 but received -1",
+        "index": -1
+      }
     ],
-    "derive": [
-      4294967296,
-      null,
-      "foo",
-      -1
+    "derive": [ 
+      {
+        "exception": "ValiError: Invalid value: Expected <=4294967295 but received 429496729",
+        "index": 4294967296
+      }, 
+      {
+        "exception": "ValiError: Invalid type: Expected number but received null",
+        "index": null
+      }, 
+      {
+        "exception": "ValiError: Invalid type: Expected number but received \"foo\"",
+        "index": "foo"
+      }, 
+      {
+        "exception": "ValiError: Invalid value: Expected >=0 but received -1",
+        "index": -1
+      }
     ],
     "derivePath": [
-      2,
-      [
-        2,
-        3,
-        4
-      ],
-      "/",
-      "m/m/123",
-      "a/0/1/2",
-      "m/0/  1  /2",
-      "m/0/1.5/2"
+      {
+        "exception": "ValiError: Invalid type: Expected string but received 2",
+        "derivationPath": 2
+      },
+      {
+        "exception": "ValiError: Invalid type: Expected string but received Array",
+        "derivationPath":  [2, 3, 4]
+      }, 
+      {
+        "exception": "ValiError: Invalid format: Expected /^(m\/)?(\\d+'?\/)*\\d+'?$/ but received \"/\"",
+        "derivationPath":  "/"
+      },
+      {
+        "exception": "ValiError: Invalid format: Expected /^(m\/)?(\\d+'?\/)*\\d+'?$/ but received \"m/m/123\"",
+        "derivationPath":  "m/m/123"
+      },
+      {
+        "exception": "ValiError: Invalid format: Expected /^(m\/)?(\\d+'?\/)*\\d+'?$/ but received \"a/0/1/2\"",
+        "derivationPath":  "a/0/1/2"
+      },
+      {
+        "exception": "ValiError: Invalid format: Expected /^(m\/)?(\\d+'?\/)*\\d+'?$/ but received \"m/0/  1  /2\"",
+        "derivationPath":  "m/0/  1  /2"
+      },
+      {
+        "exception": "ValiError: Invalid format: Expected /^(m\/)?(\\d+'?\/)*\\d+'?$/ but received \"m/0/1.5/2\"",
+        "derivationPath":  "m/0/1.5/2"
+      }
     ]
   }
 }

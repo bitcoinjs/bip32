@@ -1,0 +1,11 @@
+{
+    "extends": "./tsconfig.base.json",
+    "compilerOptions": {
+      "declaration": true,
+      "emitDeclarationOnly": false,
+      "esModuleInterop": true,
+      "outDir": "src/cjs",
+      "module": "commonjs"
+    }
+  }
+  
