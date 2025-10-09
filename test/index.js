@@ -1,7 +1,14 @@
 import BIP32Creator from '../src/esm/index.js'
 import tape from 'tape'
-import fixtures from './fixtures/index.json' assert { type: "json" }
-const { valid, invalid } = fixtures 
+import { readFile } from 'fs/promises'
+import { fileURLToPath } from 'url'
+import { dirname, join } from 'path'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const fixtures = JSON.parse(
+  await readFile(join(__dirname, './fixtures/index.json'), 'utf8')
+)
+const { valid, invalid } = fixtures
 import * as ecc from "tiny-secp256k1";
 import * as tools from "uint8array-tools";
 const BIP32 = BIP32Creator(ecc)
